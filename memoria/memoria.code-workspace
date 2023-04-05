@@ -1,0 +1,17 @@
+{
+	"settings": { 
+		"files.associations": { 
+			"*.h": "c", 
+		}, 
+		"C_Cpp.errorSquiggles": "Disabled", 
+	}, 
+	
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../tp0"
+		}
+	]
+}
