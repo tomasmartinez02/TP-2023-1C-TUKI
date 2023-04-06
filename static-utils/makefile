@@ -9,7 +9,7 @@ ar rcs -o "$@" $^
 endef
 
 define compile_objs
-gcc $(CFLAGS) -fPIC -c -o "$@" $< $(IDIRS:%=-I%)
+gcc $(CFLAGS) -fPIC -c -o "$@" $< $(IDIRS:%=-I%) $(LIBS:%=-l%)
 endef
 
 ################################################################################

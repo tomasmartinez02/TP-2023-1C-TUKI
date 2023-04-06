@@ -1,3 +1,6 @@
+# Libraries
+LIBS=commons
+
 # Custom libraries' paths
 SHARED_LIBPATHS=
 STATIC_LIBPATHS=
