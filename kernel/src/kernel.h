@@ -1,4 +1,5 @@
-#define CONSOLA_H_
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
 // Bibliotecas estandar
 #include <stdlib.h>
