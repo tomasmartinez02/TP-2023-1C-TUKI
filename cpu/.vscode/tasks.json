@@ -1,3 +1,4 @@
+
 {
   // See https://go.microsoft.com/fwlink/?LinkId=733558
   // for the documentation about the tasks.json format
@@ -15,6 +16,26 @@
       "problemMatcher": ["$gcc"]
     },
     // #endregion build
+    {
+      "label": "clean build",
+      "command": "make clean all",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "memcheck build",
+      "command": "make memcheck",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$gcc"]
+    },
     {
       "label": "clean",
       "command": "make clean",
