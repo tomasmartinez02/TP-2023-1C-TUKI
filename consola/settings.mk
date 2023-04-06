@@ -1,9 +1,9 @@
 # Libraries
-LIBS=
+LIBS=static-utils commons
 
 # Custom libraries' paths
 SHARED_LIBPATHS=
-STATIC_LIBPATHS=
+STATIC_LIBPATHS=../static-utils
 
 # Compiler flags
 CDEBUG=-g -Wall -DDEBUG
