@@ -1,5 +1,5 @@
-#ifndef CONSOLA_H_
-#define CONSOLA_H_
+#ifndef CPU_H_
+#define CPU_H_
 
 // Bibliotecas estandar
 #include <stdlib.h>
