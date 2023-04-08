@@ -13,8 +13,8 @@
 
 // Tipos
 // Headers de mensajes para ser enviados en los paquetes
-enum header {
-    
+enum header
+{
     HEADER_error,
     //HEADER_pid,
     //HEADER_lista_instrucciones,
@@ -37,8 +37,8 @@ enum header {
 typedef enum header t_header;
 
 // Handshakes de los distintos servidores y clientes
-enum handshake {
-
+enum handshake 
+{
     HANDSHAKE_consola,
     HANDSHAKE_kernel,
     HANDSHAKE_memoria,
@@ -47,7 +47,6 @@ enum handshake {
     HANDSHAKE_dispatch,
     HANDSHAKE_filesystem,
     HANDSHAKE_ok_continue
-    
 };
 typedef enum handshake t_handshake;
 
