@@ -88,7 +88,7 @@ int cantidad_argumentos_vector_strings(char **vectorStrings)
 
 void destruir_vector_strings(char **vectorStrings)
 {
-    int cantidadArgumentos = cantidad_argumentos(vectorStrings);
+    int cantidadArgumentos = cantidad_argumentos_vector_strings(vectorStrings);
 
     for(int i = 0; i < cantidadArgumentos + 1; i++){
         	free(vectorStrings[i]);

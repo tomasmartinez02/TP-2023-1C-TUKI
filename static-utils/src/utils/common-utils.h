@@ -57,7 +57,7 @@ void intervalo_de_pausa(uint32_t duracionEnMilisegundos);
  * @param moduleMinimalLogger 
  * @param moduleLogger 
  */
-void module_destroy(void *moduleConfig, void (*config_destroyer)(void *module_config), t_log *moduleMinimalLogger, t_log *moduleLogger);
+void module_destroy(void *moduleConfig, void (*config_destroyer)(void *moduleConfig), t_log *moduleLogger, t_log *moduleMinimalLogger);
 
 /**
  * @brief 
@@ -66,7 +66,7 @@ void module_destroy(void *moduleConfig, void (*config_destroyer)(void *module_co
  * @param errorMessage 
  * @param moduleLogger 
  */
-void check_arguments(int argc, char *errorMessage, t_log* moduleLogger);
+void check_arguments(int argc, int numberOfArgsRequired, char *errorMessage, t_log* moduleLogger);
 
 /**
  * @brief 
