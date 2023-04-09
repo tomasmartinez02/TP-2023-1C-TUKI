@@ -63,7 +63,7 @@ void module_destroy(void *moduleConfig, void (*config_destroyer)(void *moduleCon
     return;
 }
 
-void check_arguments(int argc, int numberOfArgsRequired, char *errorMessage, t_log* moduleLogger)
+void check_arguments(int argc, int numberOfArgsRequired, char *errorMessage, t_log *moduleLogger)
 {
     if (argc != numberOfArgsRequired) {
         
