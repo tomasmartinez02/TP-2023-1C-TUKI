@@ -43,13 +43,13 @@ void cpu_config_destroy(t_cpu_config *cpuConfig);
  * 
  * @example 
  */
-int32_t cpu_config_get_retardo_instruccion(t_cpu_config *cpuConfig);
+uint32_t cpu_config_get_retardo_instruccion(t_cpu_config *cpuConfig);
 
 char *cpu_config_get_ip_memoria(t_cpu_config *cpuConfig);
 
-int32_t cpu_config_get_puerto_escucha(t_cpu_config *cpuConfig);
+char *cpu_config_get_puerto_escucha(t_cpu_config *cpuConfig);
 
-int32_t cpu_config_get_puerto_memoria(t_cpu_config *cpuConfig);
+char *cpu_config_get_puerto_memoria(t_cpu_config *cpuConfig);
 
-int32_t cpu_config_get_tam_max_segmento(t_cpu_config *cpuConfig);
+uint32_t cpu_config_get_tam_max_segmento(t_cpu_config *cpuConfig);
 #endif

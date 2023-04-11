@@ -29,7 +29,7 @@ void receive_handshake_memoria(const int memoriaSocket, t_cpu_config* cpuConfig,
     
     // Chequeo que la memoria me de el OK para continuar ejecutando e interactuando
     if (respuestaMemoria != HANDSHAKE_ok_continue) {
-        log_error(cpuLogger, "Error al intentar establecer Handshake inicial con módulo Kernel");
+        log_error(cpuLogger, "Error al intentar establecer Handshake inicial con módulo Memoria");
         cpu_destroy(cpuConfig, cpuLogger, cpuDebuggingLogger);
         exit(EXIT_FAILURE);
     }
