@@ -13,6 +13,7 @@
 //Bibliotecas internas modulo consola
 #include <kernel-config.h>
 #include <kernel-estructuras.h>
+#include <kernel-utils.h>
 
 // Prototipos
 

@@ -11,19 +11,19 @@ int main(int argc, char* argv[]) {
     t_kernel_config *kernelConfig = kernel_config_create(pathArchivoConfiguracion, kernelLogger);
     free(pathArchivoConfiguracion);
 
-    char *ipMemoria = kernel_config_get_memoria_ip(consolaConfig);
-    char *puertoMemoria = kernel_config_get_memoria_puerto(consolaConfig);
-    char *ipFileSystem = kernel_config_get_fileSystem_ip(consolaConfig);
-    char *puertoFileSystem = kernel_config_get_fileSystem_puerto(consolaConfig);
-    char *ipCpu = kernel_config_get_CPU_ip(consolaConfig);
-    char *puertoCPU = kernel_config_get_CPU_puerto(consolaConfig);
-    char *puertoEscucha = kernel_config_get_Escucha_puerto(consolaConfig);
-    char *algoritmoPlanificacion = kernel_config_get_algoritmo_planificacion(consolaConfig);
-    char *estimacionInicial = kernel_config_get_estimacion_inicial(consolaConfig);
-    char *hrrnAlfa = kernel_config_get_valor_alfa(consolaConfig);
-    char *gradoMultiprogramacion = kernel_config_get_grado_multiprogramacion(consolaConfig);
-    char *recursos = kernel_config_get_recursos(consolaConfig);
-    char *instanciasRecursos = kernel_config_get_instancias_recursos(consolaConfig);
+    char *ipMemoria = kernel_config_get_memoria_ip(kernelConfig);
+    char *puertoMemoria = kernel_config_get_memoria_puerto(kernelConfig);
+    char *ipFileSystem = kernel_config_get_fileSystem_ip(kernelConfig);
+    char *puertoFileSystem = kernel_config_get_fileSystem_puerto(kernelConfig);
+    char *ipCpu = kernel_config_get_CPU_ip(kernelConfig);
+    char *puertoCPU = kernel_config_get_CPU_puerto(kernelConfig);
+    char *puertoEscucha = kernel_config_get_Escucha_puerto(kernelConfig);
+    char *algoritmoPlanificacion = kernel_config_get_algoritmo_planificacion(kernelConfig);
+    int estimacionInicial = kernel_config_get_estimacion_inicial(kernelConfig);
+    int hrrnAlfa = kernel_config_get_valor_alfa(kernelConfig);
+    int gradoMultiprogramacion = kernel_config_get_grado_multiprogramacion(kernelConfig);
+    char **recursos = kernel_config_get_recursos(kernelConfig);
+    char **instanciasRecursos = kernel_config_get_instancias_recursos(kernelConfig);
 
     // Conexion con memoria
     const int socketMemoria = conectar_a_memoria(ipMemoria, puertoMemoria, kernelConfig, kernelLogger, kernelDebuggingLogger);

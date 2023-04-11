@@ -33,7 +33,7 @@ void receive_handshake_cpu(const int cpuSocket, t_kernel_config* kernelConfig, t
     // Chequeo que el kernel me de el OK para continuar ejecutando e interactuando
     if (cpuResponse != HANDSHAKE_ok_continue) {
         log_error(kernelLogger, "Error al intentar establecer Handshake inicial con módulo cpu");
-        consola_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
+        kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 
@@ -56,7 +56,7 @@ int conectar_a_memoria(char *memoriaIP, char *memoriaPort, t_kernel_config *kern
     return memoriaSocket;
 }
 
-void send_handshake_memoria(const int memoriaSocket, t_log *kernelLogger);
+void send_handshake_memoria(const int memoriaSocket, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(memoriaSocket, HANDSHAKE_kernel);
@@ -73,7 +73,7 @@ void receive_handshake_memoria(const int memoriaSocket, t_kernel_config* kernelC
     // Chequeo que la memoria me de el OK para continuar ejecutando e interactuando
     if (memoriaResponse != HANDSHAKE_ok_continue) {
         log_error(kernelLogger, "Error al intentar establecer Handshake inicial con módulo memoria");
-        consola_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
+        kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 
@@ -113,7 +113,7 @@ void receive_handshake_fileSystem(const int fileSystemSocket, t_kernel_config* k
     // Chequeo que el kernel me de el OK para continuar ejecutando e interactuando
     if (fileSystemResponse != HANDSHAKE_ok_continue) {
         log_error(kernelLogger, "Error al intentar establecer Handshake inicial con módulo filesystem");
-        consola_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
+        kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 

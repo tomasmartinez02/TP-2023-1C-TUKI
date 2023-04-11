@@ -122,7 +122,7 @@ char *kernel_config_get_algoritmo_planificacion(t_kernel_config *kernelConfig);
  * 
  * @example char *estimacionInicial = kernel_config_get_estimacion_inicial(kernelConfig);
  */
-char *kernel_config_get_estimacion_inicial(t_kernel_config *kernelConfig);
+int kernel_config_get_estimacion_inicial(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del alfa para el HRRN guardado en configuracion
@@ -132,7 +132,7 @@ char *kernel_config_get_estimacion_inicial(t_kernel_config *kernelConfig);
  * 
  * @example char *valorAlfa = kernel_config_get_valor_alfa(kernelConfig);
  */
-char *kernel_config_get_valor_alfa(t_kernel_config *kernelConfig);
+int kernel_config_get_valor_alfa(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del grado maximo de multiprogramacion guardado en configuracion
@@ -142,7 +142,7 @@ char *kernel_config_get_valor_alfa(t_kernel_config *kernelConfig);
  * 
  * @example char *gradoMultiprogramacion = kernel_config_get_grado_multiprogramacion(kernelConfig);
  */
-char *kernel_config_get_grado_multiprogramacion(t_kernel_config *kernelConfig);
+int kernel_config_get_grado_multiprogramacion(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor de los recursos guardado en configuracion
@@ -152,7 +152,7 @@ char *kernel_config_get_grado_multiprogramacion(t_kernel_config *kernelConfig);
  * 
  * @example char *recursos = kernel_config_get_recursos(kernelConfig);
  */
-char *kernel_config_get_recursos(t_kernel_config *kernelConfig);
+char **kernel_config_get_recursos(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor de las instancias de los recursos guardado en configuracion
@@ -162,6 +162,6 @@ char *kernel_config_get_recursos(t_kernel_config *kernelConfig);
  * 
  * @example char *instanciasRecursos = kernel_config_get_instancias_recursos(kernelConfig);
  */
-char *kernel_config_get_instancias_recursos(t_kernel_config *kernelConfig);
+char **kernel_config_get_instancias_recursos(t_kernel_config *kernelConfig);
 
 #endif

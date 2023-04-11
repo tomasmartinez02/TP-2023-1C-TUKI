@@ -27,7 +27,7 @@ static void __kernel_config_initializer(void *moduleConfig, t_config *tempCfg)
 //Funciones privadas
 t_kernel_config *kernel_config_create(char *kernelConfigPath, t_log *kernelLogger)
 {
-    _kernel_config *self = malloc(sizeof(*self));
+    t_kernel_config *self = malloc(sizeof(*self));
     
     //Chequeo que la inicializacion de la configuracion del kernel sea correcta
     int inicializacionCorrecta = config_init(self, kernelConfigPath, kernelLogger, __kernel_config_initializer);
@@ -48,9 +48,9 @@ void kernel_config_destroy(t_kernel_config *self)
     free(self-> PUERTO_CPU);
     free(self-> PUERTO_ESCUCHA);
     free(self-> ALGORITMO_PLANIFICACION);
-    free(self-> ESTIMACION_INICIAL);
-    free(self-> HRRN_ALFA);
-    free(self-> GRADO_MAX_MULTIPROGRAMACION);
+    // free(self-> ESTIMACION_INICIAL);       Estos 3 no los liberamos porque son ints
+    // free(self-> HRRN_ALFA);
+    // free(self-> GRADO_MAX_MULTIPROGRAMACION);
     free(self-> RECURSOS); // Creemos que acá hay un memory leak por ser "listas" 
     free(self-> INSTANCIAS_RECURSOS);
     free(self);
@@ -63,67 +63,67 @@ char *kernel_config_get_memoria_ip(t_kernel_config *self)
     return self->IP_MEMORIA;
 }
 
-char *kernel_config_get_memoria_puerto(t_kernel_config *kernelConfig)
+char *kernel_config_get_memoria_puerto(t_kernel_config *self)
 {
     return self->PUERTO_MEMORIA;
 }
 
 
-char *kernel_config_get_fileSystem_ip(t_kernel_config *kernelConfig)
+char *kernel_config_get_fileSystem_ip(t_kernel_config *self)
 {
     return self->IP_FILESYSTEM;
 }
 
 
-char *kernel_config_get_fileSystem_puerto(t_kernel_config *kernelConfig)
+char *kernel_config_get_fileSystem_puerto(t_kernel_config *self)
 {
     return self->PUERTO_FILESYSTEM;
 }
 
 
-char *kernel_config_get_CPU_ip(t_kernel_config *kernelConfig)
+char *kernel_config_get_CPU_ip(t_kernel_config *self)
 {
     return self->IP_CPU;
 }
 
 
-char *kernel_config_get_CPU_puerto(t_kernel_config *kernelConfig)
+char *kernel_config_get_CPU_puerto(t_kernel_config *self)
 {
     return self->PUERTO_CPU;
 }
 
-char *kernel_config_get_Escucha_puerto(t_kernel_config *kernelConfig)
+char *kernel_config_get_Escucha_puerto(t_kernel_config *self)
 {
     return self->PUERTO_ESCUCHA;
 }
 
-char *kernel_config_get_algoritmo_planificacion(t_kernel_config *kernelConfig)
+char *kernel_config_get_algoritmo_planificacion(t_kernel_config *self)
 {
     return self->ALGORITMO_PLANIFICACION;
 }
 
 
-char *kernel_config_get_estimacion_inicial(t_kernel_config *kernelConfig)
+int kernel_config_get_estimacion_inicial(t_kernel_config *self)
 {
     return self->ESTIMACION_INICIAL;
 }
 
-char *kernel_config_get_valor_alfa(t_kernel_config *kernelConfig)
+int kernel_config_get_valor_alfa(t_kernel_config *self)
 {
     return self->HRRN_ALFA;
 }
 
-char *kernel_config_get_grado_multiprogramacion(t_kernel_config *kernelConfig)
+int kernel_config_get_grado_multiprogramacion(t_kernel_config *self)
 {
     return self->GRADO_MAX_MULTIPROGRAMACION;
 }
 
-char *kernel_config_get_recursos(t_kernel_config *kernelConfig)
+char **kernel_config_get_recursos(t_kernel_config *self)
 {
     return self->RECURSOS;
 }
 
-char *kernel_config_get_instancias_recursos(t_kernel_config *kernelConfig)
+char **kernel_config_get_instancias_recursos(t_kernel_config *self)
 {
     return self->INSTANCIAS_RECURSOS;
 }
