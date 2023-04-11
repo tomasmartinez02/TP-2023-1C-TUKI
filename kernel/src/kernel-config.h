@@ -62,7 +62,7 @@ char *kernel_config_get_memoria_puerto(t_kernel_config *kernelConfig);
  * 
  * @example char *ipFileSystem = kernel_config_get_fileSystem_ip(kernelConfig);
  */
-char *kernel_config_get_fileSystem_ip(t_kernel_config *kernelConfig);
+char *kernel_config_get_filesystem_ip(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del puerto guardada en configuracion
@@ -72,7 +72,7 @@ char *kernel_config_get_fileSystem_ip(t_kernel_config *kernelConfig);
  * 
  * @example char *puertoFileSystem = kernel_config_get_FileSystem_puerto(kernelConfig);
  */
-char *kernel_config_get_fileSystem_puerto(t_kernel_config *kernelConfig);
+char *kernel_config_get_filesystem_puerto(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor de la ip guardada en configuracion
@@ -82,7 +82,7 @@ char *kernel_config_get_fileSystem_puerto(t_kernel_config *kernelConfig);
  * 
  * @example char *ipCPU = kernel_config_get_CPU_ip(kernelConfig);
  */
-char *kernel_config_get_CPU_ip(t_kernel_config *kernelConfig);
+char *kernel_config_get_cpu_ip(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del puerto guardada en configuracion
@@ -92,7 +92,7 @@ char *kernel_config_get_CPU_ip(t_kernel_config *kernelConfig);
  * 
  * @example char *puertoCPU = kernel_config_get_CPU_puerto(kernelConfig);
  */
-char *kernel_config_get_CPU_puerto(t_kernel_config *kernelConfig);
+char *kernel_config_get_cpu_puerto(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del puerto guardada en configuracion
@@ -102,7 +102,7 @@ char *kernel_config_get_CPU_puerto(t_kernel_config *kernelConfig);
  * 
  * @example char *puertoEscucha = kernel_config_get_Escucha_puerto(kernelConfig);
  */
-char *kernel_config_get_Escucha_puerto(t_kernel_config *kernelConfig);
+char *kernel_config_get_escucha_puerto(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del algoritmo de planificacion guardado en configuracion
@@ -122,7 +122,7 @@ char *kernel_config_get_algoritmo_planificacion(t_kernel_config *kernelConfig);
  * 
  * @example char *estimacionInicial = kernel_config_get_estimacion_inicial(kernelConfig);
  */
-int kernel_config_get_estimacion_inicial(t_kernel_config *kernelConfig);
+uint32_t kernel_config_get_estimacion_inicial(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del alfa para el HRRN guardado en configuracion
@@ -132,7 +132,7 @@ int kernel_config_get_estimacion_inicial(t_kernel_config *kernelConfig);
  * 
  * @example char *valorAlfa = kernel_config_get_valor_alfa(kernelConfig);
  */
-int kernel_config_get_valor_alfa(t_kernel_config *kernelConfig);
+uint32_t kernel_config_get_valor_alfa(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor del grado maximo de multiprogramacion guardado en configuracion
@@ -142,7 +142,7 @@ int kernel_config_get_valor_alfa(t_kernel_config *kernelConfig);
  * 
  * @example char *gradoMultiprogramacion = kernel_config_get_grado_multiprogramacion(kernelConfig);
  */
-int kernel_config_get_grado_multiprogramacion(t_kernel_config *kernelConfig);
+uint32_t kernel_config_get_grado_multiprogramacion(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor de los recursos guardado en configuracion

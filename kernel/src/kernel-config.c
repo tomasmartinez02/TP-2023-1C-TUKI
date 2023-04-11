@@ -69,30 +69,30 @@ char *kernel_config_get_memoria_puerto(t_kernel_config *self)
 }
 
 
-char *kernel_config_get_fileSystem_ip(t_kernel_config *self)
+char *kernel_config_get_filesystem_ip(t_kernel_config *self)
 {
     return self->IP_FILESYSTEM;
 }
 
 
-char *kernel_config_get_fileSystem_puerto(t_kernel_config *self)
+char *kernel_config_get_filesystem_puerto(t_kernel_config *self)
 {
     return self->PUERTO_FILESYSTEM;
 }
 
 
-char *kernel_config_get_CPU_ip(t_kernel_config *self)
+char *kernel_config_get_cpu_ip(t_kernel_config *self)
 {
     return self->IP_CPU;
 }
 
 
-char *kernel_config_get_CPU_puerto(t_kernel_config *self)
+char *kernel_config_get_cpu_puerto(t_kernel_config *self)
 {
     return self->PUERTO_CPU;
 }
 
-char *kernel_config_get_Escucha_puerto(t_kernel_config *self)
+char *kernel_config_get_escucha_puerto(t_kernel_config *self)
 {
     return self->PUERTO_ESCUCHA;
 }
@@ -103,17 +103,17 @@ char *kernel_config_get_algoritmo_planificacion(t_kernel_config *self)
 }
 
 
-int kernel_config_get_estimacion_inicial(t_kernel_config *self)
+uint32_t kernel_config_get_estimacion_inicial(t_kernel_config *self)
 {
     return self->ESTIMACION_INICIAL;
 }
 
-int kernel_config_get_valor_alfa(t_kernel_config *self)
+uint32_t kernel_config_get_valor_alfa(t_kernel_config *self)
 {
     return self->HRRN_ALFA;
 }
 
-int kernel_config_get_grado_multiprogramacion(t_kernel_config *self)
+uint32_t kernel_config_get_grado_multiprogramacion(t_kernel_config *self)
 {
     return self->GRADO_MAX_MULTIPROGRAMACION;
 }

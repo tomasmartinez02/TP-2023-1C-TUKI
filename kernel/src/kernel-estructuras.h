@@ -16,9 +16,9 @@ struct kernel_config
     char* PUERTO_CPU;
     char* PUERTO_ESCUCHA;
     char* ALGORITMO_PLANIFICACION;
-    int ESTIMACION_INICIAL;
-    int HRRN_ALFA;
-    int GRADO_MAX_MULTIPROGRAMACION;
+    uint32_t ESTIMACION_INICIAL;
+    uint32_t HRRN_ALFA;
+    uint32_t GRADO_MAX_MULTIPROGRAMACION;
     char** RECURSOS;
     char** INSTANCIAS_RECURSOS;
 };
