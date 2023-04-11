@@ -2,6 +2,18 @@
 #ifndef CONSOLA_CONFIG_H_
 #define CONSOLA_CONFIG_H_
 
+//Bibliotecas estandar
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+//Bibliotecas commons
+#include <commons/log.h>
+//Bibliotecas static-utils
+#include <utils/config-modulo.h>
+//Bibliotecas internas modulo consola
+//#include <consola-utils.h>
+#include <kernel-estructuras.h>
+
 /**
  * @brief Crea una instancia de t_kernel_config y la instancia segun el archivo de configuracion pasado por path
  * 
@@ -60,7 +72,7 @@ char *kernel_config_get_fileSystem_ip(t_kernel_config *kernelConfig);
  * 
  * @example char *puertoFileSystem = kernel_config_get_FileSystem_puerto(kernelConfig);
  */
-char *kernel_config_get_FileSystem_puerto(t_kernel_config *kernelConfig);
+char *kernel_config_get_fileSystem_puerto(t_kernel_config *kernelConfig);
 
 /**
  * @brief Toma el valor de la ip guardada en configuracion

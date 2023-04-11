@@ -2,6 +2,18 @@
 #ifndef KERNEL_CONEXIONES_H_
 #define KERNEL_CONEXIONES_H_
 
+//Bibliotecas estandares
+//#include <readline/readline.h>
+//#include <consola-parser.h>
+//Biblioteca Static Utils
+#include <conexiones/conexiones.h>
+#include <serializacion/buffer.h>
+#include <serializacion/stream.h>
+#include <utils/common-utils.h>
+//Bibliotecas internas modulo consola
+#include <kernel-config.h>
+#include <kernel-estructuras.h>
+
 // Prototipos
 
 /**
@@ -16,7 +28,7 @@
  * 
  * @example const int socketCPU = conectar_a_CPU("192.168.1.1", "8000", kernelConfig, kernelLogger, kernelDebuggingLogger);
  */
-int conectar_a_CPU(char *cpuIP, char *cpuPort, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
+int conectar_a_cpu(char *cpuIP, char *cpuPort, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
 
 /**
  * @brief Envia el handshake inicial a la cpu
@@ -38,7 +50,7 @@ void send_handshake_cpu(const int cpuSocket, t_log *kernelLogger);
  * 
  * @example receive_handshake_cpu(cpuSocket, kernelConfig, kernelLogger, kernelDebuggingLogger); 
  */
-void receive_handshake_kernel(const int cpuSocket, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger);
+void receive_handshake_cpu(const int cpuSocket, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger);
 
 /**
  * @brief Crea la conexion con la memoria

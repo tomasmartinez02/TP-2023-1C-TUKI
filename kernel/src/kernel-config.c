@@ -15,11 +15,11 @@ static void __kernel_config_initializer(void *moduleConfig, t_config *tempCfg)
     kernelConfig->PUERTO_CPU = strdup(config_get_string_value(tempCfg, "PUERTO_CPU"));
     kernelConfig->PUERTO_ESCUCHA = strdup(config_get_string_value(tempCfg, "PUERTO_ESCUCHA"));
     kernelConfig->ALGORITMO_PLANIFICACION = strdup(config_get_string_value(tempCfg, "ALGORITMO_PLANIFICACION"));
-    kernelConfig->ESTIMACION_INICIAL = strdup(config_get_string_value(tempCfg, "ESTIMACION_INICIAL"));
-    kernelConfig->HRRN_ALFA = strdup(config_get_string_value(tempCfg, "HRRN_ALFA"));
-    kernelConfig->GRADO_MAX_MULTIPROGRAMACION = strdup(config_get_string_value(tempCfg, "GRADO_MAX_MULTIPROGRAMACION"));
-    kernelConfig->RECURSOS = strdup(config_get_string_value(tempCfg, "RECURSOS"));
-    kernelConfig->INSTANCIAS_RECURSOS = strdup(config_get_string_value(tempCfg, "INSTANCIAS_RECURSOS"));
+    kernelConfig->ESTIMACION_INICIAL = config_get_int_value(tempCfg, "ESTIMACION_INICIAL");
+    kernelConfig->HRRN_ALFA = config_get_int_value(tempCfg, "HRRN_ALFA");
+    kernelConfig->GRADO_MAX_MULTIPROGRAMACION = config_get_int_value(tempCfg, "GRADO_MAX_MULTIPROGRAMACION");
+    kernelConfig->RECURSOS = config_get_array_value(tempCfg, "RECURSOS");
+    kernelConfig->INSTANCIAS_RECURSOS = config_get_array_value(tempCfg, "INSTANCIAS_RECURSOS");
 
     return;
 }
@@ -51,7 +51,7 @@ void kernel_config_destroy(t_kernel_config *self)
     free(self-> ESTIMACION_INICIAL);
     free(self-> HRRN_ALFA);
     free(self-> GRADO_MAX_MULTIPROGRAMACION);
-    free(self-> RECURSOS);
+    free(self-> RECURSOS); // Creemos que acá hay un memory leak por ser "listas" 
     free(self-> INSTANCIAS_RECURSOS);
     free(self);
 
@@ -75,7 +75,7 @@ char *kernel_config_get_fileSystem_ip(t_kernel_config *kernelConfig)
 }
 
 
-char *kernel_config_get_FileSystem_puerto(t_kernel_config *kernelConfig)
+char *kernel_config_get_fileSystem_puerto(t_kernel_config *kernelConfig)
 {
     return self->PUERTO_FILESYSTEM;
 }

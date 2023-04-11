@@ -16,11 +16,11 @@ struct kernel_config
     char* PUERTO_CPU;
     char* PUERTO_ESCUCHA;
     char* ALGORITMO_PLANIFICACION;
-    char* ESTIMACION_INICIAL;
-    char* HRRN_ALFA;
-    char* GRADO_MAX_MULTIPROGRAMACION;
-    char* RECURSOS;
-    char* INSTANCIAS_RECURSOS;
+    int ESTIMACION_INICIAL;
+    int HRRN_ALFA;
+    int GRADO_MAX_MULTIPROGRAMACION;
+    char** RECURSOS;
+    char** INSTANCIAS_RECURSOS;
 };
 typedef struct kernel_config t_kernel_config;
 

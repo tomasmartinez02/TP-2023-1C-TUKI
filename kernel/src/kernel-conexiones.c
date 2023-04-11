@@ -2,7 +2,7 @@
 
 // Funciones para conectar con la CPU
 
-int conectar_a_CPU(char *cpuIP, char *cpuPort, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger)
+int conectar_a_cpu(char *cpuIP, char *cpuPort, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger)
 {
     int cpuSocket = conectar_a_servidor(cpuIP, cpuPort);
     
@@ -25,7 +25,7 @@ void send_handshake_cpu(const int cpuSocket, t_log *kernelLogger)
     return;
 }
 
-void receive_handshake_kernel(const int cpuSocket, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
+void receive_handshake_cpu(const int cpuSocket, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
 {
     t_handshake cpuResponse = stream_recv_header(cpuSocket);
     stream_recv_empty_buffer(cpuSocket);
