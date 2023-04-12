@@ -19,17 +19,3 @@ void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *k
 
     return;
 }
-
-/*
-void liberar_memoria(char **arreglo, int tamano) 
-{
-
-  for (int i = 0; i < tamano; i++) {
-    free(arreglo[i]);
-  }
-
-  free(arreglo);
-
-  return;
-}
-*/

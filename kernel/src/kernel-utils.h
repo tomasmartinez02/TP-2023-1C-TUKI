@@ -17,7 +17,7 @@
  * @param kernelLogger: Logger del kernel
  * @param kernelDebuggingLogger: Logger de debugging del kernel
  * 
- * @example kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger) 
+ * @example kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger); 
  */
 void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
 

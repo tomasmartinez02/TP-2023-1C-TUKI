@@ -17,14 +17,19 @@ struct kernel_config
     char* PUERTO_ESCUCHA;
     char* ALGORITMO_PLANIFICACION;
     uint32_t ESTIMACION_INICIAL;
-    uint32_t HRRN_ALFA;
+    double HRRN_ALFA;
     uint32_t GRADO_MAX_MULTIPROGRAMACION;
     char** RECURSOS;
     char** INSTANCIAS_RECURSOS;
+    int SOCKET_MEMORIA;
+    int SOCKET_CPU;
+    int SOCKET_FILESYSTEM;
 };
 typedef struct kernel_config t_kernel_config;
 
 // Variables globales
 extern t_log *kernelDebuggingLogger;
+extern t_log *kernelLogger;
+extern t_kernel_config *kernelConfig;
 
 #endif
