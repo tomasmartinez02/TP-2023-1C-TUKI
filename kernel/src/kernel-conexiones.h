@@ -18,16 +18,11 @@
 /**
  * @brief Crea la conexion con la Cpu
  * 
- * @param ipCpu: Ip de la Cpu
- * @param puertoCpu: Puerto de la Cpu
- * @param kernelConfig: Estructura de configuracion del kernel
- * @param kernelLogger: Logger del kernel
- * @param kernelDebuggingLogger: Logger de debugging del kernel
  * @return int: Descriptor del socket creado con Cpu
  * 
  * @example const int socketCpu = conectar_a_cpu("192.168.1.1", "8000", kernelConfig, kernelLogger, kernelDebuggingLogger);
  */
-int conectar_a_cpu(char *ipCpu, char *puertoCpu, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
+int conectar_a_cpu(void);
 
 /**
  * @brief Envia el handshake inicial a la cpu
@@ -54,16 +49,11 @@ void receive_handshake_cpu(const int socketCpu, t_kernel_config* kernelConfig, t
 /**
  * @brief Crea la conexion con la memoria
  * 
- * @param ipMemoria: Ip de la memoria
- * @param puertoMemoria: Puerto de la memoria
- * @param kernelConfig: Estructura de configuracion del kernel
- * @param kernelLogger: Logger del kernel
- * @param kernelDebuggingLogger: Logger de debugging del kernel
  * @return int: Descriptor del socket creado con memoria
  * 
  * @example const int socketMemoria = conectar_a_CPU("192.168.1.1", "8000", kernelConfig, kernelLogger, kernelDebuggingLogger);
  */
-int conectar_a_memoria(char *ipMemoria, char *puertoMemoria, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
+int conectar_a_memoria(void);
 
 /**
  * @brief Envia el handshake inicial a memoria
@@ -90,16 +80,11 @@ void receive_handshake_memoria(const int socketMemoria, t_kernel_config* kernelC
 /**
  * @brief Crea la conexion con el filesystem
  * 
- * @param ipFilesystem: Ip del fileSystem
- * @param puertoFilesystem: Puerto del filesystem
- * @param kernelConfig: Estructura de configuracion del kernel
- * @param kernelLogger: Logger del kernel
- * @param kernelDebuggingLogger: Logger de debugging del kernel
  * @return int: Descriptor del socket creado con filesystem
  * 
  * @example const int socketfileSystem = conectar_a_fileSystem("192.168.1.1", "8000", kernelConfig, kernelLogger, kernelDebuggingLogger);
  */
-int conectar_a_filesystem(char *ipFilesystem, char *puertoFilesystem, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
+int conectar_a_filesystem(void);
 
 /**
  * @brief Envia el handshake inicial a filesystem

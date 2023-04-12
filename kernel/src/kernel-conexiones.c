@@ -1,29 +1,49 @@
 #include <kernel-conexiones.h>
 
-// Funciones para conectar con el CPU
+// Funciones privadas
 
-int conectar_a_cpu(char *ipCpu, char *puertoCpu, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger)
+static int __conectar_a_modulo(char *nombreModulo, char *(*get_ip_modulo)(t_kernel_config *), char *(*get_puerto_modulo)(t_kernel_config *), 
+void (*set_socket_modulo)(t_kernel_config *, int), void (*send_handshake_modulo)(int, t_log *), void (*receive_handshake_modulo)(const int, t_kernel_config *, t_log *, t_log *))
 {
-    int socketCpu = conectar_a_servidor(ipCpu, puertoCpu);
+    char *ipModulo = get_ip_modulo(kernelConfig);
+    char *puertoModulo = get_puerto_modulo(kernelConfig);
+
+    const int socketModulo = conectar_a_servidor(ipModulo, puertoModulo);
     
     // Chequeo que la conexion con la CPU haya sido exitosa
-    if (socketCpu == -1) {
-        log_error(kernelLogger, "Error al intentar establecer conexion inicial con modulo cpu");
-        log_error(kernelDebuggingLogger, "Error al intentar establecer conexion inicial con modulo cpu");
+    if (socketModulo == -1) {
+        log_error(kernelLogger, "Error al intentar establecer conexion inicial con modulo %s", nombreModulo);
+        log_error(kernelDebuggingLogger, "Error al intentar establecer conexion inicial con modulo %s", nombreModulo);
         kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 
-    log_info(kernelDebuggingLogger, "Conexion exitosa con modulo cpu");
+    set_socket_modulo(kernelConfig, socketModulo);
+    log_info(kernelDebuggingLogger, "Socket creado exitosamente con modulo %s", nombreModulo);
 
-    return socketCpu;
+    // Handshakes iniciales con modulo Cpu
+    send_handshake_modulo(socketModulo, kernelDebuggingLogger);
+    receive_handshake_modulo(socketModulo, kernelConfig, kernelLogger, kernelDebuggingLogger);
+
+    log_info(kernelDebuggingLogger, "Conexión con modulo %s establecida exitosamente", nombreModulo);
+
+    return socketModulo;
+}
+
+// Funciones publicas
+
+// Funciones para conectar con el CPU
+
+int conectar_a_cpu(void)
+{
+    return __conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);
 }
 
 void send_handshake_cpu(const int socketCpu, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketCpu, HANDSHAKE_kernel);
-    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo cpu");
+    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo Cpu");
 
     return;
 }
@@ -35,41 +55,29 @@ void receive_handshake_cpu(const int socketCpu, t_kernel_config* kernelConfig, t
     
     // Chequeo que el kernel me de el OK para continuar ejecutando e interactuando
     if (cpuResponse != HANDSHAKE_ok_continue) {
-        log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo cpu");
-        log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo cpu");
+        log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo Cpu");
+        log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo Cpu");
         kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 
-    log_info(kernelDebuggingLogger, "Handshake inicial con modulo cpu recibido exitosamente");
+    log_info(kernelDebuggingLogger, "Handshake inicial con modulo Cpu recibido exitosamente");
 
     return;
 }
 
 // Funciones para conectar con la memoria
 
-int conectar_a_memoria(char *ipMemoria, char *puertoMemoria, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger)
+int conectar_a_memoria()
 {
-    int socketMemoria = conectar_a_servidor(ipMemoria, puertoMemoria);
-    
-    // Chequeo que la conexion con la memoria haya sido exitosa
-    if (socketMemoria == -1) {
-        log_error(kernelLogger, "Error al intentar establecer conexion inicial con modulo memoria");
-        log_error(kernelDebuggingLogger, "Error al intentar establecer conexion inicial con modulo memoria");
-        kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
-        exit(EXIT_FAILURE);
-    }
-
-    log_info(kernelDebuggingLogger, "Conexion exitosa con modulo memoria");
-
-    return socketMemoria;
+    return __conectar_a_modulo("Memoria", kernel_config_get_ip_memoria, kernel_config_get_puerto_memoria, kernel_config_set_socket_memoria, send_handshake_memoria, receive_handshake_memoria);
 }
 
 void send_handshake_memoria(const int socketMemoria, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketMemoria, HANDSHAKE_kernel);
-    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo memoria");
+    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo Memoria");
 
     return;
 }
@@ -81,41 +89,29 @@ void receive_handshake_memoria(const int socketMemoria, t_kernel_config* kernelC
     
     // Chequeo que la memoria me de el OK para continuar ejecutando e interactuando
     if (memoriaResponse != HANDSHAKE_ok_continue) {
-        log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo memoria");
-        log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo memoria");
+        log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo Memoria");
+        log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo Memoria");
         kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 
-    log_info(kernelDebuggingLogger, "Handshake inicial con modulo memoria recibido exitosamente");
+    log_info(kernelDebuggingLogger, "Handshake inicial con modulo Memoria recibido exitosamente");
 
     return;
 }
 
 // Funciones para conectar con filesystem
 
-int conectar_a_filesystem(char *ipFilesystem, char *puertoFilesystem, t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger)
+int conectar_a_filesystem()
 {
-    int socketFilesystem = conectar_a_servidor(ipFilesystem, puertoFilesystem);
-    
-    // Chequeo que la conexion con el filesystem haya sido exitosa
-    if (socketFilesystem == -1) {
-        log_error(kernelLogger, "Error al intentar establecer conexion inicial con modulo filesystem");
-        log_error(kernelDebuggingLogger, "Error al intentar establecer conexion inicial con modulo filesystem");
-        kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
-        exit(EXIT_FAILURE);
-    }
-
-    log_info(kernelDebuggingLogger, "Conexion exitosa con modulo filesystem");
-
-    return socketFilesystem;
+    return __conectar_a_modulo("filesystem", kernel_config_get_ip_filesystem, kernel_config_get_puerto_filesystem, kernel_config_set_socket_filesystem, send_handshake_filesystem, receive_handshake_filesystem);
 }
 
 void send_handshake_filesystem(const int socketFilesystem, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketFilesystem, HANDSHAKE_kernel);
-    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo filesystem");
+    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo Filesystem");
 
     return;
 }
@@ -127,13 +123,13 @@ void receive_handshake_filesystem(const int socketFilesystem, t_kernel_config* k
     
     // Chequeo que el kernel me de el OK para continuar ejecutando e interactuando
     if (fileSystemResponse != HANDSHAKE_ok_continue) {
-        log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo filesystem");
-        log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo filesystem");
+        log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo Filesystem");
+        log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo Filesystem");
         kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 
-    log_info(kernelDebuggingLogger, "Handshake inicial con modulo filesystem recibido exitosamente");
+    log_info(kernelDebuggingLogger, "Handshake inicial con modulo Filesystem recibido exitosamente");
 
     return;
 }
