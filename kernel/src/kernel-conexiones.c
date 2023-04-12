@@ -104,7 +104,7 @@ void receive_handshake_memoria(const int socketMemoria, t_kernel_config* kernelC
 
 int conectar_a_filesystem()
 {
-    return __conectar_a_modulo("filesystem", kernel_config_get_ip_filesystem, kernel_config_get_puerto_filesystem, kernel_config_set_socket_filesystem, send_handshake_filesystem, receive_handshake_filesystem);
+    return __conectar_a_modulo("Filesystem", kernel_config_get_ip_filesystem, kernel_config_get_puerto_filesystem, kernel_config_set_socket_filesystem, send_handshake_filesystem, receive_handshake_filesystem);
 }
 
 void send_handshake_filesystem(const int socketFilesystem, t_log *kernelLogger)
@@ -132,4 +132,68 @@ void receive_handshake_filesystem(const int socketFilesystem, t_kernel_config* k
     log_info(kernelDebuggingLogger, "Handshake inicial con modulo Filesystem recibido exitosamente");
 
     return;
+}
+
+// Levantar servidor de instancias Consola
+int inicializar_servidor_kernel(void)
+{
+    char *ipKernel = kernel_config_get_ip_escucha(kernelConfig);
+    char *puertoKernel = kernel_config_get_puerto_escucha(kernelConfig);
+    int tempKernelSocketServerEscucha = iniciar_servidor(ipKernel, puertoKernel);
+
+    if (tempKernelSocketServerEscucha == -1) {
+        
+        log_error(kernelLogger, "Error al intentar iniciar servidor del Kernel");
+        log_error(kernelDebuggingLogger, "Error al intentar iniciar servidor del Kernel");
+        kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
+        exit(EXIT_FAILURE);
+    }
+
+    log_info(kernelDebuggingLogger, "Se ha inicializado el servidor de escucha de consolas correctamente");
+    
+    return tempKernelSocketServerEscucha;
+}
+
+
+void aceptar_conexiones_kernel(const int socketEscucha) 
+{ 
+    struct sockaddr cliente = {0};
+    socklen_t len = sizeof(cliente);
+    
+    log_info(kernelDebuggingLogger, "A la escucha de nuevas conexiones en puerto %d", socketEscucha);
+    
+    //for (;;) {
+        
+        const int clienteAceptado = accept(socketEscucha, &cliente, &len);
+        
+        if (clienteAceptado > -1) {
+            
+            //int* socketCliente = malloc(sizeof(*socketCliente));
+            //*socketCliente = clienteAceptado;
+            //crear_hilo_handler_conexion_entrante(socketCliente);
+
+            t_handshake handshakeConsola = stream_recv_header(clienteAceptado);
+
+            if (handshakeConsola == HANDSHAKE_consola) {
+                log_info(kernelDebuggingLogger, "Se recibio el handshake de la consola correctamente");
+                stream_send_empty_buffer(clienteAceptado, HANDSHAKE_ok_continue);
+                log_info(kernelDebuggingLogger, "Se ha enviado la respuesta al handshake inicialde  la consola con handshake ok continue");
+            }
+            else {
+                log_error(kernelLogger, "Error al intentar establecer conexión con consola mediante <socket %d>", clienteAceptado);
+                log_error(kernelDebuggingLogger, "Error al intentar establecer conexión con consola mediante <socket %d>", clienteAceptado);
+            }
+        } 
+        else {
+            log_error(kernelLogger, "Error al aceptar conexión: %s", strerror(errno));
+            log_error(kernelDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
+        }
+    //}
+}
+
+void crear_hilo_handler_conexion_entrante(int* socket) 
+{
+    //pthread_t threadSuscripcion;
+    //pthread_create(&threadSuscripcion, NULL, encolar_en_new_a_nuevo_pcb_entrante, (void*)socket);
+    //pthread_detach(threadSuscripcion);
 }

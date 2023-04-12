@@ -106,6 +106,16 @@ char *kernel_config_get_puerto_cpu(t_kernel_config *self);
 char *kernel_config_get_puerto_escucha(t_kernel_config *self);
 
 /**
+ * @brief Toma el valor de la ip de escucha del servidor del kernel guardada en configuracion
+ * 
+ * @param self: Estructura de configuracion del kernel
+ * @return char*: Ip del servidor del kernel guardado en la configuracion
+ * 
+ * @example char *ipEscucha = kernel_config_get_puerto_escucha(kernelConfig);
+ */
+char *kernel_config_get_ip_escucha(t_kernel_config *self);
+
+/**
  * @brief Toma el valor del algoritmo de planificacion guardado en configuracion
  * 
  * @param self: Estructura de configuracion del kernel

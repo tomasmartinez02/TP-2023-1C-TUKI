@@ -13,6 +13,7 @@ static void __kernel_config_initializer(void *moduleConfig, t_config *tempCfg)
     kernelConfig->PUERTO_FILESYSTEM = strdup(config_get_string_value(tempCfg, "PUERTO_FILESYSTEM"));
     kernelConfig->IP_CPU = strdup(config_get_string_value(tempCfg, "IP_CPU"));
     kernelConfig->PUERTO_CPU = strdup(config_get_string_value(tempCfg, "PUERTO_CPU"));
+    kernelConfig->IP_ESCUCHA = strdup(config_get_string_value(tempCfg, "IP_ESCUCHA"));
     kernelConfig->PUERTO_ESCUCHA = strdup(config_get_string_value(tempCfg, "PUERTO_ESCUCHA"));
     kernelConfig->ALGORITMO_PLANIFICACION = strdup(config_get_string_value(tempCfg, "ALGORITMO_PLANIFICACION"));
     kernelConfig->ESTIMACION_INICIAL = (uint32_t) config_get_int_value(tempCfg, "ESTIMACION_INICIAL");
@@ -46,6 +47,7 @@ void kernel_config_destroy(t_kernel_config *self)
     free(self->PUERTO_FILESYSTEM);
     free(self->IP_CPU);
     free(self->PUERTO_CPU);
+    free(self->IP_ESCUCHA);
     free(self->PUERTO_ESCUCHA);
     free(self->ALGORITMO_PLANIFICACION);
     // free(self-> ESTIMACION_INICIAL);       Estos 3 no los liberamos porque son ints
@@ -90,6 +92,11 @@ char *kernel_config_get_ip_cpu(t_kernel_config *self)
 char *kernel_config_get_puerto_cpu(t_kernel_config *self)
 {
     return self->PUERTO_CPU;
+}
+
+char *kernel_config_get_ip_escucha(t_kernel_config *self)
+{
+    return self->IP_ESCUCHA;
 }
 
 char *kernel_config_get_puerto_escucha(t_kernel_config *self)

@@ -14,13 +14,14 @@ struct kernel_config
     char* PUERTO_FILESYSTEM;
     char* IP_CPU;
     char* PUERTO_CPU;
+    char *IP_ESCUCHA;
     char* PUERTO_ESCUCHA;
     char* ALGORITMO_PLANIFICACION;
     uint32_t ESTIMACION_INICIAL;
     double HRRN_ALFA;
     uint32_t GRADO_MAX_MULTIPROGRAMACION;
-    char** RECURSOS;
-    char** INSTANCIAS_RECURSOS;
+    char **RECURSOS;
+    char **INSTANCIAS_RECURSOS;
     int SOCKET_MEMORIA;
     int SOCKET_CPU;
     int SOCKET_FILESYSTEM;

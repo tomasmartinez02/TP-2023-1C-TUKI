@@ -108,4 +108,10 @@ void send_handshake_filesystem(const int socketFilesystem, t_log *kernelLogger);
  */
 void receive_handshake_filesystem(const int socketFilesystem, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger);
 
+int inicializar_servidor_kernel(void);
+
+void aceptar_conexiones_kernel(const int socketEscucha);
+
+void crear_hilo_handler_conexion_entrante(int *socket);
+
 #endif

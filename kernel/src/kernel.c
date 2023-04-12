@@ -18,13 +18,18 @@ int main(int argc, char* argv[])
     free(pathArchivoConfiguracion);
 
     // Conexion con Memoria
-    conectar_a_memoria();
+    //conectar_a_memoria();
     
     // Conexion con Cpu
-    conectar_a_cpu();
+    //conectar_a_cpu();
   
     // Conexion con Fileystem
-    conectar_a_filesystem();
+    //conectar_a_filesystem();
+
+    // Levantar servidor de instancias Consola
+    const int socketEscucha = inicializar_servidor_kernel();
+
+    aceptar_conexiones_kernel(socketEscucha);
 
     return 0;
 }
