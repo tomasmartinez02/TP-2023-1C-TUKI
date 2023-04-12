@@ -9,7 +9,7 @@
 //Bibliotecas commons
 #include <commons/log.h>
 //Bibliotecas static-utils
-//#include <utils/config-modulo.h>
+#include <utils/config-modulo.h>
 //Bibliotecas internas modulo consola
 //#include <consola-utils.h>
 #include <memoria-estructuras.h>

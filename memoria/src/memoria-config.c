@@ -73,5 +73,5 @@ uint32_t memoria_config_get_retardo_compactacion(t_memoria_config *self)
 
 char *memoria_config_get_algoritmo_asignacion(t_memoria_config *self)
 {
-    return self->ALGORITMO_ASIGNACION
+    return self->ALGORITMO_ASIGNACION;
 }
