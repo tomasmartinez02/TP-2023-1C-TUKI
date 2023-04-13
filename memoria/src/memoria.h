@@ -20,6 +20,7 @@
 // Biblioteca internas
 #include <memoria-estructuras.h>
 #include <memoria-config.h>
+#include <memoria-conexiones.h>
 // Bibliotecas static utils
 #include <utils/logging.h>
 #include <utils/common-utils.h>
