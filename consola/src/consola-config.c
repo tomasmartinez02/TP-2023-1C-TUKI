@@ -9,6 +9,7 @@ static void __consola_config_initializer(void *moduleConfig, t_config *tempCfg)
 
     consolaConfig->IP_KERNEL = strdup(config_get_string_value(tempCfg, "IP_KERNEL"));
     consolaConfig->PUERTO_KERNEL = strdup(config_get_string_value(tempCfg, "PUERTO_KERNEL"));
+    consolaConfig->SOCKET_KERNEL = -1;
 
     return;
 }
@@ -36,12 +37,22 @@ void consola_config_destroy(t_consola_config *self)
     return;
 }
 
-char *consola_config_get_kernel_ip(t_consola_config *self) 
+char *consola_config_get_ip_kernel(t_consola_config *self) 
 {
     return self->IP_KERNEL;
 }
 
-char *consola_config_get_kernel_puerto(t_consola_config *self) 
+char *consola_config_get_puerto_kernel(t_consola_config *self) 
 {
     return self->PUERTO_KERNEL;
+}
+
+int consola_config_get_socket_kernel(t_consola_config *self)
+{
+    return self->SOCKET_KERNEL;
+}
+
+void consola_config_set_socket_kernel(t_consola_config *self, int socketKernel)
+{
+    self->SOCKET_KERNEL = socketKernel;
 }

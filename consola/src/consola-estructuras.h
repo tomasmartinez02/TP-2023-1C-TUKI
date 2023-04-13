@@ -10,10 +10,13 @@ struct consola_config
 {
     char* IP_KERNEL;
     char* PUERTO_KERNEL;
+    int SOCKET_KERNEL;
 };
 typedef struct consola_config t_consola_config;
 
 // Variables globales
 extern t_log *consolaDebuggingLogger;
+extern t_log *consolaLogger;
+extern t_consola_config *consolaConfig;
 
 #endif
