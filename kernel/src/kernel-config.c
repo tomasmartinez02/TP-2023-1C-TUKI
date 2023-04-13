@@ -21,6 +21,9 @@ static void __kernel_config_initializer(void *moduleConfig, t_config *tempCfg)
     kernelConfig->GRADO_MAX_MULTIPROGRAMACION = (uint32_t) config_get_int_value(tempCfg, "GRADO_MAX_MULTIPROGRAMACION");
     kernelConfig->RECURSOS = config_get_array_value(tempCfg, "RECURSOS");
     kernelConfig->INSTANCIAS_RECURSOS = config_get_array_value(tempCfg, "INSTANCIAS_RECURSOS");
+    kernelConfig->SOCKET_MEMORIA = -1;
+    kernelConfig->SOCKET_CPU = -1;
+    kernelConfig->SOCKET_FILESYSTEM = -1;
 
     return;
 }
