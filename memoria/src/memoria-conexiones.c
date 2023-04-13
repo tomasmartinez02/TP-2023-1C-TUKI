@@ -51,7 +51,7 @@ void aceptar_conexiones_memoria_con_cpu(const int socketEscuchaCPU)
 // Levantar servidor de instancias Filesystem
 int inicializar_servidor_memoria_para_filesystem(void)
 {
-    char *ipFilesystem = mermoria_config_get_ip_escucha(memoriaConfig);
+    char *ipFilesystem = memoria_config_get_ip_escucha(memoriaConfig);
     char *puertoFilesystem = memoria_config_get_puerto_escucha(memoriaConfig);
     int tempMemoriaSocketServerEscuchaFilesystem = iniciar_servidor(ipFilesystem, puertoFilesystem);
 
@@ -99,7 +99,7 @@ void aceptar_conexiones_memoria_con_filesystem(const int socketEscuchaFilesystem
 // Levantar servidor de instancias Kernel
 int inicializar_servidor_memoria_para_kernel(void)
 {
-    char *ipKernel = mermoria_config_get_ip_escucha(memoriaConfig);
+    char *ipKernel = memoria_config_get_ip_escucha(memoriaConfig);
     char *puertoKernel = memoria_config_get_puerto_escucha(memoriaConfig);
     int tempMemoriaSocketServerEscuchaKernel = iniciar_servidor(ipKernel, puertoKernel);
 

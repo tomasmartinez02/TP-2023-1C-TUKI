@@ -7,6 +7,7 @@ static void __memoria_config_initializer(void *moduleConfig, t_config *tempCfg)
 {
     t_memoria_config *memoriaConfig = (t_memoria_config *) moduleConfig;
 
+    memoriaConfig->IP_ESCUCHA = strdup(config_get_string_value(tempCfg, "PUERTO_ESCUCHA"));
     memoriaConfig->PUERTO_ESCUCHA = strdup(config_get_string_value(tempCfg, "PUERTO_ESCUCHA"));
     memoriaConfig->TAM_MEMORIA = (uint32_t) config_get_int_value(tempCfg, "TAM_MEMORIA");
     memoriaConfig->TAM_SEGMENTO_0 = (uint32_t) config_get_int_value(tempCfg, "TAM_SEGMENTO_0");
@@ -39,6 +40,11 @@ void memoria_config_destroy(t_memoria_config *self)
     free(self);
 
     return;
+}
+
+char *memoria_config_get_ip_escucha(t_memoria_config *self) 
+{
+    return self->PUERTO_ESCUCHA;
 }
 
 char *memoria_config_get_puerto_escucha(t_memoria_config *self) 

@@ -11,6 +11,7 @@
 //Bibliotecas internas modulo consola
 #include <memoria-config.h>
 #include <memoria-estructuras.h>
+#include <memoria-utils.h>
 
 // Prototipos
 
@@ -48,7 +49,7 @@ int inicializar_servidor_memoria_para_filesystem(void);
  * 
  * @example aceptar_conexiones_memoria_con_filesystem(socketEscuchaCPU);
  */
-void aceptar_conexiones_memoria_con_filesystem(const int socketEscuchaFilesystem) 
+void aceptar_conexiones_memoria_con_filesystem(const int socketEscuchaFilesystem);
 
 /**
  * @brief Inicializa el servidor de escucha de Memoria para el kernel

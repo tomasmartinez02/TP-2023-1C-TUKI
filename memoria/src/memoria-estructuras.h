@@ -8,6 +8,7 @@
 // Estructuras
 struct memoria_config 
 {
+    char* IP_ESCUCHA;
     char* PUERTO_ESCUCHA;
     u_int32_t TAM_MEMORIA;
     u_int32_t TAM_SEGMENTO_0;

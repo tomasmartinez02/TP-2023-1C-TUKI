@@ -36,6 +36,9 @@ t_memoria_config *memoria_config_create(char *memoriaConfigPath, t_log *memoriaL
  */
 void memoria_config_destroy(t_memoria_config *self);
 
+// NO SABEMOS SI LAS IPS DE ESCUCHA Y LOS PUERTOS DEBERIAN VARIAR ENTRE CADA COMPONENTE QUE SE CONECTA A MEMORIA
+char *memoria_config_get_ip_escucha(t_memoria_config *self) ;
+
 /**
  * @brief Toma el valor del puerto de escucha guardada en configuracion
  * 
