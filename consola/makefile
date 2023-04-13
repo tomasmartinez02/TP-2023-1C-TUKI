@@ -49,7 +49,7 @@ release: clean $(BIN) $(TEST)
 
 .PHONY: clean
 clean:
-	-rm -rfv obj bin
+	-rm -rfv obj bin logs
 
 .PHONY: watch
 watch:
@@ -73,7 +73,7 @@ $(DEPS): $$(shell find $$(patsubst %bin/,%src/,$$(dir $$@)) -iname "*.c") \
 	make --no-print-directory -C $(patsubst %bin/,%,$(dir $@))
 
 $(sort $(dir $(BIN) $(OBJS))):
-	mkdir -pv $@
+	mkdir -pv $@ logs
 
 
 ################################################################################
