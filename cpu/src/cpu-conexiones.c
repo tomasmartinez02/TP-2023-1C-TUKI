@@ -57,12 +57,57 @@ int conectar_a_memoria(void)
 }
 
 int inicializar_servidor_cpu(void)
-{
-    return;
+{      
+    int ipCpu = cpu_config_get_ip_escucha(cpuConfig);
+    int puertoCpu= cpu_config_get_puerto_escucha(cpuConfig);
+
+    int socketEscucha = iniciar_servidor(ipCpu, puertoCpu);
+
+    // Checkeo que el servidor se haya levantado correctamente
+    if (socketEscucha == -1)
+    {
+        log_error(cpuLogger, "Error al intentar iniciar servidor del Cpu");
+        log_error(cpuDebuggingLogger, "Error al intentar iniciar servidor del Cpu");
+        cpu_destroy(cpuConfig, cpuLogger, cpuDebuggingLogger);
+        exit(EXIT_FAILURE);
+    }
+
+    log_info(cpuDebuggingLogger, "Se ha inicializado el servidor de escucha de Kernel correctamente");
+
+    return socketEscucha;
 }
 
 void aceptar_conexion_kernel(int socketEscucha)
-{
+{   
+    struct sockaddr cliente = {0};
+    socklen_t len = sizeof(cliente);
+    
+    log_info(cpuDebuggingLogger, "A la escucha de conexion del modulo Kernel en puerto %d", socketEscucha);
+        
+    const int socketKernel = accept(socketEscucha, &cliente, &len);
+        
+    if (socketKernel > -1) {
+
+        // Recibo handshake
+        t_handshake handshakeKernel = stream_recv_header(socketKernel);
+
+        if (handshakeKernel == HANDSHAKE_kernel) {
+            filesystem_config_set_socket_kernel(filesystemConfig, socketKernel);
+            log_info(filesystemDebuggingLogger, "Se recibio el handshake del kernel correctamente");
+                
+            // Respondo handshake ok
+            stream_send_empty_buffer(socketKernel, HANDSHAKE_ok_continue);
+            log_info(filesystemDebuggingLogger, "Se ha enviado la respuesta al handshake inicial del Kernel con handshake ok continue");
+        }
+        else {
+            log_error(filesystemLogger, "Error al intentar establecer conexión con Kernel mediante <socket %d>", socketKernel);
+            log_error(filesystemDebuggingLogger, "Error al intentar establecer conexión con Kernel mediante <socket %d>", socketKernel);
+        }
+
+    } else {
+        log_error(filesystemLogger, "Error al aceptar conexión: %s", strerror(errno));
+        log_error(filesystemDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
+    }
     return;
 }
 

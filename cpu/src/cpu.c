@@ -19,8 +19,8 @@ int main(int argc, char* argv[]) {
 
     uint32_t retardoInstruccion = cpu_config_get_retardo_instruccion(cpuConfig);
     char *ipMemoria = cpu_config_get_ip_memoria(cpuConfig);
-    uint32_t puertoEscucha = cpu_config_get_puerto_escucha(cpuConfig);
-    uint32_t puertoMemoria = cpu_config_get_puerto_memoria(cpuConfig);
+    char* puertoEscucha = cpu_config_get_puerto_escucha(cpuConfig);
+    char* puertoMemoria = cpu_config_get_puerto_memoria(cpuConfig);
     uint32_t tamMaxSegmento = cpu_config_get_tam_max_segmento(cpuConfig);
 
     // Conexión a memoria
