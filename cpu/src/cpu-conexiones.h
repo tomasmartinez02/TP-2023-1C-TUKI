@@ -1,5 +1,5 @@
-#ifndef CPU_CONEXIONES_H
-#define CPU_CONEXIONES_H
+#ifndef CPU_CONEXIONES_H_
+#define CPU_CONEXIONES_H_
 
 //Biblioteca Static Utils
 #include <conexiones/conexiones.h>

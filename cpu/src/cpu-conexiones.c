@@ -36,9 +36,9 @@ static void __receive_handshake_memoria(void)
 
 int conectar_a_memoria(void)
 {   
-    char *memoriaIP = cpu_config_get_ip_memoria;
-    char *memoriaPuerto = cpu_config_get_puerto_memoria;
-    int socketMemoria = conectar_a_servidor(memoriaIP, memoriaPuerto);
+    char *ipMemoria = cpu_config_get_ip_memoria(cpuConfig);
+    char *puertoMemoria = cpu_config_get_puerto_memoria(cpuConfig);
+    int socketMemoria = conectar_a_servidor(ipMemoria, puertoMemoria);
 
     if (socketMemoria == -1 ) {
         log_error(cpuLogger, "Error al intentar establecer conexión inicial con el módulo Memoria");
@@ -53,18 +53,20 @@ int conectar_a_memoria(void)
     __send_handshake_memoria();
     __receive_handshake_memoria();
 
+    log_info(cpuDebuggingLogger, "Conexión con modulo Memoria establecida exitosamente");
+
     return socketMemoria;
 }
 
 int inicializar_servidor_cpu(void)
 {      
-    int ipCpu = cpu_config_get_ip_escucha(cpuConfig);
-    int puertoCpu= cpu_config_get_puerto_escucha(cpuConfig);
+    char *ipCpu = cpu_config_get_ip_escucha(cpuConfig);
+    char *puertoCpu= cpu_config_get_puerto_escucha(cpuConfig);
 
-    int socketEscucha = iniciar_servidor(ipCpu, puertoCpu);
+    int socketServidorCpu = iniciar_servidor(ipCpu, puertoCpu);
 
     // Checkeo que el servidor se haya levantado correctamente
-    if (socketEscucha == -1)
+    if (socketServidorCpu == -1)
     {
         log_error(cpuLogger, "Error al intentar iniciar servidor del Cpu");
         log_error(cpuDebuggingLogger, "Error al intentar iniciar servidor del Cpu");
@@ -74,7 +76,7 @@ int inicializar_servidor_cpu(void)
 
     log_info(cpuDebuggingLogger, "Se ha inicializado el servidor de escucha de Kernel correctamente");
 
-    return socketEscucha;
+    return socketServidorCpu;
 }
 
 void aceptar_conexion_kernel(int socketEscucha)
@@ -109,6 +111,7 @@ void aceptar_conexion_kernel(int socketEscucha)
         log_error(cpuLogger, "Error al aceptar conexión: %s", strerror(errno));
         log_error(cpuDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
     }
+    
     return;
 }
 

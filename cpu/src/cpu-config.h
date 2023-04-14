@@ -29,29 +29,31 @@ t_cpu_config *cpu_config_create(char *cpuConfigPath, t_log *cpuLogger);
 /**
  * @brief Destruye (libera memoria) de la estructura de configuracion
  * 
- * @param cpuConfig: Estructura de configuracion del cpu
+ * @param self: Estructura de configuracion del cpu
  * 
  * @example cpu_config_destroy(cpuConfig); 
  */
-void cpu_config_destroy(t_cpu_config *cpuConfig);
+void cpu_config_destroy(t_cpu_config *self);
 
 /**
- * @brief Toma el valor del retardo de la iinstrucción guardada en configuracion
+ * @brief Toma el valor del retardo de la instrucción guardada en configuracion
  * 
- * @param cpuConfig: Estructura de configuracion del cpu
+ * @param self: Estructura de configuracion del cpu
  * @return int: Ip guardada en la configuracion
  * 
  * @example 
  */
-uint32_t cpu_config_get_retardo_instruccion(t_cpu_config *cpuConfig);
+uint32_t cpu_config_get_retardo_instruccion(t_cpu_config *self);
 
-char *cpu_config_get_ip_memoria(t_cpu_config *cpuConfig);
+char *cpu_config_get_ip_memoria(t_cpu_config *self);
 
-char *cpu_config_get_puerto_escucha(t_cpu_config *cpuConfig);
+char *cpu_config_get_ip_escucha(t_cpu_config *self);
 
-char *cpu_config_get_puerto_memoria(t_cpu_config *cpuConfig);
+char *cpu_config_get_puerto_escucha(t_cpu_config *self);
 
-uint32_t cpu_config_get_tam_max_segmento(t_cpu_config *cpuConfig);
+char *cpu_config_get_puerto_memoria(t_cpu_config *self);
+
+uint32_t cpu_config_get_tam_max_segmento(t_cpu_config *self);
 
 int cpu_config_get_socket_memoria(t_cpu_config *self);
 

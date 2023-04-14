@@ -1,5 +1,5 @@
-#ifndef CPU_UTILS_H
-#define CPU_UTILS_H
+#ifndef CPU_UTILS_H_
+#define CPU_UTILS_H_
 
 // Bibliotecas static utils
 #include <utils/common-utils.h>
