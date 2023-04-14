@@ -92,7 +92,7 @@ void aceptar_conexion_kernel(int socketEscucha)
         t_handshake handshakeKernel = stream_recv_header(socketKernel);
 
         if (handshakeKernel == HANDSHAKE_kernel) {
-            filesystem_config_set_socket_kernel(filesystemConfig, socketKernel);
+            cpu_config_set_socket_kernel(cpuConfig, socketKernel);
             log_info(cpuDebuggingLogger, "Se recibio el handshake del kernel correctamente");
                 
             // Respondo handshake ok
@@ -105,8 +105,9 @@ void aceptar_conexion_kernel(int socketEscucha)
         }
 
     } else {
-        log_error(filesystemLogger, "Error al aceptar conexión: %s", strerror(errno));
-        log_error(filesystemDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
+
+        log_error(cpuLogger, "Error al aceptar conexión: %s", strerror(errno));
+        log_error(cpuDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
     }
     return;
 }

@@ -88,7 +88,7 @@ void cpu_config_set_socket_memoria(t_cpu_config *self, socketMemoria)
     self->SOCKET_MEMORIA = socketMemoria;
 }
 
-void cpu_config_set_socket_memoria(t_cpu_config *self, socketKernel)
+void cpu_config_set_socket_kernel(t_cpu_config *self, socketKernel)
 {
     self->SOCKET_MEMORIA = socketKernel;
 }

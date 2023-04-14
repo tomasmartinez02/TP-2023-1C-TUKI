@@ -59,6 +59,6 @@ int cpu_config_get_socket_kernel(t_cpu_config *self);
 
 void cpu_config_set_socket_memoria(t_cpu_config *self, int socketMemoria);
 
-void cpu_config_set_socket_memoria(t_cpu_config *self, int socketKernel);
+void cpu_config_set_socket_kernel(t_cpu_config *self, int socketKernel);
 
 #endif
