@@ -93,15 +93,15 @@ void aceptar_conexion_kernel(int socketEscucha)
 
         if (handshakeKernel == HANDSHAKE_kernel) {
             filesystem_config_set_socket_kernel(filesystemConfig, socketKernel);
-            log_info(filesystemDebuggingLogger, "Se recibio el handshake del kernel correctamente");
+            log_info(cpuDebuggingLogger, "Se recibio el handshake del kernel correctamente");
                 
             // Respondo handshake ok
             stream_send_empty_buffer(socketKernel, HANDSHAKE_ok_continue);
-            log_info(filesystemDebuggingLogger, "Se ha enviado la respuesta al handshake inicial del Kernel con handshake ok continue");
+            log_info(cpuDebuggingLogger, "Se ha enviado la respuesta al handshake inicial del Kernel con handshake ok continue");
         }
         else {
-            log_error(filesystemLogger, "Error al intentar establecer conexión con Kernel mediante <socket %d>", socketKernel);
-            log_error(filesystemDebuggingLogger, "Error al intentar establecer conexión con Kernel mediante <socket %d>", socketKernel);
+            log_error(cpuLogger, "Error al intentar establecer conexión con Kernel mediante <socket %d>", socketKernel);
+            log_error(cpuDebuggingLogger, "Error al intentar establecer conexión con Kernel mediante <socket %d>", socketKernel);
         }
 
     } else {

@@ -52,4 +52,13 @@ char *cpu_config_get_puerto_escucha(t_cpu_config *cpuConfig);
 char *cpu_config_get_puerto_memoria(t_cpu_config *cpuConfig);
 
 uint32_t cpu_config_get_tam_max_segmento(t_cpu_config *cpuConfig);
+
+int cpu_config_get_socket_memoria(t_cpu_config *self);
+
+int cpu_config_get_socket_kernel(t_cpu_config *self);
+
+void cpu_config_set_socket_memoria(t_cpu_config *self, int socketMemoria);
+
+void cpu_config_set_socket_memoria(t_cpu_config *self, int socketKernel);
+
 #endif

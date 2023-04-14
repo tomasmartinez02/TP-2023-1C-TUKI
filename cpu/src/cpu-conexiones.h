@@ -28,16 +28,6 @@
  */
 int conectar_a_memoria(void);
 
-/**
- * @brief Envia el handshake inicial a la memoria
- */
-void __send_handshake_memoria(void);
-
-/**
- * @brief Espera y recibe la respuesta al handshake inicial del modulo memoria
- */
-void __receive_handshake_memoria(void);
-
 int inicializar_servidor_cpu(void);
 
 void aceptar_conexion_kernel(int socketEscucha);
