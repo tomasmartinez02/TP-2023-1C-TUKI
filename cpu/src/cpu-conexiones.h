@@ -26,17 +26,22 @@
  * 
  * @example const int socketMemoria = conectar_a_memoria("192.168.1.1", "8000", cpuConfig, cpuLogger, cpuDebuggingLogger);
  */
-int conectar_a_memoria(char *memoriaIP, char *memoriaPort, t_cpu_config *cpuConfig, t_log *cpuLogger, t_log *cpuDebuggingLogger);
+int conectar_a_memoria(void);
 
 /**
  * @brief Envia el handshake inicial a la memoria
  */
-void send_handshake_memoria(const int memoriaSocket, t_log *cpuLogger);
+void __send_handshake_memoria(void);
 
 /**
  * @brief Espera y recibe la respuesta al handshake inicial del modulo memoria
  */
-void receive_handshake_memoria(const int memoriaSocket, t_cpu_config* cpuConfig, t_log* cpuLogger, t_log *cpuDebuggingLogger);
+void __receive_handshake_memoria(void);
+
+int inicializar_servidor_cpu(void);
+
+void aceptar_conexion_kernel(int socketEscucha);
+
 
 
 #endif

@@ -2,17 +2,19 @@
 #include <cpu.h>
 
 t_log *cpuDebugginLogger; 
+t_log *cpuLogger;
+t_cpu_config *cpuConfig;
 
 int main(int argc, char* argv[]) {
     
-    t_log *cpuLogger = create_logger(CPU_LOG_PATH, CPU_MODULE_NAME, true, LOG_LEVEL_INFO);
+    cpuLogger = create_logger(CPU_LOG_PATH, CPU_MODULE_NAME, true, LOG_LEVEL_INFO);
     cpuDebugginLogger = create_logger(CPU_LOG_PATH_DEBUGGING, CPU_MODULE_NAME, false, LOG_LEVEL_DEBUG);
     
     check_arguments(argc, NUMBER_OF_ARGS_REQUIRED, ARGUMENTS_ERROR_MESSAGE, cpuLogger);
 
     // Cargo la estructura de configuración de la consola
     char *pathArchivoConfiguracion = string_duplicate(argv[1]);
-    t_cpu_config *cpuConfig = cpu_config_create(pathArchivoConfiguracion, cpuLogger);
+    cpuConfig = cpu_config_create(pathArchivoConfiguracion, cpuLogger);
     free(pathArchivoConfiguracion);
 
     uint32_t retardoInstruccion = cpu_config_get_retardo_instruccion(cpuConfig);
@@ -22,9 +24,11 @@ int main(int argc, char* argv[]) {
     uint32_t tamMaxSegmento = cpu_config_get_tam_max_segmento(cpuConfig);
 
     // Conexión a memoria
-    const int socketMemoria = conectar_a_memoria(0, 0, cpuConfig, cpuLogger, cpuDebugginLogger);
-    send_handshake_memoria(socketMemoria, cpuLogger);
-    receive_handshake_memoria(socketMemoria, cpuConfig, cpuLogger, cpuDebugginLogger);
+    conectar_a_memoria();
+
+    // Levantar servidor del Kernel
+    const int socketEscucha = inicializar_servidor_cpu();
+    aceptar_conexion_kernel(socketEscucha);
 
     return 0;
 }

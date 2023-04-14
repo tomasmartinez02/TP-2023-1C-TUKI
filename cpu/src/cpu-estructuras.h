@@ -12,6 +12,8 @@ struct cpu_config
     char* PUERTO_MEMORIA;
     char* PUERTO_ESCUCHA;
     uint32_t TAM_MAX_SEGMENTO;
+    int SOCKET_MEMORIA;
+    int SOCKET_KERNEL;
 };
 typedef struct cpu_config t_cpu_config;
 #endif
