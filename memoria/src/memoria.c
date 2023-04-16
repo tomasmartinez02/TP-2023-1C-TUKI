@@ -17,16 +17,10 @@ int main(int argc, char* argv[])
     memoriaConfig = memoria_config_create(pathArchivoConfiguracion, memoriaDebuggingLogger);
     free(pathArchivoConfiguracion);
 
-    const int socketEscuchaCpu = inicializar_servidor_memoria_para_cpu();
+    //inicializo server de escucha y acepto conexiones
+    const int socketEscucha = inicializar_servidor_memoria();
 
-    const int socketEscuchaFilesystem = inicializar_servidor_memoria_para_filesystem();
+    aceptar_conexiones(socketEscucha);
 
-    const int socketEscuchaKernel = inicializar_servidor_memoria_para_kernel();
-
-    aceptar_conexiones_memoria_con_cpu(socketEscuchaCpu);
-
-    aceptar_conexiones_memoria_con_filesystem(socketEscuchaFilesystem);
-
-    aceptar_conexiones_memoria_con_kernel(socketEscuchaKernel);
-
+    memoria_destroy(memoriaConfig, memoriaLogger, memoriaDebuggingLogger);
 }

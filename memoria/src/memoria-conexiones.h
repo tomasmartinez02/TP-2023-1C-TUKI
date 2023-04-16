@@ -16,57 +16,21 @@
 // Prototipos
 
 /**
- * @brief Inicializa el servidor de escucha de Memoria para la CPU
+ * @brief Inicializa el servidor de escucha de Kernel para CPU, kernel y filesystem
  * 
- * @return int: Descriptor del socket de escucha para la CPU
+ * @return int: Descriptor del socket de escucha del servidor
  * 
- * @example inicializar_servidor_memoria_para_cpu();
+ * @example inicializar_servidor_memoria();
  */
-int inicializar_servidor_memoria_para_cpu(void);
+int inicializar_servidor_memoria(void);
 
 /**
- * @brief Acepta conexiones de la memoria con la cpu
+ * @brief Acepta conexiones de la memoria con CPU, kernel y filesystem
  *
- * @param socketEscuchaCPU: Descriptor del socket de escucha de la CPU
+ * @param socketEscuchaCPU: Descriptor del socket de escucha del servidor
  * 
- * @example aceptar_conexiones_memoria_con_cpu(socketEscuchaCPU);
+ * @example aceptar_conexiones(socketEscucha);
  */
-void aceptar_conexiones_memoria_con_cpu(const int socketEscuchaCPU);
-
-/**
- * @brief Inicializa el servidor de escucha de Memoria para el filesystem
- * 
- * @return int: Descriptor del socket de escucha para la CPU
- * 
- * @example inicializar_servidor_memoria_para_filesystem();
- */
-int inicializar_servidor_memoria_para_filesystem(void);
-
-/**
- * @brief Acepta conexiones de la memoria con el filesystem
- *
- * @param socketEscuchaFilesystem: Descriptor del socket de escucha del filesystem
- * 
- * @example aceptar_conexiones_memoria_con_filesystem(socketEscuchaCPU);
- */
-void aceptar_conexiones_memoria_con_filesystem(const int socketEscuchaFilesystem);
-
-/**
- * @brief Inicializa el servidor de escucha de Memoria para el kernel
- * 
- * @return int: Descriptor del socket de escucha para el kernel
- * 
- * @example inicializar_servidor_memoria_para_kernel();
- */
-int inicializar_servidor_memoria_para_kernel(void);
-
-/**
- * @brief Acepta conexiones de la memoria con el kernel
- *
- * @param socketEscuchaKernel: Descriptor del socket de escucha de la CPU
- * 
- * @example aceptar_conexiones_memoria_con_filesystem(socketEscuchaKernel);
- */
-void aceptar_conexiones_memoria_con_kernel(const int socketEscuchaKernel);
+void aceptar_conexiones(int socketEscucha);
 
 #endif
