@@ -386,12 +386,15 @@ t_list* instruccion_list_create_from_buffer(t_buffer *bufferConInstrucciones, t_
         // Cargo instruccion en la lista de instrucciones
         t_instruccion* instruccionActual = instruccion_create(identificadorInstruccion, infoInstruccion);
         list_add(listaInstrucciones, (void*) instruccionActual);
-        log_info(loggerModulo, "Se desempaqueta la instruccion %s", instruccion_get_to_string(instruccionActual));
         
+        char *stringInstruccion = instruccion_get_to_string(instruccionActual);
+        log_info(loggerModulo, "Se desempaqueta la instruccion %s", stringInstruccion);
+        free(stringInstruccion);
+
         info_instruccion_destroy(infoInstruccion);
     }
     
-    log_info(loggerModulo, "Se desempaquetan %d instrucciones", list_size(instrucciones));
+    log_info(loggerModulo, "Se desempaquetan %d instrucciones", list_size(listaInstrucciones));
     
     return listaInstrucciones;
 }
@@ -455,7 +458,7 @@ char *instruccion_get_nombre_archivo(t_instruccion *self)
 
 char *instruccion_get_to_string(t_instruccion *self) 
 {
-    return self->toString;
+    return string_duplicate(self->toString);
 }
 
 // Getters info instruccion

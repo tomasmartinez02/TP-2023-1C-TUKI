@@ -94,6 +94,7 @@ struct info_instruccion {
 };
 typedef struct info_instruccion t_info_instruccion;
 
+// Registros de la cpu y pcb
 struct registros_cpu{
 
     // Registros 4 bytes
@@ -170,7 +171,7 @@ t_list *instruccion_list_create_from_buffer(t_buffer *bufferConInstrucciones, t_
 /**
  * @brief Destruye la lista de instrucciones
  * 
- * @param listaInstrucciones 
+ * @param listaInstrucciones: Lista de instrucciones 
  */
 void destroy_lista_instrucciones(t_list* listaInstrucciones);
 
