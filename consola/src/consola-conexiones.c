@@ -53,3 +53,73 @@ void receive_handshake_kernel(const int socketKernel, t_consola_config *consolaC
 
     return;
 }
+
+void consola_enviar_instrucciones_a_kernel(const char *pathArchivoInstrucciones)
+{
+    t_buffer *bufferInstrucciones = buffer_create();
+    
+    int socketKernel = consola_config_get_socket_kernel(consolaConfig);
+    if (!consola_parser_parse_instructions(bufferInstrucciones, pathArchivoInstrucciones)) {
+        stream_send_empty_buffer(socketKernel, HEADER_error);
+        log_error(consolaLogger, "Ocurrio un error en el parseo de las instrucciones. Finalizando consola...");
+        log_error(consolaDebuggingLogger, "Ocurrio un error en el parseo de las instrucciones. Finalizando consola...");
+        buffer_destroy(bufferInstrucciones);
+        consola_destroy(consolaConfig, consolaLogger, consolaDebuggingLogger);
+        exit(EXIT_FAILURE);
+    }
+
+    stream_send_buffer(socketKernel, HEADER_lista_instrucciones, bufferInstrucciones);
+    buffer_destroy(bufferInstrucciones);
+    
+    log_info(consolaLogger, "Se envía la lista de instrucciones al modulo Kernel");
+    log_info(consolaDebuggingLogger, "Se envía la lista de instrucciones al modulo Kernel");
+
+    return;
+}
+
+uint32_t receive_pid_kernel(void)
+{
+    int socketKernel = consola_config_get_socket_kernel(consolaConfig);
+    t_header kernelResponse = stream_recv_header(socketKernel);
+    
+    if (kernelResponse != HEADER_pid) {
+        log_error(consolaLogger, "Error al intentar recibir el PID");
+        log_error(consolaDebuggingLogger, "Error al intentar recibir el PID");
+        consola_destroy(consolaConfig, consolaLogger, consolaDebuggingLogger);
+        exit(EXIT_FAILURE);
+    }
+
+    uint32_t idProcesoTemp;
+    
+    t_buffer *bufferPID = buffer_create();
+    stream_recv_buffer(socketKernel, bufferPID);
+    buffer_unpack(bufferPID, &idProcesoTemp, sizeof(idProcesoTemp));
+    buffer_destroy(bufferPID);
+    
+    consola_config_set_pid(consolaConfig, idProcesoTemp);
+
+    return idProcesoTemp;
+}
+
+void wait_kernel_response()
+{
+    int socketKernel = consola_config_get_socket_kernel(consolaConfig);
+    uint8_t kernelResponse = stream_recv_header(socketKernel);
+    stream_recv_empty_buffer(socketKernel);
+
+    uint32_t idProceso = consola_config_get_pid(consolaConfig);
+    if(kernelResponse != HEADER_proceso_terminado) {
+        log_error(consolaLogger, "Error al intentar finalizar consola de <ID %d>", idProceso);
+        log_error(consolaDebuggingLogger, "Error al intentar finalizar consola de <ID %d>", idProceso);
+        consola_destroy(consolaConfig, consolaLogger, consolaDebuggingLogger);
+        exit(EXIT_FAILURE);
+    }
+    
+    log_info(consolaLogger, "Finalización de consola PID <%d> correctamente por instruccion EXIT", idProceso);
+    log_info(consolaDebuggingLogger, "Finalización de consola PID <%d> correctamente por instruccion EXIT", idProceso);
+    
+    consola_destroy(consolaConfig, consolaLogger, consolaDebuggingLogger);         
+    exit(EXIT_SUCCESS);
+
+    return;
+}

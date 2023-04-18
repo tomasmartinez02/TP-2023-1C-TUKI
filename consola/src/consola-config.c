@@ -10,6 +10,7 @@ static void __consola_config_initializer(void *moduleConfig, t_config *tempCfg)
     consolaConfig->IP_KERNEL = strdup(config_get_string_value(tempCfg, "IP_KERNEL"));
     consolaConfig->PUERTO_KERNEL = strdup(config_get_string_value(tempCfg, "PUERTO_KERNEL"));
     consolaConfig->SOCKET_KERNEL = -1;
+    consolaConfig->PID = -1;
 
     return;
 }
@@ -52,7 +53,17 @@ int consola_config_get_socket_kernel(t_consola_config *self)
     return self->SOCKET_KERNEL;
 }
 
+int consola_config_get_pid(t_consola_config *self)
+{
+    return self->PID;
+}
+
 void consola_config_set_socket_kernel(t_consola_config *self, int socketKernel)
 {
     self->SOCKET_KERNEL = socketKernel;
+}
+
+void consola_config_set_pid(t_consola_config *self, uint32_t pid)
+{
+    self->PID = pid;
 }

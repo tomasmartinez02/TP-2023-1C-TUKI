@@ -67,6 +67,14 @@ char *consola_config_get_puerto_kernel(t_consola_config *self);
 int consola_config_get_socket_kernel(t_consola_config *self);
 
 /**
+ * @brief Toma el valor del pid de la consola
+ * 
+ * @param self: Estructura de configuracion de la consola  
+ * @return int: Pid de la consola 
+ */
+int consola_config_get_pid(t_consola_config *self);
+
+/**
  * @brief Setea el valor del socket del kernel en config
  * 
  * @param self: Estructura de configuracion de la consola
@@ -75,5 +83,13 @@ int consola_config_get_socket_kernel(t_consola_config *self);
  * @example consola_config_set_socket_kernel(consolaConfig, socketKernel);
  */
 void consola_config_set_socket_kernel(t_consola_config *self, int socketKernel);
+
+/**
+ * @brief Setea el valor del pid de la consola en config
+ * 
+ * @param self: Estructura de configuracion de la consola 
+ * @param pid: Pid de la consola 
+ */
+void consola_config_set_pid(t_consola_config *self, uint32_t pid);
 
 #endif

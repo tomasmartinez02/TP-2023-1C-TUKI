@@ -2,6 +2,8 @@
 #ifndef CONSOLA_ESTRUCTURAS_H_
 #define CONSOLA_ESTRUCTURAS_H_
 
+//Bibliotecas estandar
+#include <stdint.h>
 // Bibliotecas commons
 #include <commons/log.h>
 
@@ -11,6 +13,7 @@ struct consola_config
     char* IP_KERNEL;
     char* PUERTO_KERNEL;
     int SOCKET_KERNEL;
+    uint32_t PID;
 };
 typedef struct consola_config t_consola_config;
 

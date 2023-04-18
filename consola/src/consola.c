@@ -21,5 +21,13 @@ int main(int argc, char *argv[])
     // Conexion con kernel
     conectar_a_kernel();
     
+    // Parseamos y enviamos las instrucciones al kernel
+
+    // Recibir pid del kernel
+    receive_pid_kernel();
+
+    // Esperamos la finalizacion por parte del kernel
+    wait_kernel_response();
+    
     return 0;
 }

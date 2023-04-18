@@ -48,9 +48,24 @@ void send_handshake_kernel(const int socketKernel, t_log *consolaLogger);
  */
 void receive_handshake_kernel(const int socketKernel, t_consola_config* consolaConfig, t_log* consolaLogger, t_log *consolaDebuggingLogger);
 
+/**
+ * @brief Parsea y envia las instrucciones leidas del archivo de instrucciones
+ * 
+ * @param pathArchivoInstrucciones: Path al archivo de instrucciones 
+ */
+void consola_enviar_instrucciones_a_kernel(const char *pathArchivoInstrucciones);
 
-//void consola_enviar_instrucciones_a_kernel(const char *pathArchivoInstrucciones, const int kernelSocket, t_consola_config* consolaConfig, t_log *consolaLogger);
-//uint32_t receive_pid_kernel(const int kernelSocket, t_consola_config* consolaConfig, t_log* consolaLogger);
-//void wait_kernel_response(int kernelSocket, uint32_t processId, t_consola_config* consolaConfig, t_log* consolaLogger);
+/**
+ * @brief Recibe el pid del kernel
+ *  
+ * @return uint32_t: Pid de la consola 
+ */
+uint32_t receive_pid_kernel();
+
+/**
+ * @brief Espera el mensaje de finalizacion del kernel
+ * 
+ */
+void wait_kernel_response();
 
 #endif
