@@ -59,7 +59,7 @@ void consola_enviar_instrucciones_a_kernel(const char *pathArchivoInstrucciones)
     t_buffer *bufferInstrucciones = buffer_create();
     
     int socketKernel = consola_config_get_socket_kernel(consolaConfig);
-    if (!consola_parser_parse_instructions(bufferInstrucciones, pathArchivoInstrucciones)) {
+    if (!consola_parser_parse_instrucciones(bufferInstrucciones, pathArchivoInstrucciones)) {
         stream_send_empty_buffer(socketKernel, HEADER_error);
         log_error(consolaLogger, "Ocurrio un error en el parseo de las instrucciones. Finalizando consola...");
         log_error(consolaDebuggingLogger, "Ocurrio un error en el parseo de las instrucciones. Finalizando consola...");

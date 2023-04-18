@@ -22,6 +22,9 @@ int main(int argc, char *argv[])
     conectar_a_kernel();
     
     // Parseamos y enviamos las instrucciones al kernel
+    char *pathArchivoInstrucciones = string_duplicate(argv[2]);
+    consola_enviar_instrucciones_a_kernel(pathArchivoInstrucciones);
+    free(pathArchivoInstrucciones);
 
     // Recibir pid del kernel
     receive_pid_kernel();

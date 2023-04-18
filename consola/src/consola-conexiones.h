@@ -4,7 +4,7 @@
 
 //Bibliotecas estandares
 //#include <readline/readline.h>
-//#include <consola-parser.h>
+#include <consola-parser.h>
 //Biblioteca Static Utils
 #include <conexiones/conexiones.h>
 #include <serializacion/buffer.h>
