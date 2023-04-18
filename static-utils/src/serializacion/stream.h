@@ -7,7 +7,7 @@
 enum header
 {
     HEADER_error,
-    //HEADER_pid,
+    HEADER_pid,
     HEADER_lista_instrucciones,
     //HEADER_interrumpir_ejecucion,
     //HEADER_marco,
