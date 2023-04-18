@@ -1,3 +1,4 @@
+// Biblioteca usada para usar instrucciones y registros cpu
 #ifndef INSTRUCCIONES_H_
 #define INSTRUCCIONES_H_
 
