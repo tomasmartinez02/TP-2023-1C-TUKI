@@ -515,12 +515,12 @@ void info_instruccion_set_operando1(t_info_instruccion* self, uint32_t operando1
 
 void info_instruccion_set_operando2(t_info_instruccion* self, uint32_t operando2) 
 {
-    self->operando1 = operando2;
+    self->operando2 = operando2;
 }
 
 void info_instruccion_set_operando3(t_info_instruccion *self, uint32_t operando3)
 {
-    self->operando1 = operando3;
+    self->operando3 = operando3;
 }
 
 void info_instruccion_set_registro1(t_info_instruccion* self, t_registro registro1) 
@@ -542,11 +542,13 @@ void info_instruccion_set_valor_set(t_info_instruccion *self, char *valorSet)
 void info_instruccion_set_dispositivo_io(t_info_instruccion *self, char *dispositivoIo) 
 {
     self->dispositivoIo = dispositivoIo != NULL ? string_duplicate(dispositivoIo) : dispositivoIo;
+    return;
 }
 
 void info_instruccion_set_nombre_archivo(t_info_instruccion *self, char *nombreArchivo)
 {
     self->nombreArchivo = nombreArchivo != NULL ? string_duplicate(nombreArchivo) : nombreArchivo;
+    return;
 }
 
 // Getters registros cpu
