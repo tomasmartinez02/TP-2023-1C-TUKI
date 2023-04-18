@@ -11,6 +11,30 @@
 #include <serializacion/buffer.h>
 #include <conexiones/conexiones.h>
 
+// Enums y Estructuras
+enum registro {
+
+    // Registros 4 bytes
+    REGISTRO_ax,
+    REGISTRO_bx,
+    REGISTRO_cx,
+    REGISTRO_dx,
+    // Registros 8 bytes
+    REGISTRO_eax,
+    REGISTRO_ebx,
+    REGISTRO_ecx,
+    REGISTRO_edx,
+    // Registros 16 bytes
+    REGISTRO_rax,
+    REGISTRO_rbx,
+    REGISTRO_rcx,
+    REGISTRO_rdx,
+    REGISTRO_null
+
+};
+
+typedef enum registro t_registro;
+
 enum tipo_instruccion {
 
     // Registros/memoria
@@ -39,28 +63,6 @@ enum tipo_instruccion {
     
 };
 typedef enum tipo_instruccion t_tipo_instruccion;
-
-enum registro {
-
-    // Registros 4 bytes
-    REGISTRO_ax,
-    REGISTRO_bx,
-    REGISTRO_cx,
-    REGISTRO_dx,
-    // Registros 8 bytes
-    REGISTRO_eax,
-    REGISTRO_ebx,
-    REGISTRO_ecx,
-    REGISTRO_edx,
-    // Registros 16 bytes
-    REGISTRO_rax,
-    REGISTRO_rbx,
-    REGISTRO_rcx,
-    REGISTRO_rdx,
-    REGISTRO_null
-
-};
-typedef enum registro t_registro;
 
 struct instruccion {
     
@@ -91,6 +93,7 @@ struct info_instruccion {
     
 };
 typedef struct info_instruccion t_info_instruccion;
+
 struct registros_cpu{
 
     // Registros 4 bytes
@@ -112,15 +115,67 @@ struct registros_cpu{
 };
 typedef struct registros_cpu t_registros_cpu;
 
-t_registros_cpu *registros_cpu_create(void);
-void registros_cpu_destroy(t_registros_cpu *registrosCpu);
-char *instruccion_to_string(t_instruccion *self);
+// Prototipos
+
+// Creates y destroys de estructuras
+
+/**
+ * @brief Crea una instruccion
+ * 
+ * @param tipoInstruccion: Identificador de la instruccion
+ * @param infoInstruccion: Estructura auxiliar que para cargar la instruccion
+ * @return t_instruccion*: Instruccion creada e instanciada 
+ */
 t_instruccion *instruccion_create(t_tipo_instruccion tipoInstruccion, t_info_instruccion *infoInstruccion);
-void instruccion_destroy(void *selfVoid);
+
+/**
+ * @brief Crea la estructura para guardar la informacion de la instruccion
+ * 
+ * @return t_info_instruccion*: Estructura de la info instruccion 
+ */
 t_info_instruccion *info_instruccion_create(void);
+
+/**
+ * @brief Libera la memoria de la estructura para guardar la info de la instruccion
+ * 
+ * @param self: Info instruccion a destruir 
+ */
 void info_instruccion_destroy(t_info_instruccion *self);
-t_list* instruccion_list_create_from_buffer(t_buffer* bufferConInstrucciones, t_log* logger);
-void destroy_instructions_list(t_list* instructionsList);
+
+/**
+ * @brief Crea la estructura para guardar los registros en cpu y en los pcb
+ * 
+ * @return t_registros_cpu*: Estructura que contiene los registros de cpu o pcb 
+ */
+t_registros_cpu *registros_cpu_create(void);
+
+/**
+ * @brief Libera la memoria de la estructura que guarda los registros de cpu o pcb
+ * 
+ * @param self: Estructura de registros cpu o pcb 
+ */
+void registros_cpu_destroy(t_registros_cpu *self);
+
+// Create y destroy de la lista de instrucciones
+
+/**
+ * @brief Crea una lista de instruccion a partir de un buffer de instrucciones
+ * 
+ * @param bufferConInstrucciones: Buffer que contiene instrucciones serializadas 
+ * @param loggerModulo: Logger del modulo que lo llama 
+ * @return t_list*: Lista de instrucciones 
+ */
+t_list *instruccion_list_create_from_buffer(t_buffer *bufferConInstrucciones, t_log *loggerModulo);
+
+/**
+ * @brief Destruye la lista de instrucciones
+ * 
+ * @param listaInstrucciones 
+ */
+void destroy_lista_instrucciones(t_list* listaInstrucciones);
+
+// Getters instruccion
+
 t_tipo_instruccion instruccion_get_tipo_instruccion(t_instruccion *self);
 uint32_t instruccion_get_operando1(t_instruccion *self);
 uint32_t instruccion_get_operando2(t_instruccion *self);
@@ -131,6 +186,9 @@ char *instruccion_get_valor_set(t_instruccion *self);
 char *instruccion_get_dispositivo_io(t_instruccion *self);
 char *instruccion_get_nombre_archivo (t_instruccion *self);
 char *instruccion_get_to_string(t_instruccion *self);
+
+// Getters info instruccion
+
 uint32_t info_instruccion_get_operando1(t_info_instruccion *self);
 uint32_t info_instruccion_get_operando2(t_info_instruccion *self);
 uint32_t info_instruccion_get_operando3(t_info_instruccion *self);
@@ -139,6 +197,9 @@ t_registro info_instruccion_get_registro2(t_info_instruccion *self);
 char *info_instruccion_get_valor_set(t_info_instruccion *self);
 char *info_instruccion_get_dispositivo_io(t_info_instruccion *self);
 char *info_instruccion_get_nombre_archivo (t_info_instruccion *self);
+
+// Setters info instruccion
+
 void info_instruccion_set_operando1(t_info_instruccion* self, uint32_t operando1); 
 void info_instruccion_set_operando2(t_info_instruccion* self, uint32_t operando2); 
 void info_instruccion_set_operando3(t_info_instruccion *self, uint32_t operando3);
@@ -147,5 +208,35 @@ void info_instruccion_set_registro2(t_info_instruccion* self, t_registro registr
 void info_instruccion_set_valor_set(t_info_instruccion *self, char *valorSet);
 void info_instruccion_set_dispositivo_io(t_info_instruccion *self, char *dispositivoIo); 
 void info_instruccion_set_nombre_archivo(t_info_instruccion *self, char *nombreArchivo);
+
+// Getters registros cpu
+
+char *registros_cpu_get_registro_ax(t_registros_cpu *self);
+char *registros_cpu_get_registro_bx(t_registros_cpu *self);
+char *registros_cpu_get_registro_cx(t_registros_cpu *self);
+char *registros_cpu_get_registro_dx(t_registros_cpu *self);
+char *registros_cpu_get_registro_eax(t_registros_cpu *self);
+char *registros_cpu_get_registro_ebx(t_registros_cpu *self);
+char *registros_cpu_get_registro_ecx(t_registros_cpu *self);
+char *registros_cpu_get_registro_edx(t_registros_cpu *self);
+char *registros_cpu_get_registro_rax(t_registros_cpu *self);
+char *registros_cpu_get_registro_rbx(t_registros_cpu *self);
+char *registros_cpu_get_registro_rcx(t_registros_cpu *self);
+char *registros_cpu_get_registro_rdx(t_registros_cpu *self);
+
+// Setters registros cpu
+
+void registros_cpu_set_registro_ax(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_bx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_cx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_dx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_eax(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_ebx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_ecx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_edx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_rax(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_rbx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_rcx(t_registros_cpu *self, char *valor);
+void registros_cpu_set_registro_rdx(t_registros_cpu *self, char *valor);
 
 #endif
