@@ -29,14 +29,32 @@ struct kernel_config
 };
 typedef struct kernel_config t_kernel_config;
 
-typedef struct 
-{
+typedef struct {
+    uint32_t pid;
+    t_buffer* instructionsBuffer;
+    uint32_t programCounter;
+    //t_registros_cpu* registrosCpu;
+    uint32_t estimadoProxRafaga;
+    uint32_t tiempoLlegadaReady;
+    //archivos abiertos
+    //uint32_t* tablaSegmentos [no sabemos si deberia ser un int]
+    t_nombre_estado estadoActual; 
+    t_nombre_estado estadoDeFinalizacion;
+    t_nombre_estado estadoAnterior;
+    bool procesoBloqueadoOTerminado;
+
+    //uint32_t* arrayTablaPaginas;
+    //int socketProceso;
+    //char* dispositivoIoEnUso;
+    //uint32_t cantidadUnidadesTiemposIo;
+    //t_registro registroUsadoEnIo;
+
+    //pthread_mutex_t* mutex;
 
 } t_pcb;
 
 typedef enum 
-{
-    NEW,
+{    NEW,
     READY,
     EXEC,
     EXIT,
