@@ -1,19 +1,19 @@
-#include <kernel-pcb.h>
+#include <kernel-pbc.h>
 
-t_pcb* pcb_create(uint32_t pid, uint32_t* arraySegmentos) 
+t_pcb* pcb_create(uint32_t pid)
 {
     t_pcb* pcb = malloc(sizeof(*pcb));
     pcb->pid = pid;
-    pcb->instructionsBuffer = NULL;
+    pcb->instrucciones = NULL;
     pcb->programCounter = 0;
-    pcb->registrosCpu = NULL;
-    pcb->estimadoProxRafaga = 0;
+    //pcb->registrosCpu = NULL;
+    pcb->estimadoProxRafaga = 0; // el valor inicial se saca del config y después se calcula
     pcb->tiempoLlegadaReady = 0;
     //pcb->tablaSegmentos = NULL;
     //pcb->archivosAbiertos = NULL;
     pcb->estadoActual = NEW;
-    pcb->estadoDeFinalizacion = NEW;
-    pcb->estadoAnterior = NEW;
+    //pcb->estadoDeFinalizacion = NEW;
+    //pcb->estadoAnterior = NEW;
     pcb->procesoBloqueadoOTerminado = false;
 
     /*
@@ -28,18 +28,17 @@ t_pcb* pcb_create(uint32_t pid, uint32_t* arraySegmentos)
     return pcb;
 }
 
-
-void pcb_destroy(t_pcb* self) 
+void pcb_destroy(t_pcb* pcb) 
 {
-    if (self->instructionsBuffer != NULL) {
+    if (pcb->instrucciones != NULL) {
         
-        buffer_destroy(self->instructionsBuffer);
+        buffer_destroy(pcb->instrucciones);
     }
 
-    if (self->registrosCpu != NULL) {
+    /*if (pcb->registrosCpu != NULL) {
         
-        free(self->registrosCpu);
-    }
+        free(pcb->registrosCpu);
+    }*/
 
     /*
     if(self->dispositivoIoEnUso != NULL) {
@@ -54,12 +53,61 @@ void pcb_destroy(t_pcb* self)
     free(self->mutex);
     */
 
-    free(self);
+    free(pcb);
 }
 
-
-uint32_t pcb_get_pid(t_pcb* self) 
+uint32_t pcb_get_pid(t_pcb* pcb) 
 {
-    return self->pid;
+    return pcb->pid;
+}
+
+t_buffer* pcb_get_instrucciones(t_pcb* pcb) 
+{
+    return pcb->instrucciones;
+}
+
+void pcb_set_instrucciones(t_pcb* pcb, t_buffer* instructionsBuffer) 
+{
+    pcb->instrucciones = instructionsBuffer;
+}
+
+uint32_t pcb_get_program_counter(t_pcb* pcb) 
+{
+    return pcb->programCounter;
+}
+
+void pcb_set_program_counter(t_pcb* pcb, uint32_t programCounter) 
+{
+    pcb->programCounter = programCounter;
+}
+
+/*t_registros_cpu* pcb_get_registros_cpu(t_pcb* pcb)
+{
+    return pcb->registrosCpu;
+}*/
+
+/*void pcb_set_registros_cpu(t_pcb* pcb, t_registros_cpu* registrosCpu)
+{
+    pcb->registrosCpu = registrosCpu;
+}*/
+
+uint32_t pcb_get_estimado_prox_rafaga (t_pcb *pcb)
+{
+    return pcb->estimadoProxRafaga;
+}
+
+void pcb_set_estimado_prox_rafaga (t_pcb *pcb, uint32_t estimadoProxRafaga)
+{
+    pcb->estimadoProxRafaga = estimadoProxRafaga;
+}
+
+uint32_t pcb_get_tiempo_llegada_ready (t_pcb *pcb)
+{
+    return pcb->tiempoLlegadaReady;
+}
+
+void pcb_set_tiempo_llegada_ready (t_pcb *pcb, uint32_t tiempoLlegadaReady)
+{
+    pcb->tiempoLlegadaReady = tiempoLlegadaReady;
 }
 
