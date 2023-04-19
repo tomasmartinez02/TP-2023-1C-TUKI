@@ -2,6 +2,7 @@
 
 // Funciones privadas
 
+// Abstrae la logica para conectarse a los distintos modulos
 static int __conectar_a_modulo(char *nombreModulo, char *(*get_ip_modulo)(t_kernel_config *), char *(*get_puerto_modulo)(t_kernel_config *), 
 void (*set_socket_modulo)(t_kernel_config *, int), void (*send_handshake_modulo)(int, t_log *), void (*receive_handshake_modulo)(const int, t_kernel_config *, t_log *, t_log *))
 {
@@ -28,6 +29,15 @@ void (*set_socket_modulo)(t_kernel_config *, int), void (*send_handshake_modulo)
     log_info(kernelDebuggingLogger, "Conexión con modulo %s establecida exitosamente", nombreModulo);
 
     return socketModulo;
+}
+
+// Crea los hilos para manejar las conexiones de las consolas
+static void __crear_hilo_handler_conexion_entrante(int *socket) 
+{
+    //pthread_t threadSuscripcion;
+    //pthread_create(&threadSuscripcion, NULL, encolar_en_new_a_nuevo_pcb_entrante, (void*)socket);
+    //pthread_detach(threadSuscripcion);
+    return;
 }
 
 // Funciones publicas
@@ -168,9 +178,9 @@ void aceptar_conexiones_kernel(const int socketEscucha)
         
         if (clienteAceptado > -1) {
             
-            //int* socketCliente = malloc(sizeof(*socketCliente));
-            //*socketCliente = clienteAceptado;
-            //crear_hilo_handler_conexion_entrante(socketCliente);
+            int* socketCliente = malloc(sizeof(*socketCliente));
+            *socketCliente = clienteAceptado;
+            __crear_hilo_handler_conexion_entrante(socketCliente);
 
             t_handshake handshakeConsola = stream_recv_header(clienteAceptado);
 
@@ -189,11 +199,4 @@ void aceptar_conexiones_kernel(const int socketEscucha)
             log_error(kernelDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
         }
     //}
-}
-
-void crear_hilo_handler_conexion_entrante(int* socket) 
-{
-    //pthread_t threadSuscripcion;
-    //pthread_create(&threadSuscripcion, NULL, encolar_en_new_a_nuevo_pcb_entrante, (void*)socket);
-    //pthread_detach(threadSuscripcion);
 }

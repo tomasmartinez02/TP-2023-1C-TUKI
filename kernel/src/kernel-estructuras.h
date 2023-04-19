@@ -1,6 +1,6 @@
 // Biblioteca para guardar las estructuras y variables globales del kernel
-#ifndef CONSOLA_ESTRUCTURAS_H_
-#define CONSOLA_ESTRUCTURAS_H_
+#ifndef KERNEL_ESTRUCTURAS_H_
+#define KERNEL_ESTRUCTURAS_H_
 
 // Bibliotecas commons
 #include <commons/log.h>
@@ -25,6 +25,7 @@ struct kernel_config
     int SOCKET_MEMORIA;
     int SOCKET_CPU;
     int SOCKET_FILESYSTEM;
+    int SOCKET_KERNEL;
 };
 typedef struct kernel_config t_kernel_config;
 

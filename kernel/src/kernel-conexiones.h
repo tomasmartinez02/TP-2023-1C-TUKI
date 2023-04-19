@@ -112,6 +112,4 @@ int inicializar_servidor_kernel(void);
 
 void aceptar_conexiones_kernel(const int socketEscucha);
 
-void crear_hilo_handler_conexion_entrante(int *socket);
-
 #endif
