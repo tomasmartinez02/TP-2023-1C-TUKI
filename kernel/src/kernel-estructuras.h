@@ -29,6 +29,26 @@ struct kernel_config
 };
 typedef struct kernel_config t_kernel_config;
 
+typedef struct 
+{
+
+} t_pcb;
+
+typedef enum 
+{
+    NEW,
+    READY,
+    EXEC,
+    EXIT,
+    BLOCKED,
+} t_nombre_estado;
+
+typedef struct
+{
+    t_nombre_estado nombreEstado;
+    t_list* listaProcesos;
+} t_estado;
+
 // Variables globales
 extern t_log *kernelDebuggingLogger;
 extern t_log *kernelLogger;

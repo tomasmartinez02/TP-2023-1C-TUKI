@@ -3,6 +3,8 @@
 #define KERNEL_CONEXIONES_H_
 
 //Bibliotecas estandares
+#include <pthread.h>
+#include <semaphore.h>
 //Biblioteca Static Utils
 #include <conexiones/conexiones.h>
 #include <serializacion/buffer.h>

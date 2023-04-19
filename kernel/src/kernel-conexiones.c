@@ -26,7 +26,7 @@ void (*set_socket_modulo)(t_kernel_config *, int), void (*send_handshake_modulo)
     send_handshake_modulo(socketModulo, kernelDebuggingLogger);
     receive_handshake_modulo(socketModulo, kernelConfig, kernelLogger, kernelDebuggingLogger);
 
-    log_info(kernelDebuggingLogger, "Conexión con modulo %s establecida exitosamente", nombreModulo);
+    log_info(kernelDebuggingLogger, "Conexion con modulo %s establecida exitosamente", nombreModulo);
 
     return socketModulo;
 }
@@ -34,9 +34,9 @@ void (*set_socket_modulo)(t_kernel_config *, int), void (*send_handshake_modulo)
 // Crea los hilos para manejar las conexiones de las consolas
 static void __crear_hilo_handler_conexion_entrante(int *socket) 
 {
-    //pthread_t threadSuscripcion;
-    //pthread_create(&threadSuscripcion, NULL, encolar_en_new_a_nuevo_pcb_entrante, (void*)socket);
-    //pthread_detach(threadSuscripcion);
+    pthread_t threadSuscripcion;
+    pthread_create(&threadSuscripcion, NULL, encolar_en_new_a_nuevo_pcb_entrante, (void*)socket);
+    pthread_detach(threadSuscripcion);
     return;
 }
 
@@ -172,13 +172,13 @@ void aceptar_conexiones_kernel(const int socketEscucha)
     
     log_info(kernelDebuggingLogger, "A la escucha de nuevas conexiones en puerto %d", socketEscucha);
     
-    //for (;;) {
+    for (;;) {
         
         const int clienteAceptado = accept(socketEscucha, &cliente, &len);
         
         if (clienteAceptado > -1) {
             
-            int* socketCliente = malloc(sizeof(*socketCliente));
+            int* socketCliente = malloc(sizeof(*socketCliente)); // Ojo con manejo de enteros
             *socketCliente = clienteAceptado;
             __crear_hilo_handler_conexion_entrante(socketCliente);
 
@@ -190,13 +190,13 @@ void aceptar_conexiones_kernel(const int socketEscucha)
                 log_info(kernelDebuggingLogger, "Se ha enviado la respuesta al handshake inicialde  la consola con handshake ok continue");
             }
             else {
-                log_error(kernelLogger, "Error al intentar establecer conexión con consola mediante <socket %d>", clienteAceptado);
-                log_error(kernelDebuggingLogger, "Error al intentar establecer conexión con consola mediante <socket %d>", clienteAceptado);
+                log_error(kernelLogger, "Error al intentar establecer conexion con consola mediante <socket %d>", clienteAceptado);
+                log_error(kernelDebuggingLogger, "Error al intentar establecer conexion con consola mediante <socket %d>", clienteAceptado);
             }
         } 
         else {
-            log_error(kernelLogger, "Error al aceptar conexión: %s", strerror(errno));
-            log_error(kernelDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
+            log_error(kernelLogger, "Error al aceptar conexion: %s", strerror(errno));
+            log_error(kernelDebuggingLogger, "Error al aceptar conexion: %s", strerror(errno));
         }
-    //}
+    }
 }
