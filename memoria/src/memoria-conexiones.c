@@ -10,6 +10,8 @@ static void __handshake_iniciales(char* modulo, int clienteAceptado)
     log_info(memoriaDebuggingLogger, "Se ha enviado la respuesta al handshake inicial de %s con handshake ok continue", modulo);
 }
 
+
+// Funciones publicas
 // Levantar servidor de escucha
 
 int inicializar_servidor_memoria(void)
