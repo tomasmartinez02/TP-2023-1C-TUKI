@@ -186,7 +186,7 @@ void aceptar_conexiones_kernel(const int socketEscucha)
             if (handshakeConsola == HANDSHAKE_consola) {
                 log_info(kernelDebuggingLogger, "Se recibio el handshake de la consola correctamente");
                 stream_send_empty_buffer(clienteAceptado, HANDSHAKE_ok_continue);
-                log_info(kernelDebuggingLogger, "Se ha enviado la respuesta al handshake inicialde  la consola con handshake ok continue");
+                log_info(kernelDebuggingLogger, "Se ha enviado la respuesta al handshake inicial de la consola con handshake ok continue");
             }
             else {
                 log_error(kernelLogger, "Error al intentar establecer conexion con consola mediante <socket %d>", clienteAceptado);
