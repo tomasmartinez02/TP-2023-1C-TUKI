@@ -16,7 +16,7 @@
 // Prototipos
 
 /**
- * @brief Inicializa el servidor de escucha de Kernel para CPU, kernel y filesystem
+ * @brief Inicializa el servidor de escucha de la Memoria para Cpu, Kernel y Filesystem
  * 
  * @return int: Descriptor del socket de escucha del servidor
  * 
@@ -25,7 +25,7 @@
 int inicializar_servidor_memoria(void);
 
 /**
- * @brief Acepta conexiones de la memoria con CPU, kernel y filesystem
+ * @brief Acepta conexiones de la Memoria con CPU, Kernel y Filesystem
  *
  * @param socketEscuchaCPU: Descriptor del socket de escucha del servidor
  * 

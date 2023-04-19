@@ -8,14 +8,14 @@
 // Estructuras
 struct memoria_config 
 {
-    char* IP_ESCUCHA;
-    char* PUERTO_ESCUCHA;
+    char *IP_ESCUCHA;
+    char *PUERTO_ESCUCHA;
     u_int32_t TAM_MEMORIA;
     u_int32_t TAM_SEGMENTO_0;
     u_int32_t CANT_SEGMENTOS;
     u_int32_t RETARDO_MEMORIA;
     u_int32_t RETARDO_COMPACTACION;
-    char* ALGORITMO_ASIGNACION;
+    char *ALGORITMO_ASIGNACION;
 };
 typedef struct memoria_config t_memoria_config;
 

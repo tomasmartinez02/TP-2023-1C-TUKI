@@ -13,9 +13,9 @@
 /**
  * @brief Destruye las estructuras principales de la memoria
  * 
- * @param memoriaConfig: Estructura de configuracion del kernel
- * @param memoriaLogger: Logger del kernel
- * @param memoriaDebuggingLogger: Logger de debugging del kernel
+ * @param memoriaConfig: Estructura de configuracion de la Memoria
+ * @param memoriaLogger: Logger de la Memoria
+ * @param memoriaDebuggingLogger: Logger de debugging de la Memoria
  * 
  * @example memoria_destroy(memoriaConfig, memoriaLogger, memoriaDebuggingLogger); 
  */

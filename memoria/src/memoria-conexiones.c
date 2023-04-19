@@ -19,23 +19,21 @@ int inicializar_servidor_memoria(void)
     int tempMemoriaSocketServerEscucha = iniciar_servidor(ipMemoria, puertoMemoria);
 
     if (tempMemoriaSocketServerEscucha == -1) {
-        
         log_error(memoriaLogger, "Error al intentar iniciar servidor de Memoria");
         log_error(memoriaDebuggingLogger, "Error al intentar iniciar servidor de Memoria");
         memoria_destroy(memoriaConfig, memoriaLogger, memoriaDebuggingLogger);
         exit(EXIT_FAILURE);
     }
 
-    log_info(memoriaDebuggingLogger, "Se ha inicializado el servidor de escucha de kernel, filesystem y cpu correctamente");
+    log_info(memoriaDebuggingLogger, "Se ha inicializado el servidor de escucha de Kernel, Cpu y Filesystem correctamente");
     
     return tempMemoriaSocketServerEscucha;
 }
 
 // Aceptar conexiones con CPU, filesystem y kernel
 
-void aceptar_conexiones(int socketEscucha) {
-
-
+void aceptar_conexiones(int socketEscucha) 
+{
     bool cpuSinAtender = true;
     bool kernelSinAtender = true;
     bool filesystemSinAtender = true;
@@ -70,10 +68,9 @@ void aceptar_conexiones(int socketEscucha) {
                     break;
 
                 default:
-                log_error(memoriaLogger, "Error al aceptar conexión: %s", strerror(errno));
-                log_error(memoriaDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
-
-                break;
+                    log_error(memoriaLogger, "Error al aceptar conexión: %s", strerror(errno));
+                    log_error(memoriaDebuggingLogger, "Error al aceptar conexión: %s", strerror(errno));
+                    break;
             }
         } 
         else {

@@ -45,7 +45,7 @@ char *memoria_config_get_ip_escucha(t_memoria_config *self) ;
  * @param memoriaConfig: Estructura de configuracion de la memoria
  * @return char*: puerto de escucha guardado en la configuracion
  * 
- * @example char *ipKernel = memoria_config_get_kernel_ip(memoriaConfig);
+ * @example char *ipMemoria = memoria_config_get_puerto_escucha(memoriaConfig);
  */
 char *memoria_config_get_puerto_escucha(t_memoria_config *self);
 
@@ -65,9 +65,9 @@ uint32_t memoria_config_get_tamanio_memoria(t_memoria_config *self);
  * @param memoriaConfig: Estructura de configuracion de la memoria 
  * @return uint32_t: tamaño de segmento guardado en la configuracion
  * 
- * @example uint32_t tamanio_segmento = memoria_config_get_tamanio_segmento(memoriaConfig);
+ * @example uint32_t tamanio_segmento = memoria_config_get_tamanio_segmento_cero(memoriaConfig);
  */
-uint32_t memoria_config_get_tamanio_segmento(t_memoria_config *self);
+uint32_t memoria_config_get_tamanio_segmento_cero(t_memoria_config *self);
 
 /**
  * @brief Toma el valor de la cantidad de segmentos guardado en configuracion

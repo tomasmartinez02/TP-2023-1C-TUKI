@@ -7,7 +7,7 @@ static void __memoria_config_initializer(void *moduleConfig, t_config *tempCfg)
 {
     t_memoria_config *memoriaConfig = (t_memoria_config *) moduleConfig;
 
-    memoriaConfig->IP_ESCUCHA = strdup(config_get_string_value(tempCfg, "PUERTO_ESCUCHA"));
+    memoriaConfig->IP_ESCUCHA = strdup(config_get_string_value(tempCfg, "IP_ESCUCHA"));
     memoriaConfig->PUERTO_ESCUCHA = strdup(config_get_string_value(tempCfg, "PUERTO_ESCUCHA"));
     memoriaConfig->TAM_MEMORIA = (uint32_t) config_get_int_value(tempCfg, "TAM_MEMORIA");
     memoriaConfig->TAM_SEGMENTO_0 = (uint32_t) config_get_int_value(tempCfg, "TAM_SEGMENTO_0");
@@ -35,6 +35,7 @@ t_memoria_config *memoria_config_create(char *memoriaConfigPath, t_log *memoriaL
 
 void memoria_config_destroy(t_memoria_config *self) 
 {
+    free(self->IP_ESCUCHA);
     free(self->PUERTO_ESCUCHA);
     free(self->ALGORITMO_ASIGNACION);
     free(self);
@@ -44,7 +45,7 @@ void memoria_config_destroy(t_memoria_config *self)
 
 char *memoria_config_get_ip_escucha(t_memoria_config *self) 
 {
-    return self->PUERTO_ESCUCHA;
+    return self->IP_ESCUCHA;
 }
 
 char *memoria_config_get_puerto_escucha(t_memoria_config *self) 
@@ -57,7 +58,7 @@ uint32_t memoria_config_get_tamanio_memoria(t_memoria_config *self)
     return self->TAM_MEMORIA;
 }
 
-uint32_t memoria_config_get_tamanio_segmento(t_memoria_config *self)
+uint32_t memoria_config_get_tamanio_segmento_cero(t_memoria_config *self)
 {
     return self->TAM_SEGMENTO_0;
 }

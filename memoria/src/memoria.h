@@ -5,7 +5,7 @@
 #define MEMORIA_LOG_PATH "./logs/memoria-minimum.log"
 #define MEMORIA_LOG_PATH_DEBUGGING "./logs/memoria-debugging.log"
 // Defines nombre modulo
-#define MEMORIA_MODULE_NAME "memoria"
+#define MEMORIA_MODULE_NAME "Memoria"
 // Defines chequeo argumentos consola
 #define NUMBER_OF_ARGS_REQUIRED 2
 #define ARGUMENTS_ERROR_MESSAGE "Argumentos: <pathArchivoConfiguracion>" //No dice nada en el enunciado asi que por el momento dejo 2
