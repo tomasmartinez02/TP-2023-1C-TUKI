@@ -45,8 +45,10 @@ static void __crear_hilo_handler_conexion_entrante(int *socket)
 // Funciones para conectar con el CPU
 
 int conectar_a_cpu(void)
-{
-    return __conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);
+{   
+    int socketCPU = __conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);__conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);
+    kernel_config_set_socket_filesystem(kernelConfig, socketCPU);
+    return socketCPU;
 }
 
 void send_handshake_cpu(const int socketCpu, t_log *kernelLogger)
@@ -79,8 +81,10 @@ void receive_handshake_cpu(const int socketCpu, t_kernel_config* kernelConfig, t
 // Funciones para conectar con la memoria
 
 int conectar_a_memoria()
-{
-    return __conectar_a_modulo("Memoria", kernel_config_get_ip_memoria, kernel_config_get_puerto_memoria, kernel_config_set_socket_memoria, send_handshake_memoria, receive_handshake_memoria);
+{   
+    int socketMemoria = __conectar_a_modulo("Memoria", kernel_config_get_ip_memoria, kernel_config_get_puerto_memoria, kernel_config_set_socket_memoria, send_handshake_memoria, receive_handshake_memoria);
+    kernel_config_set_socket_memoria(kernelConfig, socketMemoria);
+    return socketMemoria;
 }
 
 void send_handshake_memoria(const int socketMemoria, t_log *kernelLogger)
@@ -111,10 +115,11 @@ void receive_handshake_memoria(const int socketMemoria, t_kernel_config* kernelC
 }
 
 // Funciones para conectar con filesystem
-
 int conectar_a_filesystem()
-{
-    return __conectar_a_modulo("Filesystem", kernel_config_get_ip_filesystem, kernel_config_get_puerto_filesystem, kernel_config_set_socket_filesystem, send_handshake_filesystem, receive_handshake_filesystem);
+{   
+    int socketFilesystem = __conectar_a_modulo("Filesystem", kernel_config_get_ip_filesystem, kernel_config_get_puerto_filesystem, kernel_config_set_socket_filesystem, send_handshake_filesystem, receive_handshake_filesystem);
+    kernel_config_set_socket_filesystem(kernelConfig, socketFilesystem);
+    return socketFilesystem;
 }
 
 void send_handshake_filesystem(const int socketFilesystem, t_log *kernelLogger)
