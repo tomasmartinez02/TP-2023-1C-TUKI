@@ -25,6 +25,8 @@
 #include <kernel-config.h>
 #include <kernel-conexiones.h>
 #include <kernel-estructuras.h>
+#include <kernel-estados.h>
+#include <kernel-pcb.h>
 
 // Estructuras (TADS)
 
@@ -32,4 +34,5 @@
 // Prototipos
 
 // Variables globales
+
 #endif

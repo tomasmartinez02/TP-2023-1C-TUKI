@@ -5,15 +5,18 @@
 //Bibliotecas estandares
 #include <pthread.h>
 #include <semaphore.h>
+
 //Biblioteca Static Utils
 #include <conexiones/conexiones.h>
 #include <serializacion/buffer.h>
 #include <serializacion/stream.h>
 #include <utils/common-utils.h>
-//Bibliotecas internas modulo consola
+
+//Bibliotecas internas modulo kernel
 #include <kernel-config.h>
 #include <kernel-estructuras.h>
 #include <kernel-utils.h>
+#include <kernel-estados.h>
 
 // Prototipos
 

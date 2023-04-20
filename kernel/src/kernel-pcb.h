@@ -10,11 +10,16 @@
 //Static-utils libraries
 #include <serializacion/buffer.h>
 
-//
+// Bibliotecas internas
 #include <kernel-estructuras.h>
 
-t_pcb* pcb_create(uint32_t pid);
-void pcb_destroy(t_pcb* pcb);
+// Variable global PREGUNTAR SI ESTA BIEN ACA
+uint32_t pidAnterior = -1;
+
+t_pcb* crear_pcb(uint32_t pid);
+void destruir_pcb(t_pcb* pcb);
+
+uint32_t obtener_siguiente_pid();
 
 uint32_t pcb_get_pid(t_pcb* pcb);
 
@@ -32,5 +37,7 @@ void pcb_set_estimado_prox_rafaga (t_pcb *pcb, uint32_t estimadoProxRafaga);
 
 uint32_t pcb_get_tiempo_llegada_ready (t_pcb *pcb);
 void pcb_set_tiempo_llegada_ready (t_pcb *pcb, uint32_t tiempoLlegadaReady);
+
+void pcb_set_socket(t_pcb *pcb, int socket);
 
 #endif 

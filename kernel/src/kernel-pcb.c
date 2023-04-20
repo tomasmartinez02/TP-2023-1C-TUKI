@@ -1,6 +1,6 @@
-#include <kernel-pbc.h>
+#include <kernel-pcb.h>
 
-t_pcb* pcb_create(uint32_t pid)
+t_pcb* crear_pcb(uint32_t pid)
 {
     t_pcb* pcb = malloc(sizeof(*pcb));
     pcb->pid = pid;
@@ -15,10 +15,11 @@ t_pcb* pcb_create(uint32_t pid)
     //pcb->estadoDeFinalizacion = NEW;
     //pcb->estadoAnterior = NEW;
     pcb->procesoBloqueadoOTerminado = false;
-
+    
+    
+    //pcb->arrayTablaPaginas = NULL;
+    pcb->socketProceso = -1;
     /*
-    pcb->arrayTablaPaginas = NULL;
-    pcb->socketProceso = 0;
     pcb->dispositivoIoEnUso = NULL;
     pcb->cantidadUnidadesTiemposIo = 0;
     pcb->registroUsadoEnIo = REGISTRO_null;
@@ -28,7 +29,7 @@ t_pcb* pcb_create(uint32_t pid)
     return pcb;
 }
 
-void pcb_destroy(t_pcb* pcb) 
+void destruir_pcb(t_pcb* pcb) // HABRIA QUE CHEQUEAR QUE HAY QUE DESCOMENTAR ACA YA QUE AGREGAMOS COSAS A LA ESTRUCTURA DEL PCB
 {
     if (pcb->instrucciones != NULL) {
         
@@ -54,6 +55,15 @@ void pcb_destroy(t_pcb* pcb)
     */
 
     free(pcb);
+}
+
+uint32_t obtener_siguiente_pid()
+{
+    // Esta funcion deberia devolver un pcb nuevo que no esté en uso. Chequear que este bien asignarle desde el 1 en adelante. 
+    
+    pidAnterior++;
+
+    return pidAnterior;
 }
 
 uint32_t pcb_get_pid(t_pcb* pcb) 
@@ -111,3 +121,7 @@ void pcb_set_tiempo_llegada_ready (t_pcb *pcb, uint32_t tiempoLlegadaReady)
     pcb->tiempoLlegadaReady = tiempoLlegadaReady;
 }
 
+void pcb_set_socket(t_pcb *pcb, int socket)
+{
+    pcb->socketProceso = socket;
+}

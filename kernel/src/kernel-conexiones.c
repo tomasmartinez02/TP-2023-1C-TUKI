@@ -46,7 +46,7 @@ static void __crear_hilo_handler_conexion_entrante(int *socket)
 
 int conectar_a_cpu(void)
 {   
-    return _conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);__conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);
+    return __conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);__conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);
 }
 
 void send_handshake_cpu(const int socketCpu, t_log *kernelLogger)

@@ -4,6 +4,10 @@
 
 // Bibliotecas commons
 #include <commons/log.h>
+#include <commons/collections/list.h>
+
+//Static-utils libraries
+#include <serializacion/buffer.h>
 
 // Estructuras
 struct kernel_config 
@@ -29,6 +33,14 @@ struct kernel_config
 };
 typedef struct kernel_config t_kernel_config;
 
+typedef enum 
+{   NEW,
+    READY,
+    EXEC,
+    EXIT,
+    BLOCKED,
+} t_nombre_estado;
+
 struct pcb
 {
     uint32_t pid;
@@ -43,9 +55,9 @@ struct pcb
     //t_nombre_estado estadoDeFinalizacion;
     //t_nombre_estado estadoAnterior;
     bool procesoBloqueadoOTerminado;
+    int socketProceso;
 
     /*uint32_t* arrayTablaPaginas;
-    int socketProceso;
     char* dispositivoIoEnUso;
     int32_t cantidadUnidadesTiemposIo;
     t_registro registroUsadoEnIo;
@@ -53,18 +65,11 @@ struct pcb
 };
 typedef struct pcb t_pcb;
 
-typedef enum 
-{    NEW,
-    READY,
-    EXEC,
-    EXIT,
-    BLOCKED,
-} t_nombre_estado;
-
 typedef struct
 {
     t_nombre_estado nombreEstado;
     t_list* listaProcesos;
+    pthread_mutex_t* mutexEstado;
 } t_estado;
 
 // Variables globales
