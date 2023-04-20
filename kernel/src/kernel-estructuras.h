@@ -52,16 +52,16 @@ struct pcb
     //archivosAbiertos (no sabemos qué tipo de dato debería ser)
     //uint32_t* tablaSegmentos [no sabemos si deberia ser un int]
     t_nombre_estado estadoActual; 
-    //t_nombre_estado estadoDeFinalizacion;
-    //t_nombre_estado estadoAnterior;
+    t_nombre_estado estadoDeFinalizacion;
+    t_nombre_estado estadoAnterior;
     bool procesoBloqueadoOTerminado;
-    int socketProceso;
-
+    uint32_t socketProceso;
+    pthread_mutex_t* mutex;
     /*uint32_t* arrayTablaPaginas;
     char* dispositivoIoEnUso;
     int32_t cantidadUnidadesTiemposIo;
     t_registro registroUsadoEnIo;
-    pthread_mutex_t* mutex;*/
+    */
 };
 typedef struct pcb t_pcb;
 
