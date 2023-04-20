@@ -27,6 +27,7 @@
 #include <kernel-estructuras.h>
 #include <kernel-estados.h>
 #include <kernel-pcb.h>
+#include <kernel-planificacion.h>
 
 // Estructuras (TADS)
 

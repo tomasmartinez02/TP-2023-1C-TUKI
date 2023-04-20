@@ -17,6 +17,7 @@
 #include <kernel-estructuras.h>
 #include <kernel-utils.h>
 #include <kernel-estados.h>
+#include <kernel-planificacion.h>
 
 // Prototipos
 

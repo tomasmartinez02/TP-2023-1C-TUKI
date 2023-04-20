@@ -21,6 +21,6 @@
  */
 void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
 
-void log_transicion(char* prev, char* post, int pid);
+void log_transicion(char* prev, char* post, uint32_t pid);
 
 #endif

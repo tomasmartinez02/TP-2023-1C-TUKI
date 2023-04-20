@@ -31,6 +31,8 @@ int main(int argc, char* argv[])
     
     inicializar_estructuras_estados();
 
+    inicializar_pid();
+
     aceptar_conexiones_kernel(socketEscucha);
 
     return 0;

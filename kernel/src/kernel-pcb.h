@@ -13,13 +13,8 @@
 // Bibliotecas internas
 #include <kernel-estructuras.h>
 
-// Variable global PREGUNTAR SI ESTA BIEN ACA
-uint32_t pidAnterior = -1;
-
 t_pcb* crear_pcb(uint32_t pid);
 void destruir_pcb(t_pcb* pcb);
-
-uint32_t obtener_siguiente_pid();
 
 uint32_t pcb_get_pid(t_pcb* pcb);
 

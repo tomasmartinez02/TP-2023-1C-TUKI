@@ -9,11 +9,17 @@
 #include <kernel-estructuras.h>
 #include <kernel-utils.h>
 #include <kernel-pcb.h>
-#include <kernel-utils.h>
 
 //Bibliotecas Static Utils
 #include <serializacion/buffer.h>
 #include <serializacion/stream.h>
+
+//Estados
+static t_estado* estadoNew;
+static t_estado* estadoReady;
+static t_estado* estadoExecute;
+static t_estado* estadoExit;
+static t_estado* estadoBlocked; 
 
 /**
  * @brief Crea el estado 
@@ -41,15 +47,6 @@ void destruir_estado(t_estado* estado);
  * @example inicializar_estructuras_estados();
  */
 void inicializar_estructuras_estados(void);
-
-/**
- * @brief Encola en new al pcb del hilo de ejecucion de consola, obtiene pid y se lo envia a consola
- * 
- * @param socket: Socket de la consola
- * 
- * @example encolar_en_new_a_nuevo_pcb_entrante(socketProceso); 
- */
-void* encolar_en_new_a_nuevo_pcb_entrante(void* socket);
 
 /**
  * @brief Agrega a la cola del estado destino el pcb recibido, teniendo en cuenta que ningún otro proceso lo esté haciendo al mismo tiempo

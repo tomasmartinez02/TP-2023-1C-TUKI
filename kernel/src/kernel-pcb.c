@@ -57,15 +57,6 @@ void destruir_pcb(t_pcb* pcb) // HABRIA QUE CHEQUEAR QUE HAY QUE DESCOMENTAR ACA
     free(pcb);
 }
 
-uint32_t obtener_siguiente_pid()
-{
-    // Esta funcion deberia devolver un pcb nuevo que no esté en uso. Chequear que este bien asignarle desde el 1 en adelante. 
-    
-    pidAnterior++;
-
-    return pidAnterior;
-}
-
 uint32_t pcb_get_pid(t_pcb* pcb) 
 {
     return pcb->pid;
