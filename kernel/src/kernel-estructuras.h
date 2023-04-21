@@ -2,12 +2,15 @@
 #ifndef KERNEL_ESTRUCTURAS_H_
 #define KERNEL_ESTRUCTURAS_H_
 
+// Bibliotecas estandar
+#include <pthread.h>
 // Bibliotecas commons
 #include <commons/log.h>
 #include <commons/collections/list.h>
 
 //Static-utils libraries
 #include <serializacion/buffer.h>
+#include <utils/instrucciones.h>
 
 // Estructuras
 struct kernel_config 
@@ -33,31 +36,48 @@ struct kernel_config
 };
 typedef struct kernel_config t_kernel_config;
 
-typedef enum 
+enum nombre_estado
 {   NEW,
     READY,
     EXEC,
     EXIT,
     BLOCKED,
-} t_nombre_estado;
+};
+typedef enum nombre_estado t_nombre_estado;
+
+struct info_segmentos 
+{
+    uint32_t id;
+    uint32_t direccionBase;
+    uint32_t tamanio;
+};
+typedef struct info_segmentos t_info_segmentos;
+
+struct info_archivos
+{
+    char *nombreArchivo;
+    uint32_t posicionPuntero;
+};
+typedef struct info_archivos t_info_archivos;
 
 struct pcb
 {
     uint32_t pid;
     t_buffer* instrucciones;
     uint32_t programCounter;
-    //t_registros_cpu* registrosCpu;
+    t_registros_cpu* registrosCpu;
     uint32_t estimadoProxRafaga;
     uint32_t tiempoLlegadaReady;
-    //archivosAbiertos (no sabemos qué tipo de dato debería ser)
-    //uint32_t* tablaSegmentos [no sabemos si deberia ser un int]
+    t_info_archivos *archivosAbiertos; 
+    t_info_segmentos *tablaSegmentos;
     t_nombre_estado estadoActual; 
     t_nombre_estado estadoDeFinalizacion;
     t_nombre_estado estadoAnterior;
     bool procesoBloqueadoOTerminado;
     uint32_t socketProceso;
     pthread_mutex_t* mutex;
-    /*uint32_t* arrayTablaPaginas;
+
+    /*
     char* dispositivoIoEnUso;
     int32_t cantidadUnidadesTiemposIo;
     t_registro registroUsadoEnIo;
@@ -65,12 +85,13 @@ struct pcb
 };
 typedef struct pcb t_pcb;
 
-typedef struct
+struct estado
 {
     t_nombre_estado nombreEstado;
     t_list* listaProcesos;
     pthread_mutex_t* mutexEstado;
-} t_estado;
+};
+typedef struct estado t_estado;
 
 // Variables globales
 extern t_log *kernelDebuggingLogger;
