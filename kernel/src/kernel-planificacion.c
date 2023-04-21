@@ -1,41 +1,84 @@
 #include <kernel-planificacion.h>
 
-void inicializar_pid()
+// Variables estaticas
+static uint32_t pidActual;
+static pthread_mutex_t mutexPid;
+
+// Funciones privadas
+
+// Inicializa pidActual y mutex del pidActual
+static void __inicializar_estructuras_pid()
 {
-    pidAnterior = -1;
+    pidActual = 0;
     pthread_mutex_init(&mutexPid, NULL); // Este mutex habria que destruirlo en algun otro lado
+
+    return;
 }
 
-uint32_t obtener_siguiente_pid()
+// Obtiene y actualiza el pidActual para asignarlo a un pcb
+static uint32_t __obtener_siguiente_pid()
 {
     pthread_mutex_lock(&mutexPid);
-    uint32_t pid = pidAnterior++;
+    uint32_t pid = pidActual++;
     pthread_mutex_unlock(&mutexPid);
 
     return pid;
 }
 
-void* encolar_en_new_a_nuevo_pcb_entrante(void* socket) 
+void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente) 
 {
-    int socketProceso = *((int*)socket); // Aca tendriamos que usar el uint32_t ??
-    free(socket);
+    int socketConsola = *((int *) socketCliente);
+    free(socketCliente);
 
-    t_buffer* instructionsBuffer = buffer_create();
-    stream_recv_buffer(socketProceso, instructionsBuffer); // Aca tenemos dudas acerca de de donde viene este buffer. De la consola?
-    t_buffer* instructionsBufferCopy = buffer_create_copy(instructionsBuffer);
-    buffer_destroy(instructionsBuffer);
+    // Recibo el handshake inicial de la consola
+    t_handshake handshakeConsola = stream_recv_header(socketConsola);
+    stream_recv_empty_buffer(socketConsola);
+    if (handshakeConsola != HANDSHAKE_consola) {
 
-    uint32_t nuevoPid = obtener_siguiente_pid();
-    t_pcb* nuevoPcb = crear_pcb(nuevoPid);
-    pcb_set_socket(nuevoPcb, socketProceso);
-    pcb_set_instrucciones(nuevoPcb, instructionsBufferCopy);
+        log_error(kernelLogger, "Error al intentar establecer conexion con consola mediante <socket %d>", socketConsola);
+        log_error(kernelDebuggingLogger, "Error al intentar establecer conexion con consola mediante <socket %d>", socketConsola);
 
-    log_info(kernelLogger, "Creación de nuevo proceso ID %d mediante <socket %d>", pcb_get_pid(nuevoPcb), socketProceso);
-    log_info(kernelDebuggingLogger, "Creación de nuevo proceso ID %d mediante <socket %d>", pcb_get_pid(nuevoPcb), socketProceso);
+        stream_send_empty_buffer(socketConsola, HEADER_error);
+        close(socketConsola);
 
+        return NULL;
+    }
+    
+    // Si recibo el handshake correcto, envio a la consola para que continue
+    log_info(kernelDebuggingLogger, "Se recibio el handshake de la consola correctamente");
+    stream_send_empty_buffer(socketConsola, HANDSHAKE_ok_continue);
+    log_info(kernelDebuggingLogger, "Se ha enviado la respuesta al handshake inicial de la consola con handshake ok continue");
+
+    // Recibo las instrucciones de la consola
+    t_header consolaResponse = stream_recv_header(socketConsola);
+    if (consolaResponse != HEADER_lista_instrucciones) {
+
+        log_error(kernelLogger, "No se han podido recibir las instrucciones de la consola correctamente");
+        log_error(kernelDebuggingLogger, "No se han podido recibir las instrucciones de la consola correctamente");
+
+        stream_send_empty_buffer(socketConsola, HEADER_error);
+        close(socketConsola);
+
+        return NULL;
+    }
+
+    // Si esta todo ok, desempaqueto las instrucciones
+    t_buffer *bufferInstrucciones = buffer_create();
+    stream_recv_buffer(socketConsola, bufferInstrucciones); // Aca tenemos dudas acerca de de donde viene este buffer. De la consola?
+
+    uint32_t nuevoPid = __obtener_siguiente_pid();
+    t_pcb *nuevoPcb = crear_pcb(nuevoPid);
+    pcb_set_socket(nuevoPcb, socketConsola);
+    pcb_set_instrucciones(nuevoPcb, bufferInstrucciones);
+
+    // Log minimo kernel numero 1
+    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", pcb_get_pid(nuevoPcb));
+    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", pcb_get_pid(nuevoPcb));
+
+    // Envio el pid a la consola
     t_buffer* bufferPID = buffer_create();
     buffer_pack(bufferPID, &nuevoPid, sizeof(nuevoPid));
-    stream_send_buffer(socketProceso, HEADER_pid, bufferPID);
+    stream_send_buffer(socketConsola, HEADER_pid, bufferPID);
     buffer_destroy(bufferPID);
 
     estado_encolar_pcb(estadoNew, nuevoPcb);

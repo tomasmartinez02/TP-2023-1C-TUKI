@@ -4,7 +4,7 @@
 
 // Abstrae la logica para conectarse a los distintos modulos
 static int __conectar_a_modulo(char *nombreModulo, char *(*get_ip_modulo)(t_kernel_config *), char *(*get_puerto_modulo)(t_kernel_config *), 
-void (*set_socket_modulo)(t_kernel_config *, int), void (*send_handshake_modulo)(int, t_log *), void (*receive_handshake_modulo)(const int, t_kernel_config *, t_log *, t_log *))
+void (*set_socket_modulo)(t_kernel_config *, int), void (*__send_handshake_modulo)(int, t_log *), void (*__receive_handshake_modulo)(const int, t_kernel_config *, t_log *, t_log *))
 {
     char *ipModulo = get_ip_modulo(kernelConfig);
     char *puertoModulo = get_puerto_modulo(kernelConfig);
@@ -23,33 +23,16 @@ void (*set_socket_modulo)(t_kernel_config *, int), void (*send_handshake_modulo)
     log_info(kernelDebuggingLogger, "Socket creado exitosamente con modulo %s", nombreModulo);
 
     // Handshakes iniciales con modulo Cpu
-    send_handshake_modulo(socketModulo, kernelDebuggingLogger);
-    receive_handshake_modulo(socketModulo, kernelConfig, kernelLogger, kernelDebuggingLogger);
+    __send_handshake_modulo(socketModulo, kernelDebuggingLogger);
+    __receive_handshake_modulo(socketModulo, kernelConfig, kernelLogger, kernelDebuggingLogger);
 
     log_info(kernelDebuggingLogger, "Conexion con modulo %s establecida exitosamente", nombreModulo);
 
     return socketModulo;
 }
 
-// Crea los hilos para manejar las conexiones de las consolas
-static void __crear_hilo_handler_conexion_entrante(int *socket) 
-{
-    pthread_t threadSuscripcion;
-    pthread_create(&threadSuscripcion, NULL, encolar_en_new_a_nuevo_pcb_entrante, (void*)socket);
-    pthread_detach(threadSuscripcion);
-    return;
-}
-
-// Funciones publicas
-
-// Funciones para conectar con el CPU
-
-int conectar_a_cpu(void)
-{   
-    return __conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);__conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, send_handshake_cpu, receive_handshake_cpu);
-}
-
-void send_handshake_cpu(const int socketCpu, t_log *kernelLogger)
+// Envia el handshake inicial al cpu
+static void __send_handshake_cpu(const int socketCpu, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketCpu, HANDSHAKE_kernel);
@@ -58,12 +41,13 @@ void send_handshake_cpu(const int socketCpu, t_log *kernelLogger)
     return;
 }
 
-void receive_handshake_cpu(const int socketCpu, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
+// Recibe el handshake inicial del cpu
+static void __receive_handshake_cpu(const int socketCpu, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
 {
     t_handshake cpuResponse = stream_recv_header(socketCpu);
     stream_recv_empty_buffer(socketCpu);
     
-    // Chequeo que el kernel me de el OK para continuar ejecutando e interactuando
+    // Chequeo que el el cpu me de el OK para continuar ejecutando e interactuando
     if (cpuResponse != HANDSHAKE_ok_continue) {
         log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo Cpu");
         log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo Cpu");
@@ -76,14 +60,8 @@ void receive_handshake_cpu(const int socketCpu, t_kernel_config* kernelConfig, t
     return;
 }
 
-// Funciones para conectar con la memoria
-
-int conectar_a_memoria()
-{   
-    return __conectar_a_modulo("Memoria", kernel_config_get_ip_memoria, kernel_config_get_puerto_memoria, kernel_config_set_socket_memoria, send_handshake_memoria, receive_handshake_memoria);
-}
-
-void send_handshake_memoria(const int socketMemoria, t_log *kernelLogger)
+// Envia el handshake inicial a la memoria
+static void __send_handshake_memoria(const int socketMemoria, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketMemoria, HANDSHAKE_kernel);
@@ -92,7 +70,8 @@ void send_handshake_memoria(const int socketMemoria, t_log *kernelLogger)
     return;
 }
 
-void receive_handshake_memoria(const int socketMemoria, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
+// Recibe el handshake inicial de la memoria
+static void __receive_handshake_memoria(const int socketMemoria, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
 {
     t_handshake memoriaResponse = stream_recv_header(socketMemoria);
     stream_recv_empty_buffer(socketMemoria);
@@ -110,13 +89,8 @@ void receive_handshake_memoria(const int socketMemoria, t_kernel_config* kernelC
     return;
 }
 
-// Funciones para conectar con filesystem
-int conectar_a_filesystem()
-{   
-    return __conectar_a_modulo("Filesystem", kernel_config_get_ip_filesystem, kernel_config_get_puerto_filesystem, kernel_config_set_socket_filesystem, send_handshake_filesystem, receive_handshake_filesystem);
-}
-
-void send_handshake_filesystem(const int socketFilesystem, t_log *kernelLogger)
+// Envia el handshake inicial al filesystem
+static void __send_handshake_filesystem(const int socketFilesystem, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketFilesystem, HANDSHAKE_kernel);
@@ -125,12 +99,13 @@ void send_handshake_filesystem(const int socketFilesystem, t_log *kernelLogger)
     return;
 }
 
-void receive_handshake_filesystem(const int socketFilesystem, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
+// Recibe el handshake inicial del filesystem
+static void __receive_handshake_filesystem(const int socketFilesystem, t_kernel_config* kernelConfig, t_log* kernelLogger, t_log *kernelDebuggingLogger)
 {
     t_handshake fileSystemResponse = stream_recv_header(socketFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
     
-    // Chequeo que el kernel me de el OK para continuar ejecutando e interactuando
+    // Chequeo que el filesystem me de el OK para continuar ejecutando e interactuando
     if (fileSystemResponse != HANDSHAKE_ok_continue) {
         log_error(kernelLogger, "Error al intentar establecer Handshake inicial con modulo Filesystem");
         log_error(kernelDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo Filesystem");
@@ -141,6 +116,37 @@ void receive_handshake_filesystem(const int socketFilesystem, t_kernel_config* k
     log_info(kernelDebuggingLogger, "Handshake inicial con modulo Filesystem recibido exitosamente");
 
     return;
+}
+
+// Crea los hilos para manejar las conexiones de las consolas
+static void __crear_hilo_handler_conexion_entrante(int *socketCliente) 
+{
+    pthread_t threadSuscripcion;
+    pthread_create(&threadSuscripcion, NULL, encolar_en_new_a_nuevo_pcb_entrante, (void *) socketCliente);
+    pthread_detach(threadSuscripcion);
+    return;
+}
+
+// Funciones publicas
+
+// Funciones para conectar con el CPU
+
+int conectar_a_cpu(void)
+{   
+    return __conectar_a_modulo("Cpu", kernel_config_get_ip_cpu, kernel_config_get_puerto_cpu, kernel_config_set_socket_cpu, __send_handshake_cpu, __receive_handshake_cpu);
+}
+
+// Funciones para conectar con la memoria
+
+int conectar_a_memoria()
+{   
+    return __conectar_a_modulo("Memoria", kernel_config_get_ip_memoria, kernel_config_get_puerto_memoria, kernel_config_set_socket_memoria, __send_handshake_memoria, __receive_handshake_memoria);
+}
+
+// Funciones para conectar con filesystem
+int conectar_a_filesystem()
+{   
+    return __conectar_a_modulo("Filesystem", kernel_config_get_ip_filesystem, kernel_config_get_puerto_filesystem, kernel_config_set_socket_filesystem, __send_handshake_filesystem, __receive_handshake_filesystem);
 }
 
 // Levantar servidor de instancias Consola
@@ -173,25 +179,13 @@ void aceptar_conexiones_kernel(const int socketEscucha)
     
     for (;;) {
         
-        const int clienteAceptado = accept(socketEscucha, &cliente, &len);
+        const int socketConsola = accept(socketEscucha, &cliente, &len);
         
-        if (clienteAceptado > -1) {
+        if (socketConsola > -1) {
             
             int* socketCliente = malloc(sizeof(*socketCliente)); // Ojo con manejo de enteros
-            *socketCliente = clienteAceptado;
+            *socketCliente = socketConsola;
             __crear_hilo_handler_conexion_entrante(socketCliente);
-
-            t_handshake handshakeConsola = stream_recv_header(clienteAceptado);
-
-            if (handshakeConsola == HANDSHAKE_consola) {
-                log_info(kernelDebuggingLogger, "Se recibio el handshake de la consola correctamente");
-                stream_send_empty_buffer(clienteAceptado, HANDSHAKE_ok_continue);
-                log_info(kernelDebuggingLogger, "Se ha enviado la respuesta al handshake inicial de la consola con handshake ok continue");
-            }
-            else {
-                log_error(kernelLogger, "Error al intentar establecer conexion con consola mediante <socket %d>", clienteAceptado);
-                log_error(kernelDebuggingLogger, "Error al intentar establecer conexion con consola mediante <socket %d>", clienteAceptado);
-            }
         } 
         else {
             log_error(kernelLogger, "Error al aceptar conexion: %s", strerror(errno));
