@@ -96,6 +96,16 @@ struct pcb
 };
 typedef struct pcb t_pcb;
 
+// después se le agregaran mas cosas maybe
+struct pcb_reducido
+{ 
+    uint32_t pid;
+    t_buffer* instrucciones;
+    uint32_t programCounter;
+    t_registros_cpu* registrosCpu;
+};
+typedef struct pcb_reducido t_pcb_reducido;
+
 // Variables globales
 extern t_log *kernelDebuggingLogger;
 extern t_log *kernelLogger;
