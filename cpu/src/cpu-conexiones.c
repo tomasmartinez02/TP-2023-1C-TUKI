@@ -6,9 +6,9 @@ static void __send_handshake_memoria(void)
 {
     const int socketMemoria = cpu_config_get_socket_memoria(cpuConfig);
 
-    // Envio unicamente el handshake del Filesystem, sin ningun buffer e informacion adicional
+    // Envio unicamente el handshake del Cpu, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketMemoria, HANDSHAKE_cpu);
-    log_info(cpuLogger, "Se ha enviado el handshake inicial al modulo Memoria");
+    log_info(cpuDebuggingLogger, "Se ha enviado el handshake inicial al modulo Memoria");
     return;
 }
 
@@ -23,8 +23,8 @@ static void __receive_handshake_memoria(void)
     
     // Chequeo que la memoria me de el OK para continuar ejecutando e interactuando
     if (respuestaMemoria != HANDSHAKE_ok_continue) {
-        log_error(cpuLogger, "Error al intentar establecer Handshake inicial con módulo Memoria");
-        log_error(cpuDebuggingLogger, "Error al intentar establecer Handshake inicial con módulo Memoria");
+        log_error(cpuLogger, "Error al intentar establecer Handshake inicial con modulo Memoria");
+        log_error(cpuDebuggingLogger, "Error al intentar establecer Handshake inicial con modulo Memoria");
         cpu_destroy(cpuConfig, cpuLogger, cpuDebuggingLogger);
         exit(EXIT_FAILURE);
     }
@@ -41,7 +41,8 @@ int conectar_a_memoria(void)
     int socketMemoria = conectar_a_servidor(ipMemoria, puertoMemoria);
 
     if (socketMemoria == -1 ) {
-        log_error(cpuLogger, "Error al intentar establecer conexión inicial con el módulo Memoria");
+        log_error(cpuLogger, "Error al intentar establecer conexión inicial con el modulo Memoria");
+        log_error(cpuDebuggingLogger, "Error al intentar establecer conexión inicial con el modulo Memoria");
         cpu_destroy(cpuConfig, cpuLogger, cpuDebuggingLogger);
         exit(EXIT_FAILURE);
     }
