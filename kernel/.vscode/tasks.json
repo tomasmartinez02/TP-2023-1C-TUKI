@@ -16,6 +16,26 @@
     },
     // #endregion build
     {
+      "label": "clean build",
+      "command": "make clean all",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "memcheck build",
+      "command": "make memcheck",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$gcc"]
+    },
+    {
       "label": "clean",
       "command": "make clean",
       "type": "shell",

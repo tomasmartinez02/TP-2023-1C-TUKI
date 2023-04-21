@@ -20,10 +20,10 @@ void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *k
     return;
 }
 
-void log_transicion(char* prev, char* post, uint32_t pid) 
+void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid) 
 {
-    log_info(kernelLogger, "Transición de %s a %s PCB <ID %d>", prev, post, pid);
-    log_info(kernelDebuggingLogger, "Transición de %s a %s PCB <ID %d>", prev, post, pid);
+    log_info(kernelLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pid, estadoAnterior, estadoActual);
+    log_info(kernelDebuggingLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pid, estadoAnterior, estadoActual);
 
     return;
 }

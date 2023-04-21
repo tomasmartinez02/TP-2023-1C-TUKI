@@ -29,9 +29,7 @@ int main(int argc, char* argv[])
     // Levantar servidor de instancias Consola
     const int socketEscucha = inicializar_servidor_kernel();
     
-    inicializar_estructuras_estados();
-
-    inicializar_pid();
+    inicializar_estructuras();
 
     aceptar_conexiones_kernel(socketEscucha);
 

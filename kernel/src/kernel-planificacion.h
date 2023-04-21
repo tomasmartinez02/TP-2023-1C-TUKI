@@ -1,6 +1,14 @@
 #ifndef KERNEL_PLANIFICACION_H_
 #define KERNEL_PLANIFICACION_H_
 
+// Defines constantes
+#define ESTADO_NULL "NULL"
+#define ESTADO_NEW "NEW"
+#define ESTADO_READY "READY"
+#define ESTADO_EXECUTE "EXEC"
+#define ESTADO_BLOCKED "BLOCKED"
+#define ESTADO_EXIT "EXIT"
+
 //Bibliotecas estandares
 #include <pthread.h>
 #include <semaphore.h>
@@ -24,5 +32,11 @@
  * @example encolar_en_new_a_nuevo_pcb_entrante(socketProceso); 
  */
 void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente);
+
+/**
+ * @brief Inicializa las estructuras del modulo
+ * 
+ */
+void inicializar_estructuras(void);
 
 #endif

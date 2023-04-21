@@ -4,15 +4,31 @@
 static uint32_t pidActual;
 static pthread_mutex_t mutexPid;
 
+//Estados
+static t_estado *estadoNew;
+static t_estado *estadoReady;
+static t_estado *estadoExecute;
+static t_estado *estadoBlocked; 
+static t_estado *estadoExit;
+
 // Funciones privadas
 
 // Inicializa pidActual y mutex del pidActual
-static void __inicializar_estructuras_pid()
+static void __inicializar_estructuras_pid(void)
 {
     pidActual = 0;
     pthread_mutex_init(&mutexPid, NULL); // Este mutex habria que destruirlo en algun otro lado
 
     return;
+}
+
+static void __inicializar_estructuras_estados(void)
+{
+    estadoNew = crear_estado(NEW);
+    estadoReady = crear_estado(READY);
+    estadoExecute = crear_estado(EXEC);
+    estadoBlocked = crear_estado(BLOCKED);
+    estadoExit = crear_estado(EXIT);
 }
 
 // Obtiene y actualiza el pidActual para asignarlo a un pcb
@@ -71,20 +87,27 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     pcb_set_socket(nuevoPcb, socketConsola);
     pcb_set_instrucciones(nuevoPcb, bufferInstrucciones);
 
-    // Log minimo kernel numero 1
-    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", pcb_get_pid(nuevoPcb));
-    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", pcb_get_pid(nuevoPcb));
-
     // Envio el pid a la consola
     t_buffer* bufferPID = buffer_create();
     buffer_pack(bufferPID, &nuevoPid, sizeof(nuevoPid));
     stream_send_buffer(socketConsola, HEADER_pid, bufferPID);
     buffer_destroy(bufferPID);
 
-    estado_encolar_pcb(estadoNew, nuevoPcb);
-    log_transicion("NULL", "NEW", pcb_get_pid(nuevoPcb));
+    // Log minimo kernel creacion proceso
+    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", pcb_get_pid(nuevoPcb));
+    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", pcb_get_pid(nuevoPcb));
+
+    estado_encolar_pcb_atomic(estadoNew, nuevoPcb);
+    // Log minimo cambio de estado
+    log_transicion_estados(ESTADO_NULL, ESTADO_NEW, pcb_get_pid(nuevoPcb));
 
     // AGREGAR PARTE SEMAFOROS ACA CUANDO SEA NECESARIO
 
     return NULL;
+}
+
+void inicializar_estructuras(void) 
+{
+    __inicializar_estructuras_pid();
+    __inicializar_estructuras_estados();
 }

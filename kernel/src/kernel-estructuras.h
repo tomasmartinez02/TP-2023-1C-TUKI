@@ -4,6 +4,7 @@
 
 // Bibliotecas estandar
 #include <pthread.h>
+#include <semaphore.h>
 // Bibliotecas commons
 #include <commons/log.h>
 #include <commons/collections/list.h>
@@ -37,13 +38,23 @@ struct kernel_config
 typedef struct kernel_config t_kernel_config;
 
 enum nombre_estado
-{   NEW,
+{   
+    NEW,
     READY,
     EXEC,
     EXIT,
     BLOCKED,
 };
 typedef enum nombre_estado t_nombre_estado;
+
+struct estado
+{
+    t_nombre_estado nombreEstado;
+    t_list *listaProcesos;
+    sem_t *semaforoEstado;
+    pthread_mutex_t *mutexEstado;
+};
+typedef struct estado t_estado;
 
 struct info_segmentos 
 {
@@ -84,14 +95,6 @@ struct pcb
     */
 };
 typedef struct pcb t_pcb;
-
-struct estado
-{
-    t_nombre_estado nombreEstado;
-    t_list* listaProcesos;
-    pthread_mutex_t* mutexEstado;
-};
-typedef struct estado t_estado;
 
 // Variables globales
 extern t_log *kernelDebuggingLogger;
