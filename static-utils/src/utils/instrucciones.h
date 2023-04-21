@@ -2,6 +2,11 @@
 #ifndef INSTRUCCIONES_H_
 #define INSTRUCCIONES_H_
 
+#define TAMANIO_REG_N 4
+#define TAMANIO_REG_E 8
+#define TAMANIO_REG_R 16
+
+
 // Bibliotecas Estandar
 #include <stdlib.h>
 //Bibliotecas Commons
