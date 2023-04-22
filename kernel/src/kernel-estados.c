@@ -87,14 +87,14 @@ void estado_encolar_pcb_atomic(t_estado *estadoDestino, t_pcb *pcbAEncolar)
 {
     pthread_mutex_lock(estado_get_mutex(estadoDestino));
     __estado_encolar_pcb(estadoDestino, pcbAEncolar);
-    sem_post(estado_get_semaforo(estadoDestino));
     pthread_mutex_unlock(estado_get_mutex(estadoDestino));
+    sem_post(estado_get_semaforo(estadoDestino));
 }
 
 t_pcb *estado_desencolar_primer_pcb_atomic(t_estado *self) 
 {
-    pthread_mutex_lock(estado_get_mutex(self));
     sem_wait(estado_get_semaforo(self));
+    pthread_mutex_lock(estado_get_mutex(self));
     t_pcb *pcb = __estado_desencolar_primer_pcb(self);
     pthread_mutex_unlock(estado_get_mutex(self));
     
@@ -103,8 +103,8 @@ t_pcb *estado_desencolar_primer_pcb_atomic(t_estado *self)
 
 t_pcb *estado_remover_pcb_de_cola_atomic(t_estado *self, t_pcb *pcbADesencolar) 
 {
-    pthread_mutex_lock(estado_get_mutex(self));
     sem_wait(estado_get_semaforo(self));
+    pthread_mutex_lock(estado_get_mutex(self));
     t_pcb *pcb = __estado_remover_pcb_de_cola(self, pcbADesencolar);
     pthread_mutex_unlock(estado_get_mutex(self));
     
