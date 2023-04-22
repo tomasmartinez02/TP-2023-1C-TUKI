@@ -41,6 +41,16 @@ static uint32_t __obtener_siguiente_pid()
     return pid;
 }
 
+// Crea el nuevo pcb que va a ser cargado en new
+static t_pcb *__crear_nuevo_pcb(int socketConsola, t_buffer *bufferInstrucciones)
+{
+    uint32_t nuevoPid = __obtener_siguiente_pid();
+    t_pcb *nuevoPcb = crear_pcb(nuevoPid);
+    pcb_set_socket(nuevoPcb, socketConsola);
+    pcb_set_instrucciones(nuevoPcb, bufferInstrucciones);
+    return nuevoPcb;
+}
+
 void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente) 
 {
     int socketConsola = *((int *) socketCliente);
@@ -82,24 +92,24 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     t_buffer *bufferInstrucciones = buffer_create();
     stream_recv_buffer(socketConsola, bufferInstrucciones); // Aca tenemos dudas acerca de de donde viene este buffer. De la consola?
 
-    uint32_t nuevoPid = __obtener_siguiente_pid();
-    t_pcb *nuevoPcb = crear_pcb(nuevoPid);
-    pcb_set_socket(nuevoPcb, socketConsola);
-    pcb_set_instrucciones(nuevoPcb, bufferInstrucciones);
+    // Se crea el nuevo pcb
+    t_pcb* nuevoPcb = __crear_nuevo_pcb(socketConsola, bufferInstrucciones);
+    buffer_destroy(bufferInstrucciones);
 
     // Envio el pid a la consola
+    uint32_t nuevoPid = pcb_get_pid(nuevoPcb);
     t_buffer* bufferPID = buffer_create();
     buffer_pack(bufferPID, &nuevoPid, sizeof(nuevoPid));
     stream_send_buffer(socketConsola, HEADER_pid, bufferPID);
     buffer_destroy(bufferPID);
 
     // Log minimo kernel creacion proceso
-    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", pcb_get_pid(nuevoPcb));
-    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", pcb_get_pid(nuevoPcb));
+    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", nuevoPid);
+    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", nuevoPid);
 
     estado_encolar_pcb_atomic(estadoNew, nuevoPcb);
     // Log minimo cambio de estado
-    log_transicion_estados(ESTADO_NULL, ESTADO_NEW, pcb_get_pid(nuevoPcb));
+    log_transicion_estados(ESTADO_NULL, ESTADO_NEW, nuevoPid);
 
     // AGREGAR PARTE SEMAFOROS ACA CUANDO SEA NECESARIO
 
@@ -110,4 +120,10 @@ void inicializar_estructuras(void)
 {
     __inicializar_estructuras_pid();
     __inicializar_estructuras_estados();
+}
+
+void *encolar_en_ready_a_nuevo_pcb(void *socketCliente)
+{
+    // TODO
+    return NULL;
 }

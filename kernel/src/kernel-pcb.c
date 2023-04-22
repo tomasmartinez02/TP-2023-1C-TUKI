@@ -3,6 +3,7 @@
 t_pcb *crear_pcb(uint32_t pid)
 {
     t_pcb* pcb = malloc(sizeof(*pcb));
+    
     pcb->pid = pid;
     pcb->instrucciones = NULL;
     pcb->programCounter = 0;
@@ -16,8 +17,10 @@ t_pcb *crear_pcb(uint32_t pid)
     pcb->estadoAnterior = NEW;
     pcb->procesoBloqueadoOTerminado = false;
     pcb->socketProceso = -1;
-    pcb->mutex = malloc(sizeof(*(pcb->mutex)));
-    pthread_mutex_init(pcb->mutex, NULL);
+
+    pthread_mutex_t *mutex = malloc(sizeof(*(pcb->mutex)));
+    pthread_mutex_init(mutex, NULL);
+    pcb->mutex = mutex;
     
     /*
     pcb->dispositivoIoEnUso = NULL;
@@ -30,15 +33,27 @@ t_pcb *crear_pcb(uint32_t pid)
 
 void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que termienmos la estrucura del PCB
 {
-    if (pcb->instrucciones != NULL) {
-        
-        buffer_destroy(pcb->instrucciones);
+    pthread_mutex_lock(pcb_get_mutex(pcb));
+    
+    t_buffer *instrucciones = pcb->instrucciones;
+    if (instrucciones != NULL) {
+        buffer_destroy(instrucciones);
     }
 
-    if (pcb->registrosCpu != NULL) {
-        
-        free(pcb->registrosCpu);
+    t_registros_cpu *registrosCpu = pcb->registrosCpu;
+    if (registrosCpu != NULL) {
+        registros_cpu_destroy(registrosCpu);
     }
+
+    t_info_segmentos *tablaSegmentos = pcb->tablaSegmentos;
+    if (tablaSegmentos != NULL) {
+        free(tablaSegmentos);
+    }
+
+    //t_info_archivos *archivosAbiertos = pcb->archivosAbiertos;
+    //if (archivosAbiertos != NULL) {
+    //
+    //}
 
     /*
     if(pcb->dispositivoIoEnUso != NULL) {
@@ -215,6 +230,12 @@ t_registros_cpu* pcb_get_registros_cpu(t_pcb* pcb)
 void pcb_set_registros_cpu(t_pcb *pcb, t_registros_cpu *registrosCpu)
 {
     pcb->registrosCpu = registrosCpu;
+}
+
+// Get mutex PCB
+pthread_mutex_t* pcb_get_mutex(t_pcb* pcb)
+{
+    return pcb->mutex;
 }
 
 // Set y Get ID info_segmentos

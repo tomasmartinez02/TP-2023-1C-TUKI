@@ -33,6 +33,15 @@
  */
 void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente);
 
+/**PLANI LARGO PLAZO
+ * @brief Encola en ready al pcb si el grado de multiprogramación lo permite??
+ * 
+ * @param socketCliente: Socket de la consola
+ * 
+ * @example encolar_en_ready_a_nuevo_pcb(socketProceso); 
+ */
+void *encolar_en_ready_a_nuevo_pcb(void *socketCliente);
+
 /**
  * @brief Inicializa las estructuras del modulo
  * 
