@@ -1,5 +1,5 @@
-#ifndef KERNEL_CPU_ADAPTER_H
-#define KERNEL_CPU_ADAPTER_H
+#ifndef KERNEL_ADAPTER_CPU_H_
+#define KERNEL_ADAPTER_CPU_H_
 
 // Bibliotecas internas
 #include <kernel-estructuras.h>

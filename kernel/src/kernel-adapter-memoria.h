@@ -1,0 +1,4 @@
+#ifndef KERNEL_ADAPTER_MEMORIA_
+#define KERNEL_ADAPTER_MEMORIA_
+
+#endif

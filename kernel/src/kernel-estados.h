@@ -1,5 +1,5 @@
-#ifndef KERNEL_ESTADOS_H
-#define KERNEL_ESTADOS_H
+#ifndef KERNEL_ESTADOS_H_
+#define KERNEL_ESTADOS_H_
 
 //Bibliotecas estandares
 #include <pthread.h>

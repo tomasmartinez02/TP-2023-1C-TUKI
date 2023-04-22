@@ -1,5 +1,5 @@
-#ifndef KERNEL_PCB_H
-#define KERNEL_PCB_H
+#ifndef KERNEL_PCB_H_
+#define KERNEL_PCB_H_
 
 //Standard Libraries
 #include <stdlib.h>
@@ -14,7 +14,9 @@
 #include <kernel-estructuras.h>
 #include <kernel-config.h>
 
+// Prototipos
 
+// Builders y destroyers de estructuras
 t_pcb* crear_pcb(uint32_t pid);
 void destruir_pcb(t_pcb* pcb);
 t_info_segmentos *crear_info_segmentos(void);
@@ -22,6 +24,7 @@ void destruir_info_segmentos(t_info_segmentos *infoSegmentos);
 t_info_archivos *crear_info_archivos(void);
 void destruir_info_archivos(t_info_archivos *infoArchivos);
 
+// Interfaz pcb
 uint32_t pcb_get_pid(t_pcb* pcb);
 t_buffer* pcb_get_instrucciones(t_pcb* pcb);
 void pcb_set_instrucciones(t_pcb* pcb, t_buffer* instructionsBuffer);
@@ -46,6 +49,7 @@ t_registros_cpu* pcb_get_registros_cpu(t_pcb* pcb);
 void pcb_set_registros_cpu(t_pcb *pcb, t_registros_cpu *registrosCpu);
 pthread_mutex_t* pcb_get_mutex(t_pcb* pcb);
 
+// Interfaz info segmentos
 uint32_t info_segmentos_get_id(t_info_segmentos *infoSegmentos);
 void info_segmentos_set_id(t_info_segmentos *infoSegmentos, uint32_t id);
 uint32_t info_segmentos_get_direccion_base(t_info_segmentos *infoSegmentos);
@@ -53,6 +57,7 @@ void info_segmentos_set_direccion_base(t_info_segmentos *infoSegmentos, uint32_t
 uint32_t info_segmentos_get_tamanio(t_info_segmentos *infoSegmentos);
 void info_segmentos_set_tamanio(t_info_segmentos *infoSegmentos, uint32_t tamanio);
 
+// Interfaz info archivos
 char *info_archivos_get_nombre_archivo(t_info_archivos *infoArchivo);
 void info_archivos_set_nombre_archivo(t_info_archivos *infoArchivo, char *nombreArchivo);
 uint32_t info_archivos_get_posicion_puntero(t_info_archivos *infoArchivo);

@@ -55,12 +55,6 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
     //
     //}
 
-    /*
-    if(pcb->dispositivoIoEnUso != NULL) {
-        
-        free(pcb->dispositivoIoEnUso);
-    }*/
-
     close(pcb->socketProceso);
     pthread_mutex_unlock(pcb_get_mutex(pcb));
 
