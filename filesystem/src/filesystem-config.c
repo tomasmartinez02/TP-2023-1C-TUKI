@@ -96,7 +96,7 @@ uint32_t filesystem_config_get_retardo_acceso_bloque(t_filesystem_config *self)
 
 int filesystem_config_get_socket_memoria(t_filesystem_config *self)
 {
-    return self->RETARDO_ACCESO_BLOQUE;
+    return self->SOCKET_MEMORIA;
 }
 
 int filesystem_config_get_socket_kernel(t_filesystem_config *self)
