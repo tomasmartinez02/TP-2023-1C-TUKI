@@ -3,6 +3,7 @@
 
 //Bibliotecas commons
 #include <commons/log.h>
+#include <utils/instrucciones.h>
 
 //Estructuras
 struct cpu_config
@@ -17,6 +18,14 @@ struct cpu_config
     int SOCKET_KERNEL;
 };
 typedef struct cpu_config t_cpu_config;
+
+// Aca coincidimos los datos que manda el buffer de kernel-adapter
+typedef struct  {
+    uint32_t pid;
+    uint32_t programCounter;
+    t_list* instrucciones;
+    t_registros_cpu* registrosCpu;
+} t_cpu_pcb;
 
 extern t_log *cpuDebuggingLogger; 
 extern t_log *cpuLogger;
