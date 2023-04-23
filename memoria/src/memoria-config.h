@@ -109,4 +109,11 @@ uint32_t memoria_config_get_retardo_compactacion(t_memoria_config *self);
  */
 char *memoria_config_get_algoritmo_asignacion(t_memoria_config *self);
 
+int memoria_config_get_socket_cpu(t_memoria_config *self);
+int memoria_config_get_socket_kernel(t_memoria_config *self);
+int memoria_config_get_socket_filesystem(t_memoria_config *self);
+
+void memoria_config_set_socket_cpu(t_memoria_config *self, int socketCpu);
+void memoria_config_set_socket_kernel(t_memoria_config *self, int socketKernel);
+void memoria_config_set_socket_filesystem(t_memoria_config *self, int socketFilesystem);
 #endif

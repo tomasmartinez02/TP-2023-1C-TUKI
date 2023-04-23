@@ -82,3 +82,33 @@ char *memoria_config_get_algoritmo_asignacion(t_memoria_config *self)
 {
     return self->ALGORITMO_ASIGNACION;
 }
+
+int memoria_config_get_socket_cpu(t_memoria_config *self)
+{
+    return self->SOCKET_CPU;
+}
+
+int memoria_config_get_socket_kernel(t_memoria_config *self)
+{
+    return self->SOCKET_KERNEL;
+}
+
+int memoria_config_get_socket_filesystem(t_memoria_config *self)
+{
+    return self->SOCKET_FILESYSTEM;
+}
+
+void memoria_config_set_socket_cpu(t_memoria_config *self, int socketCpu)
+{
+    self->SOCKET_CPU = socketCpu;
+}
+
+void memoria_config_set_socket_kernel(t_memoria_config *self, int socketKernel)
+{
+    self->SOCKET_KERNEL = socketKernel;
+}
+
+void memoria_config_set_socket_filesystem(t_memoria_config *self, int socketFilesystem)
+{
+    self->SOCKET_CPU = socketFilesystem;
+}

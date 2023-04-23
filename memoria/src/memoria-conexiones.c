@@ -57,16 +57,22 @@ void aceptar_conexiones(int socketEscucha)
             switch (handshakeRecibido) {
                 case HANDSHAKE_cpu:
                     __handshake_iniciales("CPU", clienteAceptado);
+                    log_info(memoriaDebuggingLogger, "Conexion con modulo Cpu creada exitosamente");
+                    memoria_config_set_socket_cpu(memoriaConfig, clienteAceptado);
                     cpuSinAtender = false;
                     break;
             
                 case HANDSHAKE_kernel:
                     __handshake_iniciales("kernel", clienteAceptado);
+                    log_info(memoriaDebuggingLogger, "Conexion con modulo Kernel creada exitosamente");
+                    memoria_config_set_socket_kernel(memoriaConfig, clienteAceptado);
                     kernelSinAtender = false;
                     break;
 
                 case HANDSHAKE_filesystem:
                     __handshake_iniciales("filesystem", clienteAceptado);
+                    log_info(memoriaDebuggingLogger, "Conexion con modulo Filesystem creada exitosamente");
+                    memoria_config_set_socket_filesystem(memoriaConfig, clienteAceptado);
                     filesystemSinAtender = false;
                     break;
 
