@@ -16,6 +16,9 @@ struct memoria_config
     u_int32_t RETARDO_MEMORIA;
     u_int32_t RETARDO_COMPACTACION;
     char *ALGORITMO_ASIGNACION;
+    int SOCKET_CPU;
+    int SOCKET_KERNEL;
+    int SOCKET_FILESYSTEM;
 };
 typedef struct memoria_config t_memoria_config;
 
