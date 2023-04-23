@@ -52,6 +52,7 @@ void aceptar_conexiones(int socketEscucha)
         if (clienteAceptado > -1) {
 
             t_handshake handshakeRecibido = stream_recv_header(clienteAceptado);
+            stream_recv_empty_buffer(clienteAceptado);
 
             switch (handshakeRecibido) {
                 case HANDSHAKE_cpu:
