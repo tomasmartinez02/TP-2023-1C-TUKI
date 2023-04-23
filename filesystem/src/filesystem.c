@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
     // Cargar la estructura de configuracion Filesystem
     char *pathArchivoConfiguracion = string_duplicate(argv[1]);
-    filesystemConfig = filesystem_config_create(pathArchivoConfiguracion, filesystemLogger);
+    filesystemConfig = filesystem_config_create(pathArchivoConfiguracion, filesystemDebuggingLogger);
     free(pathArchivoConfiguracion);
 
     // Conexion con Memoria

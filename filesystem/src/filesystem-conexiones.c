@@ -9,7 +9,7 @@ static void __send_handshake_memoria(void)
 
     // Envio unicamente el handshake del Filesystem, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketMemoria, HANDSHAKE_filesystem);
-    log_info(filesystemLogger, "Se ha enviado el handshake inicial al modulo Memoria");
+    log_info(filesystemDebuggingLogger, "Se ha enviado el handshake inicial al modulo Memoria");
 
     return;
 }
@@ -98,9 +98,6 @@ void aceptar_conexion_kernel(const int socketEscucha)
         const int socketKernel = accept(socketEscucha, &cliente, &len);
         
         if (socketKernel > -1) {
-            //int* socketCliente = malloc(sizeof(*socketCliente));
-            //*socketCliente = socketKernel;
-            //crear_hilo_handler_conexion_entrante(socketCliente);
             
             // Recibo handshake
             t_handshake handshakeKernel = stream_recv_header(socketKernel);
