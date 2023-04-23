@@ -23,4 +23,8 @@ void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *k
 
 void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid);
 
+void set_timespec(timestamp *timespec);
+
+double obtener_diferencial_de_tiempo_en_milisegundos(timestamp *end, timestamp *start);
+
 #endif

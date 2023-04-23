@@ -5,6 +5,7 @@
 // Bibliotecas estandar
 #include <pthread.h>
 #include <semaphore.h>
+#include <sys/time.h>
 // Bibliotecas commons
 #include <commons/log.h>
 #include <commons/collections/list.h>
@@ -16,16 +17,16 @@
 // Estructuras
 struct kernel_config 
 {
-    char* IP_MEMORIA;
-    char* PUERTO_MEMORIA;
-    char* IP_FILESYSTEM;
-    char* PUERTO_FILESYSTEM;
-    char* IP_CPU;
-    char* PUERTO_CPU;
+    char *IP_MEMORIA;
+    char *PUERTO_MEMORIA;
+    char *IP_FILESYSTEM;
+    char *PUERTO_FILESYSTEM;
+    char *IP_CPU;
+    char *PUERTO_CPU;
     char *IP_ESCUCHA;
-    char* PUERTO_ESCUCHA;
-    char* ALGORITMO_PLANIFICACION;
-    uint32_t ESTIMACION_INICIAL;
+    char *PUERTO_ESCUCHA;
+    char *ALGORITMO_PLANIFICACION;
+    double ESTIMACION_INICIAL;
     double HRRN_ALFA;
     uint32_t GRADO_MAX_MULTIPROGRAMACION;
     char **RECURSOS;
@@ -71,14 +72,17 @@ struct info_archivos
 };
 typedef struct info_archivos t_info_archivos;
 
+// Estructura para guardar el timestamp de llegada a ready
+typedef struct timespec timestamp;
+
 struct pcb
 {
     uint32_t pid;
     t_buffer* instrucciones;
     uint32_t programCounter;
     t_registros_cpu* registrosCpu;
-    uint32_t estimadoProxRafaga;
-    uint32_t tiempoLlegadaReady;
+    double estimadoProxRafaga;
+    timestamp *tiempoLlegadaReady;
     t_info_archivos *archivosAbiertos; 
     t_info_segmentos *tablaSegmentos;
     t_nombre_estado estadoActual; 

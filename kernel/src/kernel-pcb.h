@@ -13,11 +13,12 @@
 // Bibliotecas internas
 #include <kernel-estructuras.h>
 #include <kernel-config.h>
+#include <kernel-utils.h>
 
 // Prototipos
 
 // Builders y destroyers de estructuras
-t_pcb* crear_pcb(uint32_t pid);
+t_pcb *crear_pcb(uint32_t pid);
 void destruir_pcb(t_pcb* pcb);
 t_info_segmentos *crear_info_segmentos(void);
 void destruir_info_segmentos(t_info_segmentos *infoSegmentos);
@@ -30,10 +31,10 @@ t_buffer* pcb_get_instrucciones(t_pcb* pcb);
 void pcb_set_instrucciones(t_pcb* pcb, t_buffer* instructionsBuffer);
 uint32_t pcb_get_program_counter(t_pcb* pcb);
 void pcb_set_program_counter(t_pcb* pcb, uint32_t programCounter);
-uint32_t pcb_get_estimado_prox_rafaga(t_pcb *pcb);
-void pcb_set_estimado_prox_rafaga (t_pcb *pcb, uint32_t estimadoProxRafaga);
-uint32_t pcb_get_tiempo_llegada_ready(t_pcb *pcb);
-void pcb_set_tiempo_llegada_ready(t_pcb *pcb, uint32_t tiempoLlegadaReady);
+double pcb_get_estimado_prox_rafaga(t_pcb *pcb);
+void pcb_set_estimado_prox_rafaga (t_pcb *pcb, double estimadoProxRafaga);
+timestamp *pcb_get_tiempo_llegada_ready(t_pcb *pcb);
+void pcb_set_tiempo_llegada_ready(t_pcb *pcb);
 uint32_t pcb_get_socket(t_pcb *pcb);
 void pcb_set_socket(t_pcb *pcb, uint32_t socket);
 t_nombre_estado pcb_get_estado_actual(t_pcb* pcb);

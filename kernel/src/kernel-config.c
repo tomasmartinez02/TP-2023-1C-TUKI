@@ -16,7 +16,7 @@ static void __kernel_config_initializer(void *moduleConfig, t_config *tempCfg)
     kernelConfig->IP_ESCUCHA = strdup(config_get_string_value(tempCfg, "IP_ESCUCHA"));
     kernelConfig->PUERTO_ESCUCHA = strdup(config_get_string_value(tempCfg, "PUERTO_ESCUCHA"));
     kernelConfig->ALGORITMO_PLANIFICACION = strdup(config_get_string_value(tempCfg, "ALGORITMO_PLANIFICACION"));
-    kernelConfig->ESTIMACION_INICIAL = (uint32_t) config_get_int_value(tempCfg, "ESTIMACION_INICIAL");
+    kernelConfig->ESTIMACION_INICIAL = config_get_double_value(tempCfg, "ESTIMACION_INICIAL");
     kernelConfig->HRRN_ALFA = config_get_double_value(tempCfg, "HRRN_ALFA");
     kernelConfig->GRADO_MAX_MULTIPROGRAMACION = (uint32_t) config_get_int_value(tempCfg, "GRADO_MAX_MULTIPROGRAMACION");
     kernelConfig->RECURSOS = config_get_array_value(tempCfg, "RECURSOS");
@@ -73,12 +73,10 @@ char *kernel_config_get_puerto_memoria(t_kernel_config *self)
     return self->PUERTO_MEMORIA;
 }
 
-
 char *kernel_config_get_ip_filesystem(t_kernel_config *self)
 {
     return self->IP_FILESYSTEM;
 }
-
 
 char *kernel_config_get_puerto_filesystem(t_kernel_config *self)
 {
@@ -112,8 +110,7 @@ char *kernel_config_get_algoritmo_planificacion(t_kernel_config *self)
     return self->ALGORITMO_PLANIFICACION;
 }
 
-
-uint32_t kernel_config_get_estimacion_inicial(t_kernel_config *self)
+double kernel_config_get_estimacion_inicial(t_kernel_config *self)
 {
     return self->ESTIMACION_INICIAL;
 }

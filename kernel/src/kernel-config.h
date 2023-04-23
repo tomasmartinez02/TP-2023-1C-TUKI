@@ -129,11 +129,11 @@ char *kernel_config_get_algoritmo_planificacion(t_kernel_config *self);
  * @brief Toma el valor de la estimacion inicial guardado en configuracion
  * 
  * @param self: Estructura de configuracion del kernel
- * @return uint32_t: Estimacion inicial guardada en la configuracion
+ * @return double: Estimacion inicial guardada en la configuracion
  * 
- * @example uint32_t estimacionInicial = kernel_config_get_estimacion_inicial(kernelConfig);
+ * @example double estimacionInicial = kernel_config_get_estimacion_inicial(kernelConfig);
  */
-uint32_t kernel_config_get_estimacion_inicial(t_kernel_config *self);
+double kernel_config_get_estimacion_inicial(t_kernel_config *self);
 
 /**
  * @brief Toma el valor del alfa para el HRRN guardado en configuracion

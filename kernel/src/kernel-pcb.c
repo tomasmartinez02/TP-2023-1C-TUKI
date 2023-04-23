@@ -1,15 +1,16 @@
 #include <kernel-pcb.h>
 
+// Funciones publicas
+
 t_pcb *crear_pcb(uint32_t pid)
 {
-    t_pcb* pcb = malloc(sizeof(*pcb));
+    t_pcb *pcb = malloc(sizeof(*pcb));
     
     pcb->pid = pid;
     pcb->instrucciones = NULL;
     pcb->programCounter = 0;
     pcb->registrosCpu = NULL;
     pcb->estimadoProxRafaga = kernel_config_get_estimacion_inicial(kernelConfig); // el valor inicial se saca del config y después se calcula
-    pcb->tiempoLlegadaReady = 0;
     pcb->tablaSegmentos = NULL;
     pcb->archivosAbiertos = NULL;
     pcb->estadoActual = NEW;
@@ -17,6 +18,9 @@ t_pcb *crear_pcb(uint32_t pid)
     pcb->estadoAnterior = NEW;
     pcb->procesoBloqueadoOTerminado = false;
     pcb->socketProceso = -1;
+
+    timestamp *tiempoLlegadaReady = malloc(sizeof(*(tiempoLlegadaReady)));
+    pcb->tiempoLlegadaReady = tiempoLlegadaReady;
 
     pthread_mutex_t *mutex = malloc(sizeof(*(pcb->mutex)));
     pthread_mutex_init(mutex, NULL);
@@ -55,6 +59,8 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
     //
     //}
 
+    free(pcb->tiempoLlegadaReady);
+
     close(pcb->socketProceso);
     pthread_mutex_unlock(pcb_get_mutex(pcb));
 
@@ -67,6 +73,7 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
 t_info_segmentos *crear_info_segmentos(void)
 {
     t_info_segmentos *infoSegmentos = malloc(sizeof(*infoSegmentos));
+    
     infoSegmentos->id = 0;
     infoSegmentos->direccionBase = 0;
     infoSegmentos->tamanio = 0;
@@ -129,26 +136,26 @@ void pcb_set_program_counter(t_pcb* pcb, uint32_t programCounter)
 
 // Set y Get Estimado de la Proxima Rafaga PCB
 
-uint32_t pcb_get_estimado_prox_rafaga (t_pcb *pcb)
+double pcb_get_estimado_prox_rafaga(t_pcb *pcb)
 {
     return pcb->estimadoProxRafaga;
 }
 
-void pcb_set_estimado_prox_rafaga (t_pcb *pcb, uint32_t estimadoProxRafaga)
+void pcb_set_estimado_prox_rafaga(t_pcb *pcb, double estimadoProxRafaga)
 {
     pcb->estimadoProxRafaga = estimadoProxRafaga;
 }
 
 // Set y Get Tiempo de Llegada a Ready PCB
 
-uint32_t pcb_get_tiempo_llegada_ready (t_pcb *pcb)
+timestamp *pcb_get_tiempo_llegada_ready(t_pcb *pcb)
 {
     return pcb->tiempoLlegadaReady;
 }
 
-void pcb_set_tiempo_llegada_ready (t_pcb *pcb, uint32_t tiempoLlegadaReady)
+void pcb_set_tiempo_llegada_ready(t_pcb *pcb)
 {
-    pcb->tiempoLlegadaReady = tiempoLlegadaReady;
+    set_timespec(pcb->tiempoLlegadaReady);
 }
 
 // Set y Get Socket PCB
