@@ -47,18 +47,6 @@ static t_registros_cpu* __desempaquetar_registros_de_buffer(t_buffer *bufferReci
     return registrosCpu;
 }
 
-t_cpu_pcb* __crear_pcb(uint32_t pid, uint32_t programCounter, t_registros_cpu *registrosCpu, t_buffer* instrucciones)
-{
-    t_cpu_pcb *pcb = malloc(sizeof(*pcb));
-    
-    pcb->pid = pid;
-    pcb->instrucciones = instrucciones;
-    pcb->programCounter = programCounter;
-    pcb->registrosCpu = registrosCpu;
-
-    return pcb;
-}
-
 t_cpu_pcb* __desempaquetar_pcb(t_buffer* bufferPcb, t_buffer* bufferInstrucciones)
 {   
     uint32_t pid, programCounter;
@@ -68,7 +56,7 @@ t_cpu_pcb* __desempaquetar_pcb(t_buffer* bufferPcb, t_buffer* bufferInstruccione
     buffer_unpack(bufferPcb, &programCounter, sizeof(programCounter));
     registrosCpu = __desempaquetar_registros_de_buffer(bufferPcb);
     
-    t_cpu_pcb* pcb = __crear_pcb(pid, programCounter, registrosCpu, bufferInstrucciones);
+    t_cpu_pcb* pcb = crear_pcb(pid, programCounter, registrosCpu, bufferInstrucciones);
     return pcb;
 }
 
@@ -92,4 +80,19 @@ t_cpu_pcb* recibir_pcb_de_kernel()
 
     t_cpu_pcb* pcb = __desempaquetar_pcb(bufferPcb, bufferInstrucciones);
     return pcb;
+}
+
+void ejecutar_programa(t_cpu_pcb* pcb)
+{
+    int programCounter = cpu_pcb_get_program_counter(pcb);
+    //instrucciones = cpu_get_instrucciones(pcb);
+    // Función a hacer a futuro que busque en el buffer de instrucciones la instruccion que corresponda y la ejecute
+    //ejecutar_instruccion(instrucciones, programCounter);
+    incrementar_program_counter(pcb);
+}
+
+void incrementar_program_counter(t_cpu_pcb* pcb)
+{   
+    int programCounter = cpu_pcb_get_program_counter(pcb);
+    cpu_pcb_set_program_counter(pcb, programCounter + 1);
 }
