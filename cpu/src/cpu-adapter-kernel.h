@@ -6,6 +6,7 @@
 
 #include <utils/logging.h>
 #include <utils/instrucciones.h>
+#include <utils/common-utils.h>
 
 #include <serializacion/buffer.h>
 #include <serializacion/stream.h>
