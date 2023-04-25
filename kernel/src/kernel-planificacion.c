@@ -4,12 +4,16 @@
 static uint32_t pidActual;
 static pthread_mutex_t mutexPid;
 
-//Estados
+// Estados
 static t_estado *estadoNew;
 static t_estado *estadoReady;
 static t_estado *estadoExecute;
 static t_estado *estadoBlocked; 
 static t_estado *estadoExit;
+
+// Variables de uso general
+static sem_t hayPcbsParaAgregarAlSistema;
+static sem_t gradoMultiprog;
 
 // Funciones privadas
 
@@ -29,6 +33,17 @@ static void __inicializar_estructuras_estados(void)
     estadoExecute = crear_estado(EXEC);
     estadoBlocked = crear_estado(BLOCKED);
     estadoExit = crear_estado(EXIT);
+}
+
+static void __inicializar_semaforos(void)
+{
+    int valorInicialGradoMultiprog = kernel_config_get_grado_multiprogramacion(kernelConfig);
+    
+    sem_init(&hayPcbsParaAgregarAlSistema, 0, 0);
+    sem_init(&gradoMultiprog, 0, valorInicialGradoMultiprog);
+
+    log_info(kernelLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprog);
+    log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprog);
 }
 
 // Obtiene y actualiza el pidActual para asignarlo a un pcb
@@ -111,7 +126,7 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     // Log minimo cambio de estado
     log_transicion_estados(ESTADO_NULL, ESTADO_NEW, nuevoPid);
 
-    // AGREGAR PARTE SEMAFOROS ACA CUANDO SEA NECESARIO
+    sem_post(&hayPcbsParaAgregarAlSistema);
 
     return NULL;
 }
@@ -120,10 +135,20 @@ void inicializar_estructuras(void)
 {
     __inicializar_estructuras_pid();
     __inicializar_estructuras_estados();
+    __inicializar_semaforos();
 }
 
 void *encolar_en_ready_a_nuevo_pcb(void *socketCliente)
 {
-    // TODO
+    sem_wait(&hayPcbsParaAgregarAlSistema); 
+    sem_wait(&gradoMultiprog); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
+
+    t_pcb* pcbAReady = estado_desencolar_primer_pcb_atomic (estadoNew);
+
+    pcb_set_estado_anterior(pcbAReady, pcb_get_estado_actual(pcbAReady));
+    pcb_set_estado_actual(pcbAReady, READY);
+
+    estado_encolar_pcb_atomic(estadoReady, pcbAReady);
+
     return NULL;
 }
