@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <cpu-estructuras.h>
 
-t_cpu_pcb* crear_pcb(int pid, int programCounter, t_registros_cpu *registrosCpu, t_buffer* instrucciones);
+t_cpu_pcb* crear_pcb(int pid, int programCounter, t_registros_cpu *registrosCpu, t_list* instrucciones);
 
 void cpu_pcb_destroy(t_cpu_pcb* self);
 int cpu_pcb_get_pid(t_cpu_pcb* self);

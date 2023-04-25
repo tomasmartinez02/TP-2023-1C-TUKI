@@ -14,7 +14,9 @@
 #include <cpu-config.h>
 
 t_cpu_pcb* recibir_pcb_de_kernel();
-void ejecutar_programa(t_cpu_pcb* pcb);
+void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb);
+void cpu_decode_instruccion(t_instruccion *instruccion);
+t_instruccion* cpu_fetch_instruccion(t_cpu_pcb *pcb);
 void incrementar_program_counter(t_cpu_pcb* pcb);
 
 

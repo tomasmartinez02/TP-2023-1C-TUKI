@@ -148,6 +148,26 @@ void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
         log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: <EXIT>", cpu_pcb_get_pid(pcb));
 
         t_buffer *bufferExit = buffer_create();
+
+        // empaquetar pid
+        uint32_t pid = cpu_pcb_get_pid(pcb);
+        buffer_pack(bufferExit, &pid, sizeof(pid));
+
+    
+        // empaquetar registros
+        t_registros_cpu *registrosActuales = cpu_pcb_get_registros(pcb);
+        // falta empaquetarlos
+        //nota de irina: hice una funcion privada en kernel en el adapter con el cpu que empaqueta los registros del pcb y los
+        //pone en un buffer, capaz si la muevo a static-utils la podemos usar aca para empaquetar
+
+        /*
+        // empaquetar program counter
+        uint32_t programCounterActual = incrementar_program_counter(pcb);
+        buffer_pack(bufferExit, &programCounterActual, sizeof(programCounterActual));
+
+        stream_send_buffer(cpu_config_get_socket_kernel(cpuConfig), HEADER_proceso_terminado, bufferExit);
+        */
+
         buffer_destroy(bufferExit);
 
         break;

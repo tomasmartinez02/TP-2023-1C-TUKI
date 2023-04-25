@@ -1,6 +1,6 @@
 #include <cpu-pcb.h>
 
-t_cpu_pcb* crear_pcb(int pid, int programCounter, t_registros_cpu *registrosCpu, t_buffer* instrucciones)
+t_cpu_pcb* crear_pcb(int pid, int programCounter, t_registros_cpu *registrosCpu, t_list* instrucciones)
 {
     t_cpu_pcb *pcb = malloc(sizeof(*pcb));
     
