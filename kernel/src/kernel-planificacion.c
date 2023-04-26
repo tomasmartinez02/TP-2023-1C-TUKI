@@ -177,6 +177,7 @@ void encolar_en_ready_a_nuevo_pcb()
     log_transicion_estados("NEW", "READY", pcb_get_pid(pcbAReady));
 
     // aca se deberia tambien mandar el mensaje al modulo de memoria pero no entiendemos como
+    memoria_adapter_pedir_inicializacion_de_estructuras(pcbAReady);
 
     destruir_pcb(pcbAReady);
 
@@ -185,6 +186,6 @@ void encolar_en_ready_a_nuevo_pcb()
 
 void finalizar_proceso()
 {
- 
+    
 }
 

@@ -58,8 +58,6 @@ static void __cargar_registros_en_buffer(t_buffer *bufferAEnviar, t_pcb *pcb)
     return;
 }
 
-static void __desempaquetar_
-
 static t_buffer *__serializar_pcb_para_ejecucion(t_pcb *pcb)
 {
     t_buffer *bufferAEnviar = buffer_create();
