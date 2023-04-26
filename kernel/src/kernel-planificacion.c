@@ -136,9 +136,32 @@ void inicializar_estructuras(void)
     __inicializar_estructuras_pid();
     __inicializar_estructuras_estados();
     __inicializar_semaforos();
+    __planificadores();
 }
 
-void *encolar_en_ready_a_nuevo_pcb(void *socketCliente)
+static void __planificadores(void)
+{
+    // PLANIFICADOR A LARZO PLAZO
+    // pthread_t largoPlazoTh;
+    // pthread_create(&largoPlazoTh, NULL, (void*)planificador_largo_plazo, NULL);
+    // pthread_detach(largoPlazoTh);
+
+    // PLANIFICADOR A CORTO PLAZO
+    // pthread_t cortoPlazoTh;
+    // pthread_create(&cortoPlazoTh, NULL, (void*) planificador_corto_plazo, NULL);
+    // pthread_detach(cortoPlazoTh);
+
+
+}
+
+void *planificador_largo_plazo(void *args)
+{
+    for (;;) {
+        encolar_en_new_a_nuevo_pcb_entrante();
+    }
+}
+
+void encolar_en_ready_a_nuevo_pcb() 
 {
     sem_wait(&hayPcbsParaAgregarAlSistema); 
     sem_wait(&gradoMultiprog); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
@@ -149,6 +172,19 @@ void *encolar_en_ready_a_nuevo_pcb(void *socketCliente)
     pcb_set_estado_actual(pcbAReady, READY);
 
     estado_encolar_pcb_atomic(estadoReady, pcbAReady);
+    sem_post(estado_get_semaforo(estadoReady));
+
+    log_transicion_estados("NEW", "READY", pcb_get_pid(pcbAReady));
+
+    // aca se deberia tambien mandar el mensaje al modulo de memoria pero no entiendemos como
+
+    destruir_pcb(pcbAReady);
 
     return NULL;
 }
+
+void finalizar_proceso()
+{
+ 
+}
+

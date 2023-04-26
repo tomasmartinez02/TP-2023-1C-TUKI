@@ -58,6 +58,8 @@ static void __cargar_registros_en_buffer(t_buffer *bufferAEnviar, t_pcb *pcb)
     return;
 }
 
+static void __desempaquetar_
+
 static t_buffer *__serializar_pcb_para_ejecucion(t_pcb *pcb)
 {
     t_buffer *bufferAEnviar = buffer_create();
@@ -87,6 +89,22 @@ static void __enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
     log_info(kernelDebuggingLogger, "Se ha enviado el pcb con PID <%d> al modulo Cpu para su ejecucion", pcb_get_pid(pcbAEnviar));
 
     return;
+}
+
+t_pcb* recibir_pcb_de_cpu() // CHEQUEAR ESTA FUNCION!! LUCAS!!!!
+{
+    // Aca solo lo recibimos
+    t_buffer *bufferProceso = NULL;
+    t_pcb *pcbRecibido = NULL;
+
+    bufferProceso = buffer_create();
+
+    t_header headerProceso = stream_recv_header(socketCpu);
+    stream_recv_buffer(socketCpu, bufferProceso);
+
+    buffer_unpack(bufferProceso, pcbRecibido, sizeof(pcbRecibido));
+
+    return pcbRecibido;
 }
 
 void ejecutar_proceso(t_pcb* pcbAEjecutar)
