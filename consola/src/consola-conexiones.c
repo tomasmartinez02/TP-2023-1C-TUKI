@@ -15,6 +15,7 @@ int conectar_a_kernel(void)
         consola_destroy(consolaConfig, consolaLogger, consolaDebuggingLogger);
         exit(EXIT_FAILURE);
     }
+    consola_config_set_socket_kernel(consolaConfig, socketKernel);
 
     log_info(consolaLogger, "Socket creado exitosamente con modulo Kernel");
     log_info(consolaDebuggingLogger, "Socket creado exitosamente con modulo Kernel");
