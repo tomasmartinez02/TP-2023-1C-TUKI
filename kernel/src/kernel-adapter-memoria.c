@@ -2,18 +2,18 @@
 
 pthread_mutex_t mutexSocketMemoria;
 
-void memoria_adapter_pedir_inicializacion_de_estructuras (t_pcb *pcbAMandar) // REVISAR ESTA FUNCION!!!!
+t_info_segmentos *memoria_adapter_pedir_inicializacion_proceso(t_pcb *pcbAMandar) // REVISAR ESTA FUNCION!!!!
 {
     pthread_mutex_lock(&mutexSocketMemoria);
     
     uint32_t pid = pcb_get_pid(pcbAMandar);
-    uint32_t tamanioPid = sizeof (pid);
+    uint32_t tamanioPid = sizeof(pid);
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
-    t_buffer *bufferAMandar = buffer_create();
-    buffer_pack(bufferAMandar, (void*) pid, tamanioPid);
-    stream_send_buffer(socketMemoria, HEADER_solicitud_inicializacion_proceso, bufferAMandar); // Ojo que hay que agregar este header!
-    buffer_destroy(bufferAMandar);
+    t_buffer *bufferPidAProceso = buffer_create();
+    buffer_pack(bufferPidAProceso, (void*) &pid, tamanioPid);
+    stream_send_buffer(socketMemoria, HEADER_solicitud_inicializacion_proceso, bufferPidAProceso); // Ojo que hay que agregar este header!
+    buffer_destroy(bufferPidAProceso);
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 

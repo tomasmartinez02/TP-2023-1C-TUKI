@@ -17,15 +17,20 @@ static sem_t gradoMultiprog;
 
 // Funciones privadas
 
+// Funciones inicializacion estructuras kernel
+
 // Inicializa pidActual y mutex del pidActual
 static void __inicializar_estructuras_pid(void)
 {
     pidActual = 0;
     pthread_mutex_init(&mutexPid, NULL); // Este mutex habria que destruirlo en algun otro lado
 
+    log_info(kernelDebuggingLogger, "Se inicializa a la estructura que actualiza el numero de pid");
+    
     return;
 }
 
+// Inicializa los estados de planificacion del kernel
 static void __inicializar_estructuras_estados(void)
 {
     estadoNew = crear_estado(NEW);
@@ -33,18 +38,41 @@ static void __inicializar_estructuras_estados(void)
     estadoExecute = crear_estado(EXEC);
     estadoBlocked = crear_estado(BLOCKED);
     estadoExit = crear_estado(EXIT);
+
+    log_info(kernelDebuggingLogger, "Se inicializan los estados de planificacion del kernel");
+
+    return;
 }
 
 static void __inicializar_semaforos(void)
 {
-    int valorInicialGradoMultiprog = kernel_config_get_grado_multiprogramacion(kernelConfig);
+    int valorInicialGradoMultiprog = kernel_config_get_grado_max_multiprogramacion(kernelConfig);
     
     sem_init(&hayPcbsParaAgregarAlSistema, 0, 0);
     sem_init(&gradoMultiprog, 0, valorInicialGradoMultiprog);
 
-    log_info(kernelLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprog);
     log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprog);
+    log_info(kernelDebuggingLogger, "Se inicializan los semaforos para la planificacion correctamente");
+
+    return;
 }
+
+static void __crear_hilos_planificadores(void)
+{
+    // PLANIFICADOR A LARZO PLAZO
+    // pthread_t largoPlazoTh;
+    // pthread_create(&largoPlazoTh, NULL, __planificador_largo_plazo, NULL);
+    // pthread_detach(largoPlazoTh);
+
+    // PLANIFICADOR A CORTO PLAZO
+    // pthread_t cortoPlazoTh;
+    // pthread_create(&cortoPlazoTh, NULL, __planificador_corto_plazo, NULL);
+    // pthread_detach(cortoPlazoTh);
+
+    return;
+}
+
+// Funciones utilitarias para la planificacion
 
 // Obtiene y actualiza el pidActual para asignarlo a un pcb
 static uint32_t __obtener_siguiente_pid()
@@ -62,10 +90,43 @@ static t_pcb *__crear_nuevo_pcb(int socketConsola, t_buffer *bufferInstrucciones
     uint32_t nuevoPid = __obtener_siguiente_pid();
     t_pcb *nuevoPcb = crear_pcb(nuevoPid);
     pcb_set_socket(nuevoPcb, socketConsola);
-    pcb_set_instrucciones(nuevoPcb, bufferInstrucciones);
+
+    t_buffer *copiaBufferInstrucciones = buffer_create_copy(bufferInstrucciones);
+    pcb_set_instrucciones(nuevoPcb, copiaBufferInstrucciones);
+    
+    log_info(kernelDebuggingLogger, "Se crea un nuevo pcb con pid %d y sus instrucciones correctamente", nuevoPid);
+    
     return nuevoPcb;
 }
 
+// Planificadores
+
+void *__planificador_largo_plazo(void *args)
+{
+    for (;;) {
+        // Aguarda a que haya pcbs en new y que el grado de multiprogramacion lo permita
+        sem_wait(&hayPcbsParaAgregarAlSistema); 
+        sem_wait(&gradoMultiprog); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
+
+        t_pcb *pcbAReady = estado_desencolar_primer_pcb_atomic(estadoNew);
+
+        // Pido a la memoria que inicialice al pcb y me devuelca la tabla de segmentos
+        t_info_segmentos *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
+
+        pcb_set_estado_anterior(pcbAReady, pcb_get_estado_actual(pcbAReady));
+        pcb_set_estado_actual(pcbAReady, READY);
+
+        estado_encolar_pcb_atomic(estadoReady, pcbAReady);
+        log_transicion_estados(ESTADO_NEW, ESTADO_READY, pcb_get_pid(pcbAReady));
+        log_ingreso_cola_ready(estadoReady);
+    }
+
+    return NULL;
+}
+
+// Funciones publicas
+
+// Recepcion de nuevas consolas
 void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente) 
 {
     int socketConsola = *((int *) socketCliente);
@@ -106,6 +167,7 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     // Si esta todo ok, desempaqueto las instrucciones
     t_buffer *bufferInstrucciones = buffer_create();
     stream_recv_buffer(socketConsola, bufferInstrucciones); // Aca tenemos dudas acerca de de donde viene este buffer. De la consola?
+    log_info(kernelDebuggingLogger, "Se reciben las instrucciones de la consola correctamente");
 
     // Se crea el nuevo pcb
     t_pcb* nuevoPcb = __crear_nuevo_pcb(socketConsola, bufferInstrucciones);
@@ -117,6 +179,7 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     buffer_pack(bufferPID, &nuevoPid, sizeof(nuevoPid));
     stream_send_buffer(socketConsola, HEADER_pid, bufferPID);
     buffer_destroy(bufferPID);
+    log_info(kernelDebuggingLogger, "Se envia el pid %d del nuevo pcb creado a la consola", nuevoPid);
 
     // Log minimo kernel creacion proceso
     log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", nuevoPid);
@@ -125,61 +188,7 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     estado_encolar_pcb_atomic(estadoNew, nuevoPcb);
     // Log minimo cambio de estado
     log_transicion_estados(ESTADO_NULL, ESTADO_NEW, nuevoPid);
-
     sem_post(&hayPcbsParaAgregarAlSistema);
-
-    return NULL;
-}
-
-void inicializar_estructuras(void) 
-{
-    __inicializar_estructuras_pid();
-    __inicializar_estructuras_estados();
-    __inicializar_semaforos();
-    __planificadores();
-}
-
-static void __planificadores(void)
-{
-    // PLANIFICADOR A LARZO PLAZO
-    // pthread_t largoPlazoTh;
-    // pthread_create(&largoPlazoTh, NULL, (void*)planificador_largo_plazo, NULL);
-    // pthread_detach(largoPlazoTh);
-
-    // PLANIFICADOR A CORTO PLAZO
-    // pthread_t cortoPlazoTh;
-    // pthread_create(&cortoPlazoTh, NULL, (void*) planificador_corto_plazo, NULL);
-    // pthread_detach(cortoPlazoTh);
-
-
-}
-
-void *planificador_largo_plazo(void *args)
-{
-    for (;;) {
-        encolar_en_new_a_nuevo_pcb_entrante();
-    }
-}
-
-void encolar_en_ready_a_nuevo_pcb() 
-{
-    sem_wait(&hayPcbsParaAgregarAlSistema); 
-    sem_wait(&gradoMultiprog); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
-
-    t_pcb* pcbAReady = estado_desencolar_primer_pcb_atomic (estadoNew);
-
-    pcb_set_estado_anterior(pcbAReady, pcb_get_estado_actual(pcbAReady));
-    pcb_set_estado_actual(pcbAReady, READY);
-
-    estado_encolar_pcb_atomic(estadoReady, pcbAReady);
-    sem_post(estado_get_semaforo(estadoReady));
-
-    log_transicion_estados("NEW", "READY", pcb_get_pid(pcbAReady));
-
-    // aca se deberia tambien mandar el mensaje al modulo de memoria pero no entiendemos como
-    memoria_adapter_pedir_inicializacion_de_estructuras(pcbAReady);
-
-    destruir_pcb(pcbAReady);
 
     return NULL;
 }
@@ -187,5 +196,13 @@ void encolar_en_ready_a_nuevo_pcb()
 void finalizar_proceso()
 {
     
+}
+
+void inicializar_estructuras(void) 
+{
+    __inicializar_estructuras_pid();
+    __inicializar_estructuras_estados();
+    __inicializar_semaforos();
+    __crear_hilos_planificadores();
 }
 
