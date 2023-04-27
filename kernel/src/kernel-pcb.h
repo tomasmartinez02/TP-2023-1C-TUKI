@@ -49,7 +49,8 @@ void pcb_set_proceso_bloqueado_o_terminado(t_pcb* pcb, bool procesoBloqueadoOTer
 t_registros_cpu* pcb_get_registros_cpu(t_pcb* pcb);
 void pcb_set_registros_cpu(t_pcb *pcb, t_registros_cpu *registrosCpu);
 pthread_mutex_t* pcb_get_mutex(t_pcb* pcb);
-void pcb_set_tabla_segmentos(t_pcb* pcb, t_info_segmentos* tablaSegmentos);
+t_info_segmentos *pcb_get_tabla_segmentos(t_pcb *pcb);
+void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos *tablaSegmentos);
 
 // Interfaz info segmentos
 uint32_t info_segmentos_get_id(t_info_segmentos *infoSegmentos);

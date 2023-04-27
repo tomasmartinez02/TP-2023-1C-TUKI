@@ -12,7 +12,7 @@ t_pcb *crear_pcb(uint32_t pid)
     pcb->registrosCpu = NULL;
     pcb->estimadoProxRafaga = kernel_config_get_estimacion_inicial(kernelConfig); // el valor inicial se saca del config y después se calcula
     pcb->tablaSegmentos = NULL;
-    pcb->archivosAbiertos = NULL;
+    pcb->archivosAbiertos = list_create();
     pcb->estadoActual = NEW;
     pcb->estadoDeFinalizacion = NEW;
     pcb->estadoAnterior = NEW;
@@ -51,13 +51,13 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
 
     t_info_segmentos *tablaSegmentos = pcb->tablaSegmentos;
     if (tablaSegmentos != NULL) {
-        free(tablaSegmentos);
+        destruir_tabla_segmentos(tablaSegmentos);
     }
 
-    //t_info_archivos *archivosAbiertos = pcb->archivosAbiertos;
-    //if (archivosAbiertos != NULL) {
-    //
-    //}
+    t_list *archivosAbiertos = pcb->archivosAbiertos;
+    if (archivosAbiertos != NULL) {
+        destruir_lista_archivos_abiertos(archivosAbiertos);
+    }
 
     free(pcb->tiempoLlegadaReady);
 
@@ -146,11 +146,23 @@ void pcb_set_estimado_prox_rafaga(t_pcb *pcb, double estimadoProxRafaga)
     pcb->estimadoProxRafaga = estimadoProxRafaga;
 }
 
-// Set tabla segmentos
+// Get y Set tabla segmentos
 
-void pcb_set_tabla_segmentos(t_pcb* pcb, t_info_segmentos* tablaSegmentos)
+t_info_segmentos *pcb_get_tabla_segmentos(t_pcb *pcb)
 {
+    return pcb->tablaSegmentos;
+}
+
+void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos *tablaSegmentos)
+{
+    t_info_segmentos *tablaSegmentosActual = pcb->tablaSegmentos;
+    if (tablaSegmentosActual != NULL) {
+        destruir_tabla_segmentos(tablaSegmentosActual);
+    }
+
     pcb->tablaSegmentos = tablaSegmentos;
+
+    return;
 }
 
 // Set y Get Tiempo de Llegada a Ready PCB

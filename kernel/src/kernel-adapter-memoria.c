@@ -1,47 +1,71 @@
 #include <kernel-adapter-memoria.h>
 
-pthread_mutex_t mutexSocketMemoria;
+//Variables locales
 
-t_info_segmentos *adapter_memoria_pedir_inicializacion_proceso (t_pcb *pcbAMandar) // REVISAR ESTA FUNCION!!!!
+static pthread_mutex_t mutexSocketMemoria;
+
+// Funciones privadas
+
+// Envia el pid del proceso que se quiere inicializar en memoria
+void __enviar_pid_proceso_a_inicializar(t_pcb *pcbAInicializar, int socketMemoria)
 {
-    pthread_mutex_lock(&mutexSocketMemoria);
-    
-    t_info_segmentos *tablaSegmentos = NULL;
+    uint32_t pid = pcb_get_pid(pcbAInicializar);
+    t_buffer *bufferPidAProceso = buffer_create();
+    buffer_pack(bufferPidAProceso, (void*) &pid, sizeof(pid));
+    stream_send_buffer(socketMemoria, HEADER_solicitud_inicializacion_proceso, bufferPidAProceso); // Ojo que hay que agregar este header! HEADER_solicitud_inicializacion_proceso
+    buffer_destroy(bufferPidAProceso);
 
-    uint32_t pid = pcb_get_pid(pcbAMandar);
-    uint32_t tamanioPid = sizeof(pid);
+    log_info(kernelDebuggingLogger, "Se ha enviado el pid %d para que la memoria inicalice sus estructuras", pid);
+
+    return;
+}
+
+// Recibe y desempaqueta la tabla de segmentos enviada por la memoria
+static t_info_segmentos *__recibir_tabla_segmentos(t_pcb *pcbInicializado, int socketMemoria)
+{
+    t_buffer *bufferTablaSegmentos = buffer_create();
+    stream_recv_buffer(socketMemoria, bufferTablaSegmentos);
+    uint32_t tamanioTablaSegmentos;
+    buffer_unpack(bufferTablaSegmentos, &tamanioTablaSegmentos, sizeof(tamanioTablaSegmentos));
+    t_info_segmentos *tablaSegmentos = desempaquetar_tabla_segmentos(bufferTablaSegmentos, tamanioTablaSegmentos);
+    buffer_destroy(bufferTablaSegmentos);
+
+    log_info(kernelDebuggingLogger, "Proceso: %d - Se recibe el array con la tabla de los segmentos", pcb_get_pid(pcbInicializado));
+
+    return tablaSegmentos;
+}
+
+// Funciones publicas
+
+t_info_segmentos *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) // REVISAR ESTA FUNCION!!!!
+{
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
-    t_buffer *bufferPidAProceso = buffer_create();
-    buffer_pack(bufferPidAProceso, (void*) &pid, tamanioPid);
-    stream_send_buffer(socketMemoria, 1, bufferPidAProceso); // Ojo que hay que agregar este header! HEADER_solicitud_inicializacion_proceso
-    buffer_destroy(bufferPidAProceso);
+    pthread_mutex_lock(&mutexSocketMemoria);
+    __enviar_pid_proceso_a_inicializar(pcbAInicializar, socketMemoria);
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 
-    if (respuestaMemoria == HANDSHAKE_ok_continue) {
-        t_buffer *bufferARecibir = buffer_create();
-        stream_recv_buffer(socketMemoria, bufferARecibir);
-        uint32_t tamanioTablaSegmentos = sizeof (t_info_segmentos);
-        buffer_unpack(bufferARecibir, tablaSegmentos, tamanioTablaSegmentos); // Esto no se si esta bien
-        buffer_destroy(bufferARecibir);
-        log_info(kernelLogger, "Proceso: %d - Se recibe el array con las tablas de paginas de los segmentos", pid);
+    if (respuestaMemoria != HANDSHAKE_ok_continue) {
+        if (respuestaMemoria == HEADER_error) { // En que caso nos mandaria eso?
+            stream_recv_empty_buffer(socketMemoria);
+            pthread_mutex_unlock(&mutexSocketMemoria);
+            return NULL;
+        }
+        else {
+            log_error(kernelLogger, "Error al recibir la tabla de segmentos");
+            exit(EXIT_FAILURE);
+        }
     }
-    else if (respuestaMemoria == HEADER_error) { // En que caso nos mandaria eso?
-        stream_recv_empty_buffer(socketMemoria);
-        pthread_mutex_unlock(&mutexSocketMemoria);
-        return NULL;
-    }
-    else {
-        log_error(kernelLogger, "Error al recibir la tabla de segmentos");
-        exit(EXIT_FAILURE);
-    }
+
+    t_info_segmentos *tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
     pthread_mutex_unlock(&mutexSocketMemoria);
 
     return tablaSegmentos;
 }
 
-void adapter_memoria_finalizar_proceso (t_pcb *pcbATerminar)
+/*
+void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
 {   
     if (pcb_get_estado_finalizacion(pcbATerminar)) {
         
@@ -75,3 +99,4 @@ void adapter_memoria_finalizar_proceso (t_pcb *pcbATerminar)
             log_error(kernelLogger, "El proceso con PID <%d> finalizado no pudo ser creado por falta de memoria", pcb_get_pid(pcbATerminar));
     }
 }
+*/

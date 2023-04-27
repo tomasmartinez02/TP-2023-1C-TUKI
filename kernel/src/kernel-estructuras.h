@@ -83,7 +83,7 @@ struct pcb
     t_registros_cpu* registrosCpu;
     double estimadoProxRafaga;
     timestamp *tiempoLlegadaReady;
-    t_info_archivos *archivosAbiertos; 
+    t_list *archivosAbiertos; 
     t_info_segmentos *tablaSegmentos;
     t_nombre_estado estadoActual; 
     t_nombre_estado estadoDeFinalizacion;
