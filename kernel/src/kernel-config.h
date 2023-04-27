@@ -20,6 +20,7 @@
  * 
  * @param kernelConfigPath: Ruta desde el punto de ejecucion hacia el archivo de config 
  * @param kernelLogger: Logger del kernel
+ *
  * @return t_kernel_config*: instancia creada e inicalizada de la estructura de configuracion
  * 
  * @example t_kernel_config *kernelConfig = kernel_config_create("./config/config-inicial.h", kernelLogger);

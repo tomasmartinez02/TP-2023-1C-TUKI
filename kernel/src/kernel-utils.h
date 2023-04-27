@@ -12,6 +12,8 @@
 
 // Prototipos
 
+void finaliza_proceso (t_pcb* pcb, char* nombreEstadoEnString);
+
 /**
  * @brief Destruye las estructuras principales del kernel
  * 

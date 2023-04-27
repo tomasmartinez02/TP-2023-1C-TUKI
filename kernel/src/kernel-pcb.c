@@ -146,6 +146,13 @@ void pcb_set_estimado_prox_rafaga(t_pcb *pcb, double estimadoProxRafaga)
     pcb->estimadoProxRafaga = estimadoProxRafaga;
 }
 
+// Set tabla segmentos
+
+void pcb_set_tabla_segmentos(t_pcb* pcb, t_info_segmentos* tablaSegmentos)
+{
+    pcb->tablaSegmentos = tablaSegmentos;
+}
+
 // Set y Get Tiempo de Llegada a Ready PCB
 
 timestamp *pcb_get_tiempo_llegada_ready(t_pcb *pcb)
@@ -196,7 +203,7 @@ t_nombre_estado pcb_get_estado_anterior(t_pcb* pcb)
 
 // Set y Get Estado de Finalizacion PCB
 
-void pcb_set_estado_de_finalizacion(t_pcb* pcb, t_nombre_estado estadoDeFin)
+void pcb_set_estado_finalizacion(t_pcb* pcb, t_nombre_estado estadoDeFin)
 {
     pcb->estadoDeFinalizacion = estadoDeFin;
 }

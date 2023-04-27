@@ -169,7 +169,6 @@ int inicializar_servidor_kernel(void)
     return tempKernelSocketServerEscucha;
 }
 
-
 void aceptar_conexiones_kernel(const int socketEscucha) 
 { 
     struct sockaddr cliente = {0};

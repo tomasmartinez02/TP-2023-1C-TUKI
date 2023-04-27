@@ -99,9 +99,43 @@ static t_pcb *__crear_nuevo_pcb(int socketConsola, t_buffer *bufferInstrucciones
     return nuevoPcb;
 }
 
+// Termina el proceso del cual se le pasa el PCB
+static void __terminar_proceso(t_pcb* pcb)
+{
+    switch (pcb_get_estado_actual(pcb))
+    {
+        case NEW:
+            finaliza_proceso(pcb, "NEW");
+            break;
+
+        case EXEC: 
+            finaliza_proceso(pcb, "EXEC");
+            break;
+            
+        case BLOCKED:
+            finaliza_proceso(pcb, "BLOCKED");
+            break;
+
+        default:
+            //error
+            break;
+    }
+
+    pcb_set_estado_anterior(pcb, pcb_get_estado_actual(pcb));
+    pcb_set_estado_actual(pcb, EXIT);
+    estado_encolar_pcb_atomic(estadoExit, pcb);
+    
+    adapter_memoria_finalizar_proceso(pcb);
+    stream_send_empty_buffer(pcb_get_socket(pcb), HEADER_proceso_terminado); // Da aviso a la consola de que finalizo la ejecucición
+
+    // Hay que liberar memoria? Que partes del pcb hay que liberar? Que recursos hay que liberar?
+
+    sem_post(estado_get_semaforo(estadoExit));
+}
+
 // Planificadores
 
-void *__planificador_largo_plazo(void *args)
+static void *__planificador_largo_plazo(void *args)
 {
     for (;;) {
         // Aguarda a que haya pcbs en new y que el grado de multiprogramacion lo permita
@@ -113,8 +147,13 @@ void *__planificador_largo_plazo(void *args)
         // Pido a la memoria que inicialice al pcb y me devuelca la tabla de segmentos
         t_info_segmentos *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
 
+        if (tablaSegmentos == NULL) {
+            // ERROR
+        }
+
         pcb_set_estado_anterior(pcbAReady, pcb_get_estado_actual(pcbAReady));
         pcb_set_estado_actual(pcbAReady, READY);
+        pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
 
         estado_encolar_pcb_atomic(estadoReady, pcbAReady);
         log_transicion_estados(ESTADO_NEW, ESTADO_READY, pcb_get_pid(pcbAReady));
@@ -191,11 +230,6 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     sem_post(&hayPcbsParaAgregarAlSistema);
 
     return NULL;
-}
-
-void finalizar_proceso()
-{
-    
 }
 
 void inicializar_estructuras(void) 

@@ -89,11 +89,12 @@ static void __enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
     return;
 }
 
-t_pcb* recibir_pcb_de_cpu() // CHEQUEAR ESTA FUNCION!! LUCAS!!!!
+/* t_pcb* recibir_pcb_de_cpu() // CHEQUEAR ESTA FUNCION!! LUCAS!!!! CREO QUE LA VAMOS A NECESITAR PARA EL PLANIFICADOR DE CORTO PLAZO!
 {
     // Aca solo lo recibimos
     t_buffer *bufferProceso = NULL;
     t_pcb *pcbRecibido = NULL;
+    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     bufferProceso = buffer_create();
 
@@ -103,7 +104,7 @@ t_pcb* recibir_pcb_de_cpu() // CHEQUEAR ESTA FUNCION!! LUCAS!!!!
     buffer_unpack(bufferProceso, pcbRecibido, sizeof(pcbRecibido));
 
     return pcbRecibido;
-}
+} */
 
 void ejecutar_proceso(t_pcb* pcbAEjecutar)
 {

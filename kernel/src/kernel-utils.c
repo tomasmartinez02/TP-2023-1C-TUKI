@@ -28,8 +28,17 @@ static void __pid_destroyer(void *pidADestruir)
     free(pidADestruir);
 }
 
+// Setea el estado final y logea la transicion 
+
 
 // Funciones publicas
+
+void finaliza_proceso (t_pcb* pcb, char* nombreEstadoEnString)
+{
+    pcb_set_estado_finalizacion(pcb, pcb_get_estado_actual(pcb));
+    log_transicion_estados(nombreEstadoEnString, "EXIT", pcb_get_pid(pcb));
+}
+
 void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger)
 {
     module_destroy((void *) kernelConfig, __config_destroyer, kernelLogger, kernelDebuggingLogger);
