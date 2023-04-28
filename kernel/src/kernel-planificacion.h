@@ -43,4 +43,16 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente);
  */
 void inicializar_estructuras(void);
 
+/**
+ * @brief 
+ * 
+ */
+void* pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado);
+
+static t_pcb* elegir_pcb_segun_fifo(t_estado* estado);
+static t_pcb* elegir_pcb_segun_hrrn(t_estado* estado);
+t_pcb* elegir_pcb(t_estado* estadoReady);
+
+
+
 #endif
