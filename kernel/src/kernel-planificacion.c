@@ -12,8 +12,7 @@ static t_estado *estadoBlocked;
 static t_estado *estadoExit;
 
 // Variables de uso general
-static sem_t hayPcbsParaAgregarAlSistema;
-static sem_t gradoMultiprog;
+static sem_t gradoMultiprogramacion;
 
 // Funciones privadas
 
@@ -44,14 +43,14 @@ static void __inicializar_estructuras_estados(void)
     return;
 }
 
+// Inicializa los semaforos para la planificacion
 static void __inicializar_semaforos(void)
 {
-    int valorInicialGradoMultiprog = kernel_config_get_grado_max_multiprogramacion(kernelConfig);
+    int valorInicialGradoMultiprogramacion = kernel_config_get_grado_max_multiprogramacion(kernelConfig);
     
-    sem_init(&hayPcbsParaAgregarAlSistema, 0, 0);
-    sem_init(&gradoMultiprog, 0, valorInicialGradoMultiprog);
+    sem_init(&gradoMultiprogramacion, 0, valorInicialGradoMultiprogramacion);
 
-    log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprog);
+    log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprogramacion);
     log_info(kernelDebuggingLogger, "Se inicializan los semaforos para la planificacion correctamente");
 
     return;
@@ -101,77 +100,172 @@ static t_pcb *__crear_nuevo_pcb(int socketConsola, t_buffer *bufferInstrucciones
 
 
 // TRANSICIONES DE ESTADOS
-void* pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado)
+
+// Encola, actualiza pcb y loggea transicion de estados
+static void __pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado, char *stringEstadoViejo, char *stringEstadoNuevo)
 {   
     t_nombre_estado nombreNuevoEstado = nuevoEstado->nombreEstado;
     
     pcb_set_estado_anterior(pcb, pcb_get_estado_actual(pcb));
-    
     pcb_set_estado_actual(pcb, nombreNuevoEstado);
 
     estado_encolar_pcb_atomic(nuevoEstado, pcb);
-    // ESTO NO LO PUEDO HACER PORQUE NECESITO EL CHAR* DEL ESTADO, tendria q corregirlo y podriamos tener una funcion
-    // sola que haga todas las transiciones de estados.
-    //log_transicion_estados(ESTADO_READY, ESTADO_EXECUTE, pcb_get_pid(pcb));
+    log_transicion_estados(stringEstadoViejo, stringEstadoNuevo, pcb_get_pid(pcb));
+
+    return;
 }
 
-void* __pcb_pasar_de_new_a_ready(t_pcb* pcbAReady)
+// Funcion generica para pasar un pcb a ready desde cualquier estado
+static void __pcb_pasar_a_ready(t_pcb* pcbAReady, char *stringEstadoViejo)
 {
-    pcb_pasar_de_estado(pcbAReady, estadoReady);
-    log_transicion_estados(ESTADO_NEW, ESTADO_READY, pcb_get_pid(pcbAReady));
+    __pcb_pasar_de_estado(pcbAReady, estadoReady, stringEstadoViejo, ESTADO_READY);
     log_ingreso_cola_ready(estadoReady);
+
+    return;
 }
 
-void* __pcb_pasar_de_ready_a_running(t_pcb* pcbARunning)
+// Pasa un pcb de New a Ready
+static void __pcb_pasar_de_new_a_ready(t_pcb* pcbAReady)
+{
+    __pcb_pasar_a_ready(pcbAReady, ESTADO_NEW);
+
+    return;
+}
+
+// Pasa un pcb de Blocked a Ready
+static void __pcb_pasar_de_blocked_a_ready(t_pcb* pcbAReady)
+{
+    __pcb_pasar_a_ready(pcbAReady, ESTADO_BLOCKED);
+
+    return;
+}
+
+// Pasa un pcb de Running a Ready
+static void __pcb_pasar_de_running_a_ready(t_pcb* pcbAReady)
+{
+    __pcb_pasar_a_ready(pcbAReady, ESTADO_EXECUTE);
+
+    return;
+}
+
+// Pasa un pcb de Ready a Running
+static void __pcb_pasar_de_ready_a_running(t_pcb* pcbARunning)
 {   
-    pcb_pasar_de_estado(pcbARunning, estadoExecute);
-    log_transicion_estados(ESTADO_READY, ESTADO_EXECUTE, pcb_get_pid(pcbARunning));
+    __pcb_pasar_de_estado(pcbARunning, estadoExecute, ESTADO_READY, ESTADO_EXECUTE);
+
+    return;
+}
+
+// Pasa un pcb de Running a Blocked
+static void __pcb_pasar_de_running_a_blocked(t_pcb* pcbABlocked)
+{   
+    __pcb_pasar_de_estado(pcbABlocked, estadoBlocked, ESTADO_EXECUTE, ESTADO_BLOCKED);
+
+    return;
+}
+
+// Pasa un pcb de Null a New
+static void __pcb_pasar_de_null_a_new(t_pcb* pcbANew)
+{   
+    uint32_t pid = pcb_get_pid(pcbANew);
+
+    // Log minimo kernel creacion proceso
+    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", pid);
+    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", pid);
+
+    __pcb_pasar_de_estado(pcbANew, estadoNew, ESTADO_NULL, ESTADO_NEW);
+
+    return;
+}
+
+// Funcion generica para pasar un pcb a Exit desde cualquier estado
+static void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo)
+{
+    pcb_set_estado_finalizacion(pcbAExit, pcb_get_estado_actual(pcbAExit));
+    __pcb_pasar_de_estado(pcbAExit, estadoExit, stringEstadoViejo, ESTADO_EXIT);
+
+    return;
+}
+
+// Pasa un pcb de New a Exit
+static void __pcb_pasar_de_new_a_exit(t_pcb* pcbAExit)
+{
+    __pcb_pasar_a_exit(pcbAExit, ESTADO_NEW);
+
+    return;
+}
+
+// Pasa un pcb de Running a Exit
+static void __pcb_pasar_de_running_a_exit(t_pcb* pcbAExit)
+{
+    __pcb_pasar_a_exit(pcbAExit, ESTADO_EXECUTE);
+
+    return;
+}
+
+// Pasa un pcb de Blocked a Exit
+static void __pcb_pasar_de_blocked_a_exit(t_pcb* pcbAExit)
+{
+    __pcb_pasar_a_exit(pcbAExit, ESTADO_BLOCKED);
+
+    return;
 }
 
 // Termina el proceso del cual se le pasa el PCB
-static void __terminar_proceso(t_pcb* pcb)
+static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 {
-    switch (pcb_get_estado_actual(pcb))
+    switch (pcb_get_estado_actual(pcbFinalizado))
     {
         case NEW:
-            finaliza_proceso(pcb, "NEW");
+            __pcb_pasar_de_new_a_exit(pcbFinalizado);
             break;
 
         case EXEC: 
-            finaliza_proceso(pcb, "EXEC");
+            __pcb_pasar_de_running_a_exit(pcbFinalizado);
             break;
             
         case BLOCKED:
-            finaliza_proceso(pcb, "BLOCKED");
+            __pcb_pasar_de_blocked_a_exit(pcbFinalizado);
             break;
 
         default:
             //error
             break;
     }
-
-    pcb_set_estado_anterior(pcb, pcb_get_estado_actual(pcb));
-    pcb_set_estado_actual(pcb, EXIT);
-    estado_encolar_pcb_atomic(estadoExit, pcb);
     
-    adapter_memoria_finalizar_proceso(pcb);
-    stream_send_empty_buffer(pcb_get_socket(pcb), HEADER_proceso_terminado); // Da aviso a la consola de que finalizo la ejecucición
-
-    // Hay que liberar memoria? Que partes del pcb hay que liberar? Que recursos hay que liberar?
-
-    sem_post(estado_get_semaforo(estadoExit));
+    stream_send_empty_buffer(pcb_get_socket(pcbFinalizado), HEADER_proceso_terminado); // Da aviso a la consola de que finalizo la ejecucición
+    log_finalizacion_proceso(pcbFinalizado, motivoFinalizacion);
 }
 
 // Planificadores
 // Planificador de largo plazo
-static void *__planificador_largo_plazo(void *args)
+
+// Libera los pcbs que se encuentran en el estado EXIT
+static void* __liberar_pcbs_en_exit(void* args)
 {
     for (;;) {
-        // Aguarda a que haya pcbs en new y que el grado de multiprogramacion lo permita
-        sem_wait(&hayPcbsParaAgregarAlSistema); 
-        sem_wait(&gradoMultiprog); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
+        t_pcb *pcbALiberar = estado_desencolar_primer_pcb_atomic(estadoExit);
+        adapter_memoria_finalizar_proceso(pcbALiberar);
+        log_info(kernelDebuggingLogger, "Se liberan las estructuras del proceso PID <%d> en EXIT", pcb_get_pid(pcbALiberar));
+        destruir_pcb(pcbALiberar);
+        sem_post(&gradoMultiprogramacion);
+    }
 
+    return NULL;
+}
+
+// Instancia al liberador de pcbs en exit y pasa los pcbs de new a ready
+static void *__planificador_largo_plazo(void *args)
+{
+    pthread_t liberarPcbsEnExitTh;
+    pthread_create(&liberarPcbsEnExitTh, NULL, (void*) __liberar_pcbs_en_exit, NULL);
+    pthread_detach(liberarPcbsEnExitTh);
+
+    for (;;) {
+        // Aguarda a que haya pcbs en new y que el grado de multiprogramacion lo permita
         t_pcb *pcbAReady = estado_desencolar_primer_pcb_atomic(estadoNew);
+        sem_wait(&gradoMultiprogramacion); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
+
 
         // Pido a la memoria que inicialice al pcb y me devuelca la tabla de segmentos
         t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
@@ -189,45 +283,30 @@ static void *__planificador_largo_plazo(void *args)
 }
 
 // Planificador de corto plazo
-static t_pcb* elegir_pcb_segun_fifo(t_estado* estado)
+
+
+static t_pcb *__elegir_pcb_segun_fifo(t_estado* estado)
 {
     return estado_desencolar_primer_pcb_atomic(estado);
 }
 
-/*
-static t_pcb* elegir_pcb_segun_hrrn(t_estado* estado)
+
+static t_pcb *__elegir_pcb_segun_hrrn(t_estado* estado)
 {
-    return pcb segun hhrn
-}
-*/
- 
- t_pcb* elegir_pcb(t_estado* estadoReady){
-   char *algoritmo = kernel_config_get_algoritmo_planificacion(kernelConfig);
-   t_pcb* pcb;
-   if (string_equals_ignore_case(algoritmo, PLANIFICACION_FIFO))
-   {
-        pcb = elegir_pcb_segun_fifo(estadoReady);
-        return pcb;
-   }
-   else if (string_equals_ignore_case(algoritmo, PLANIFICACION_HRRN))
-   {
-        //pcb = elegir_pcb_segun_hrrn(estadoReady);
-        return pcb;
-   }
-   else
-   {
-        //error
-   }
+    return NULL;
 }
 
+ 
 static void *__planificador_corto_plazo()
 {
     //for (;;) {
-    t_pcb* pcb = elegir_pcb(estadoReady);
-    __pcb_pasar_de_ready_a_running(pcb);
-    ejecutar_proceso(pcb); // Acá se le manda el pcb a la cpu para que lo ejecute
+    //t_pcb* pcb = elegir_pcb(estadoReady);
+    //__pcb_pasar_de_ready_a_running(pcb);
+    //ejecutar_proceso(pcb); // Acá se le manda el pcb a la cpu para que lo ejecute
     //recibir_proceso_desajolado(t_pcb* pcb); // en algún momento la cpu nos devuelve el proceso pero no se cuando/donde
     //}
+
+    return NULL;
 }
 
 
@@ -289,15 +368,9 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     buffer_destroy(bufferPID);
     log_info(kernelDebuggingLogger, "Se envia el pid %d del nuevo pcb creado a la consola", nuevoPid);
 
-    // Log minimo kernel creacion proceso
-    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", nuevoPid);
-    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", nuevoPid);
-
-    estado_encolar_pcb_atomic(estadoNew, nuevoPcb);
-    // Log minimo cambio de estado
-    log_transicion_estados(ESTADO_NULL, ESTADO_NEW, nuevoPid);
-    sem_post(&hayPcbsParaAgregarAlSistema);
-
+    
+    __pcb_pasar_de_null_a_new(nuevoPcb);
+    
     return NULL;
 }
 

@@ -8,8 +8,10 @@
 #define ESTADO_EXECUTE "EXEC"
 #define ESTADO_BLOCKED "BLOCKED"
 #define ESTADO_EXIT "EXIT"
-#define PLANIFICACION_FIFO "FIFO"
-#define PLANIFICACION_HRRN "HRRN"
+
+#define FINALIZACION_SUCCESS "SUCCESS"
+#define FINALIZACION_SEGFAULT "SEG_FAULT"
+#define FINALIZACION_OUTOFMEMORY "OUT_OF_MEMORY"
 
 //Bibliotecas estandares
 #include <pthread.h>
@@ -20,6 +22,7 @@
 #include <kernel-estados.h>
 #include <kernel-utils.h>
 #include <kernel-adapter-memoria.h>
+#include <kernel-adapter-cpu.h>
 #include <kernel-pcb.h>
 
 //Bibliotecas Static Utils
@@ -42,17 +45,6 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente);
  * 
  */
 void inicializar_estructuras(void);
-
-/**
- * @brief 
- * 
- */
-void* pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado);
-
-static t_pcb* elegir_pcb_segun_fifo(t_estado* estado);
-static t_pcb* elegir_pcb_segun_hrrn(t_estado* estado);
-t_pcb* elegir_pcb(t_estado* estadoReady);
-
 
 
 #endif

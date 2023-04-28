@@ -113,7 +113,7 @@ void ejecutar_proceso(t_pcb* pcbAEjecutar)
 
 t_pcb* recibir_proceso_desajolado()
 {   
-    t_pcb* pcb;
+    //t_pcb* pcb;
     //pcb = __recibir_pcb_de_cpu()
-    return pcb;
+    return NULL;
 }

@@ -33,12 +33,6 @@ static void __pid_destroyer(void *pidADestruir)
 
 // Funciones publicas
 
-void finaliza_proceso (t_pcb* pcb, char* nombreEstadoEnString)
-{
-    pcb_set_estado_finalizacion(pcb, pcb_get_estado_actual(pcb));
-    log_transicion_estados(nombreEstadoEnString, "EXIT", pcb_get_pid(pcb));
-}
-
 void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger)
 {
     module_destroy((void *) kernelConfig, __config_destroyer, kernelLogger, kernelDebuggingLogger);
@@ -107,6 +101,14 @@ void log_ingreso_cola_ready(t_estado *estadoReady)
     log_info(kernelLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
     log_info(kernelDebuggingLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
     free(stringPidsReady);
+
+    return;
+}
+
+void log_finalizacion_proceso(t_pcb *pcbFinalizado, char *motivoFinalizacion)
+{
+    log_info(kernelLogger, "Finaliza el proceso con PID <%d> - Motivo: <%s>", pcb_get_pid(pcbFinalizado), motivoFinalizacion);
+    log_info(kernelDebuggingLogger, "Finaliza el proceso con PID <%d> - Motivo: <%s>", pcb_get_pid(pcbFinalizado), motivoFinalizacion);
 
     return;
 }

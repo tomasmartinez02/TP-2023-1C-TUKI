@@ -12,8 +12,6 @@
 
 // Prototipos
 
-void finaliza_proceso (t_pcb* pcb, char* nombreEstadoEnString);
-
 /**
  * @brief Destruye las estructuras principales del kernel
  * 
@@ -29,6 +27,7 @@ void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t p
 void set_timespec(timestamp *timespec);
 double obtener_diferencial_de_tiempo_en_milisegundos(timestamp *end, timestamp *start);
 char *string_pids_ready(t_estado *estadoReady);
-void log_ingreso_cola_ready(t_estado *estadoReady);
+void log_ingreso_cola_ready(t_estado *estadoReady);\
+void log_finalizacion_proceso(t_pcb *pcbFinalizado, char *motivoFinalizacion);
 
 #endif
