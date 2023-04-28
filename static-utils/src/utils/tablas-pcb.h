@@ -51,5 +51,6 @@ uint32_t info_archivos_get_posicion_puntero(t_info_archivos *infoArchivo);
 void info_archivos_set_posicion_puntero(t_info_archivos *infoArchivo, uint32_t posicionPuntero);
 void agregar_archivo_abierto(t_list *infoArchivos, t_info_archivos *archivoAbierto);
 t_info_archivos *encontrar_archivo_por_nombre(t_list *infoArchivos, char *nombreArchivo);
+void destruir_lista_archivos_abiertos(t_list *archivosAbiertos);
 
 #endif
