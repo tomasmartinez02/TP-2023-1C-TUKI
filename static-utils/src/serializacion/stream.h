@@ -2,6 +2,15 @@
 #ifndef STREAM_H
 #define STREAM_H
 
+// Bibliotecas estandar
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+// Bibliotecas internas
+#include <serializacion/buffer.h>
+
 // Tipos
 // Headers de mensajes para ser enviados en los paquetes
 enum header
@@ -18,7 +27,7 @@ enum header
     HEADER_proceso_terminado,
     //HEADER_movin,
     //HEADER_movout,
-    //HEADER_solicitud_tabla_paginas_segmentos,
+    HEADER_solicitud_inicializacion_proceso,
     //HEADER_page_fault,
     //HEADER_page_fault_resuelto,
     //HEADER_segmentation_fault
@@ -38,15 +47,6 @@ enum handshake
     HANDSHAKE_ok_continue
 };
 typedef enum handshake t_handshake;
-
-// Bibliotecas estandar
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-// Bibliotecas internas
-#include <serializacion/buffer.h>
 
 // Prototipos
 /**
