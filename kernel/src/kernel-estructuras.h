@@ -13,6 +13,7 @@
 //Static-utils libraries
 #include <serializacion/buffer.h>
 #include <utils/instrucciones.h>
+#include <utils/tablas-pcb.h>
 
 // Estructuras
 struct kernel_config 
@@ -57,21 +58,6 @@ struct estado
 };
 typedef struct estado t_estado;
 
-struct info_segmentos 
-{
-    uint32_t id;
-    uint32_t direccionBase;
-    uint32_t tamanio;
-};
-typedef struct info_segmentos t_info_segmentos;
-
-struct info_archivos
-{
-    char *nombreArchivo;
-    uint32_t posicionPuntero;
-};
-typedef struct info_archivos t_info_archivos;
-
 // Estructura para guardar el timestamp de llegada a ready
 typedef struct timespec timestamp;
 
@@ -84,7 +70,7 @@ struct pcb
     double estimadoProxRafaga;
     timestamp *tiempoLlegadaReady;
     t_list *archivosAbiertos; 
-    t_info_segmentos *tablaSegmentos;
+    t_buffer *tablaSegmentos;
     t_nombre_estado estadoActual; 
     t_nombre_estado estadoDeFinalizacion;
     t_nombre_estado estadoAnterior;

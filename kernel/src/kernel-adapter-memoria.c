@@ -21,23 +21,19 @@ void __enviar_pid_proceso_a_inicializar(t_pcb *pcbAInicializar, int socketMemori
 }
 
 // Recibe y desempaqueta la tabla de segmentos enviada por la memoria
-static t_info_segmentos *__recibir_tabla_segmentos(t_pcb *pcbInicializado, int socketMemoria)
+static t_buffer *__recibir_tabla_segmentos(t_pcb *pcbInicializado, int socketMemoria)
 {
     t_buffer *bufferTablaSegmentos = buffer_create();
     stream_recv_buffer(socketMemoria, bufferTablaSegmentos);
-    uint32_t tamanioTablaSegmentos;
-    buffer_unpack(bufferTablaSegmentos, &tamanioTablaSegmentos, sizeof(tamanioTablaSegmentos));
-    t_info_segmentos *tablaSegmentos = desempaquetar_tabla_segmentos(bufferTablaSegmentos, tamanioTablaSegmentos);
-    buffer_destroy(bufferTablaSegmentos);
 
     log_info(kernelDebuggingLogger, "Proceso: %d - Se recibe el array con la tabla de los segmentos", pcb_get_pid(pcbInicializado));
 
-    return tablaSegmentos;
+    return bufferTablaSegmentos;
 }
 
 // Funciones publicas
 
-t_info_segmentos *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) // REVISAR ESTA FUNCION!!!!
+t_buffer *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) // REVISAR ESTA FUNCION!!!!
 {
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
@@ -58,15 +54,16 @@ t_info_segmentos *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicia
         }
     }
 
-    t_info_segmentos *tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
+    t_buffer *tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
     pthread_mutex_unlock(&mutexSocketMemoria);
 
     return tablaSegmentos;
 }
 
-/*
+
 void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
 {   
+    /*
     if (pcb_get_estado_finalizacion(pcbATerminar)) {
         
         pthread_mutex_lock(&mutexSocketMemoria);
@@ -98,5 +95,6 @@ void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
     } else {
             log_error(kernelLogger, "El proceso con PID <%d> finalizado no pudo ser creado por falta de memoria", pcb_get_pid(pcbATerminar));
     }
+    */
+   return;
 }
-*/

@@ -49,21 +49,8 @@ void pcb_set_proceso_bloqueado_o_terminado(t_pcb* pcb, bool procesoBloqueadoOTer
 t_registros_cpu* pcb_get_registros_cpu(t_pcb* pcb);
 void pcb_set_registros_cpu(t_pcb *pcb, t_registros_cpu *registrosCpu);
 pthread_mutex_t* pcb_get_mutex(t_pcb* pcb);
-t_info_segmentos *pcb_get_tabla_segmentos(t_pcb *pcb);
-void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos *tablaSegmentos);
-
-// Interfaz info segmentos
-uint32_t info_segmentos_get_id(t_info_segmentos *infoSegmentos);
-void info_segmentos_set_id(t_info_segmentos *infoSegmentos, uint32_t id);
-uint32_t info_segmentos_get_direccion_base(t_info_segmentos *infoSegmentos);
-void info_segmentos_set_direccion_base(t_info_segmentos *infoSegmentos, uint32_t direccionBase);
-uint32_t info_segmentos_get_tamanio(t_info_segmentos *infoSegmentos);
-void info_segmentos_set_tamanio(t_info_segmentos *infoSegmentos, uint32_t tamanio);
-
-// Interfaz info archivos
-char *info_archivos_get_nombre_archivo(t_info_archivos *infoArchivo);
-void info_archivos_set_nombre_archivo(t_info_archivos *infoArchivo, char *nombreArchivo);
-uint32_t info_archivos_get_posicion_puntero(t_info_archivos *infoArchivo);
-void info_archivos_set_posicion_puntero(t_info_archivos *infoArchivo, uint32_t posicionPuntero);
+t_list *pcb_get_archivos_abiertos(t_pcb *pcb);
+t_buffer *pcb_get_tabla_segmentos(t_pcb *pcb);
+void pcb_set_tabla_segmentos(t_pcb *pcb, t_buffer *tablaSegmentos);
 
 #endif 

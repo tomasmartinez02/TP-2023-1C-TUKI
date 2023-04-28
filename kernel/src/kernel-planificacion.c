@@ -145,19 +145,21 @@ static void *__planificador_largo_plazo(void *args)
         t_pcb *pcbAReady = estado_desencolar_primer_pcb_atomic(estadoNew);
 
         // Pido a la memoria que inicialice al pcb y me devuelca la tabla de segmentos
-        t_info_segmentos *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
-
-        if (tablaSegmentos == NULL) {
-            // ERROR
-        }
-
-        pcb_set_estado_anterior(pcbAReady, pcb_get_estado_actual(pcbAReady));
-        pcb_set_estado_actual(pcbAReady, READY);
+        t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
         pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
 
-        estado_encolar_pcb_atomic(estadoReady, pcbAReady);
-        log_transicion_estados(ESTADO_NEW, ESTADO_READY, pcb_get_pid(pcbAReady));
-        log_ingreso_cola_ready(estadoReady);
+        if (tablaSegmentos == NULL) {
+            
+        }
+        else {
+            pcb_set_estado_anterior(pcbAReady, pcb_get_estado_actual(pcbAReady));
+            pcb_set_estado_actual(pcbAReady, READY);
+            pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
+
+            estado_encolar_pcb_atomic(estadoReady, pcbAReady);
+            log_transicion_estados(ESTADO_NEW, ESTADO_READY, pcb_get_pid(pcbAReady));
+            log_ingreso_cola_ready(estadoReady);
+        }
     }
 
     return NULL;

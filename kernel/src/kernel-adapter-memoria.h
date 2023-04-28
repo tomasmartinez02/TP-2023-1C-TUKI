@@ -20,11 +20,11 @@
 /**
  * @brief Solicita la inicializacion del proceso con la tabla de segmentos inicial
  * 
- * @return t_info_segmentos: tabla de segmentos inicial
+ * @return t_buffer: tabla de segmentos inicial
  * 
- * @example t_info_segmentos *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
+ * @example t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
  */
-t_info_segmentos *adapter_memoria_pedir_inicializacion_proceso (t_pcb *pcbAMandar);
+t_buffer *adapter_memoria_pedir_inicializacion_proceso (t_pcb *pcbAMandar);
 
 /**
  * @brief Solicita la finalizacion del proceso a memoria

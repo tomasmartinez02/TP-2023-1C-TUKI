@@ -49,9 +49,9 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
         registros_cpu_destroy(registrosCpu);
     }
 
-    t_info_segmentos *tablaSegmentos = pcb->tablaSegmentos;
+    t_buffer *tablaSegmentos = pcb->tablaSegmentos;
     if (tablaSegmentos != NULL) {
-        destruir_tabla_segmentos(tablaSegmentos);
+        buffer_destroy(tablaSegmentos);
     }
 
     t_list *archivosAbiertos = pcb->archivosAbiertos;
@@ -70,40 +70,7 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
     free(pcb);
 }
 
-t_info_segmentos *crear_info_segmentos(void)
-{
-    t_info_segmentos *infoSegmentos = malloc(sizeof(*infoSegmentos));
-    
-    infoSegmentos->id = 0;
-    infoSegmentos->direccionBase = 0;
-    infoSegmentos->tamanio = 0;
-
-    return infoSegmentos;
-}
-
-void destruir_info_segmentos(t_info_segmentos *infoSegmentos)
-{
-    free(infoSegmentos);
-}
-
-t_info_archivos *crear_info_archivos(void) 
-{
-    t_info_archivos *infoArchivos = malloc(sizeof(*infoArchivos));
-    infoArchivos->nombreArchivo = NULL;
-    infoArchivos->posicionPuntero = 0;
-
-    return infoArchivos;
-}
-
-void destruir_info_archivos(t_info_archivos *infoArchivos)
-{
-    if (infoArchivos->nombreArchivo != NULL) {
-
-        free(infoArchivos->nombreArchivo);
-    }
-    
-    free(infoArchivos);
-}
+// Setters y getters pcb
 
 uint32_t pcb_get_pid(t_pcb* pcb) 
 {
@@ -146,18 +113,25 @@ void pcb_set_estimado_prox_rafaga(t_pcb *pcb, double estimadoProxRafaga)
     pcb->estimadoProxRafaga = estimadoProxRafaga;
 }
 
+// Getter y setter archivosAbiertos
+
+t_list *pcb_get_archivos_abiertos(t_pcb *pcb)
+{
+    return pcb->archivosAbiertos;
+}
+
 // Get y Set tabla segmentos
 
-t_info_segmentos *pcb_get_tabla_segmentos(t_pcb *pcb)
+t_buffer *pcb_get_tabla_segmentos(t_pcb *pcb)
 {
     return pcb->tablaSegmentos;
 }
 
-void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos *tablaSegmentos)
+void pcb_set_tabla_segmentos(t_pcb *pcb, t_buffer *tablaSegmentos)
 {
-    t_info_segmentos *tablaSegmentosActual = pcb->tablaSegmentos;
+    t_buffer *tablaSegmentosActual = pcb->tablaSegmentos;
     if (tablaSegmentosActual != NULL) {
-        destruir_tabla_segmentos(tablaSegmentosActual);
+        buffer_destroy(tablaSegmentos);
     }
 
     pcb->tablaSegmentos = tablaSegmentos;
@@ -256,65 +230,4 @@ void pcb_set_registros_cpu(t_pcb *pcb, t_registros_cpu *registrosCpu)
 pthread_mutex_t* pcb_get_mutex(t_pcb* pcb)
 {
     return pcb->mutex;
-}
-
-// Set y Get ID info_segmentos
-
-uint32_t info_segmentos_get_id(t_info_segmentos *infoSegmentos)
-{
-    return infoSegmentos->id;
-}
-
-void info_segmentos_set_id(t_info_segmentos *infoSegmentos, uint32_t id) 
-{
-    infoSegmentos->id = id;
-}
-
-// Set y Get Direccion Base info_segmentos
-
-uint32_t info_segmentos_get_direccion_base(t_info_segmentos *infoSegmentos)
-{
-    return infoSegmentos->direccionBase;
-}
-
-void info_segmentos_set_direccion_base(t_info_segmentos *infoSegmentos, uint32_t direccionBase) 
-{
-    infoSegmentos->direccionBase = direccionBase;
-}
-
-// Set y Get tamanio info_segmentos
-
-uint32_t info_segmentos_get_tamanio(t_info_segmentos *infoSegmentos)
-{
-    return infoSegmentos->tamanio;
-}
-
-void info_segmentos_set_tamanio(t_info_segmentos *infoSegmentos, uint32_t tamanio) 
-{
-    infoSegmentos->tamanio = tamanio;
-}
-
-// Set y Get Nombre info_archivos
-
-char *info_archivos_get_nombre_archivo(t_info_archivos *infoArchivo)
-{
-    char *nombreArchivo = infoArchivo->nombreArchivo;
-    return nombreArchivo != NULL ? string_duplicate(nombreArchivo) : nombreArchivo;
-}
-
-void info_archivos_set_nombre_archivo(t_info_archivos *infoArchivo, char *nombreArchivo)
-{
-    infoArchivo->nombreArchivo = nombreArchivo != NULL ? string_duplicate(nombreArchivo) : nombreArchivo;
-}
-
-// Set y Get Posicion del Puntero info_archivos
-
-uint32_t info_archivos_get_posicion_puntero(t_info_archivos *infoArchivo)
-{
-    return infoArchivo->posicionPuntero;
-}
-
-void info_archivos_set_posicion_puntero(t_info_archivos *infoArchivo, uint32_t posicionPuntero)
-{
-    infoArchivo->posicionPuntero = posicionPuntero;
 }
