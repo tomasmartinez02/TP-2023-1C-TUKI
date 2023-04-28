@@ -14,6 +14,8 @@
 #include <kernel-estructuras.h>
 #include <kernel-config.h>
 #include <kernel-utils.h>
+#include <kernel-estados.h>
+#include <kernel-planificacion.h>
 
 // Prototipos
 
@@ -52,5 +54,9 @@ pthread_mutex_t* pcb_get_mutex(t_pcb* pcb);
 t_list *pcb_get_archivos_abiertos(t_pcb *pcb);
 t_buffer *pcb_get_tabla_segmentos(t_pcb *pcb);
 void pcb_set_tabla_segmentos(t_pcb *pcb, t_buffer *tablaSegmentos);
+
+
+void* pcb_pasar_de_new_a_ready(t_pcb* pcbAReady, t_buffer *tablaSegmentos, t_estado *estadoReady);
+void* pcb_pasar_de_ready_a_running(t_pcb* pcbARunning, t_estado *estadoExecute);
 
 #endif 

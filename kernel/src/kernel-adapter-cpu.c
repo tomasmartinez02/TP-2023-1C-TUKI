@@ -89,7 +89,7 @@ static void __enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
     return;
 }
 
-/* t_pcb* recibir_pcb_de_cpu() // CHEQUEAR ESTA FUNCION!! LUCAS!!!! CREO QUE LA VAMOS A NECESITAR PARA EL PLANIFICADOR DE CORTO PLAZO!
+/* t_pcb* __recibir_pcb_de_cpu() // CHEQUEAR ESTA FUNCION!! LUCAS!!!! CREO QUE LA VAMOS A NECESITAR PARA EL PLANIFICADOR DE CORTO PLAZO!
 {
     // Aca solo lo recibimos
     t_buffer *bufferProceso = NULL;
@@ -111,7 +111,9 @@ void ejecutar_proceso(t_pcb* pcbAEjecutar)
     __enviar_pcb_a_cpu(pcbAEjecutar);
 }
 
-void recibir_proceso_desajolado(t_pcb* pcb)
-{
-    return;
+t_pcb* recibir_proceso_desajolado()
+{   
+    t_pcb* pcb;
+    //pcb = __recibir_pcb_de_cpu()
+    return pcb;
 }

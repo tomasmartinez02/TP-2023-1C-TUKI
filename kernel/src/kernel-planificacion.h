@@ -8,6 +8,8 @@
 #define ESTADO_EXECUTE "EXEC"
 #define ESTADO_BLOCKED "BLOCKED"
 #define ESTADO_EXIT "EXIT"
+#define PLANIFICACION_FIFO "FIFO"
+#define PLANIFICACION_HRRN "HRRN"
 
 //Bibliotecas estandares
 #include <pthread.h>

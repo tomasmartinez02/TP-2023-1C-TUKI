@@ -99,6 +99,35 @@ static t_pcb *__crear_nuevo_pcb(int socketConsola, t_buffer *bufferInstrucciones
     return nuevoPcb;
 }
 
+
+// TRANSICIONES DE ESTADOS
+void* pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado)
+{   
+    t_nombre_estado nombreNuevoEstado = nuevoEstado->nombreEstado;
+    
+    pcb_set_estado_anterior(pcb, pcb_get_estado_actual(pcb));
+    
+    pcb_set_estado_actual(pcb, nombreNuevoEstado);
+
+    estado_encolar_pcb_atomic(nuevoEstado, pcb);
+    // ESTO NO LO PUEDO HACER PORQUE NECESITO EL CHAR* DEL ESTADO, tendria q corregirlo y podriamos tener una funcion
+    // sola que haga todas las transiciones de estados.
+    //log_transicion_estados(ESTADO_READY, ESTADO_EXECUTE, pcb_get_pid(pcb));
+}
+
+void* __pcb_pasar_de_new_a_ready(t_pcb* pcbAReady)
+{
+    pcb_pasar_de_estado(pcbAReady, estadoReady);
+    log_transicion_estados(ESTADO_NEW, ESTADO_READY, pcb_get_pid(pcbAReady));
+    log_ingreso_cola_ready(estadoReady);
+}
+
+void* __pcb_pasar_de_ready_a_running(t_pcb* pcbARunning)
+{   
+    pcb_pasar_de_estado(pcbARunning, estadoExecute);
+    log_transicion_estados(ESTADO_READY, ESTADO_EXECUTE, pcb_get_pid(pcbARunning));
+}
+
 // Termina el proceso del cual se le pasa el PCB
 static void __terminar_proceso(t_pcb* pcb)
 {
@@ -134,7 +163,7 @@ static void __terminar_proceso(t_pcb* pcb)
 }
 
 // Planificadores
-
+// Planificador de largo plazo
 static void *__planificador_largo_plazo(void *args)
 {
     for (;;) {
@@ -152,18 +181,56 @@ static void *__planificador_largo_plazo(void *args)
             
         }
         else {
-            pcb_set_estado_anterior(pcbAReady, pcb_get_estado_actual(pcbAReady));
-            pcb_set_estado_actual(pcbAReady, READY);
-            pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
-
-            estado_encolar_pcb_atomic(estadoReady, pcbAReady);
-            log_transicion_estados(ESTADO_NEW, ESTADO_READY, pcb_get_pid(pcbAReady));
-            log_ingreso_cola_ready(estadoReady);
+           __pcb_pasar_de_new_a_ready(pcbAReady);
         }
     }
 
     return NULL;
 }
+
+// Planificador de corto plazo
+static t_pcb* elegir_pcb_segun_fifo(t_estado* estado)
+{
+    return estado_desencolar_primer_pcb_atomic(estado);
+}
+
+/*
+static t_pcb* elegir_pcb_segun_hrrn(t_estado* estado)
+{
+    return pcb segun hhrn
+}
+*/
+ 
+ t_pcb* elegir_pcb(t_estado* estadoReady){
+   char *algoritmo = kernel_config_get_algoritmo_planificacion(kernelConfig);
+   t_pcb* pcb;
+   if (string_equals_ignore_case(algoritmo, PLANIFICACION_FIFO))
+   {
+        pcb = elegir_pcb_segun_fifo(estadoReady);
+        return pcb;
+   }
+   else if (string_equals_ignore_case(algoritmo, PLANIFICACION_HRRN))
+   {
+        //pcb = elegir_pcb_segun_hrrn(estadoReady);
+        return pcb;
+   }
+   else
+   {
+        //error
+   }
+}
+
+static void *__planificador_corto_plazo()
+{
+    //for (;;) {
+    t_pcb* pcb = elegir_pcb(estadoReady);
+    __pcb_pasar_de_ready_a_running(pcb);
+    ejecutar_proceso(pcb); // Acá se le manda el pcb a la cpu para que lo ejecute
+    //recibir_proceso_desajolado(t_pcb* pcb); // en algún momento la cpu nos devuelve el proceso pero no se cuando/donde
+    //}
+}
+
+
 
 // Funciones publicas
 
