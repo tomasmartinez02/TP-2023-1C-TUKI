@@ -1,9 +1,10 @@
 #include <cpu-adapter-kernel.h>
 
+
 // Funciones privadas
 static t_registros_cpu* __desempaquetar_registros_de_buffer(t_buffer *bufferRecibido)
 {
-    t_registros_cpu *registrosCpu;
+    t_registros_cpu *registrosCpu = NULL;
 
     // Registros 4 bytes
     char* registroAx = buffer_unpack_string(bufferRecibido);
@@ -47,6 +48,62 @@ static t_registros_cpu* __desempaquetar_registros_de_buffer(t_buffer *bufferReci
     return registrosCpu;
 }
 
+static void __cargar_registros_en_buffer(t_buffer *bufferAEnviar, t_cpu_pcb *pcb)
+{
+    // Registros 4 bytes
+    char *registroAx = cpu_pcb_get_registro_ax(pcb);
+    buffer_pack_string(bufferAEnviar, registroAx);
+    free(registroAx);
+
+    char *registroBx = cpu_pcb_get_registro_bx(pcb);
+    buffer_pack_string(bufferAEnviar, registroBx);
+    free(registroBx);
+
+    char *registroCx = cpu_pcb_get_registro_cx(pcb);
+    buffer_pack_string(bufferAEnviar, registroCx);
+    free(registroCx);
+
+    char *registroDx = cpu_pcb_get_registro_dx(pcb);
+    buffer_pack_string(bufferAEnviar, registroDx);
+    free(registroDx);
+
+    // Registros 8 bytes
+    char *registroEax = cpu_pcb_get_registro_eax(pcb);
+    buffer_pack_string(bufferAEnviar, registroEax);
+    free(registroEax);
+
+    char *registroEbx = cpu_pcb_get_registro_ebx(pcb);
+    buffer_pack_string(bufferAEnviar, registroEbx);
+    free(registroEbx);
+
+    char *registroEcx = cpu_pcb_get_registro_ecx(pcb);
+    buffer_pack_string(bufferAEnviar, registroEcx);
+    free(registroEcx);
+
+    char *registroEdx = cpu_pcb_get_registro_edx(pcb);
+    buffer_pack_string(bufferAEnviar, registroEdx);
+    free(registroEdx);
+    
+    // Registros 16 bytes
+    char *registroRax = cpu_pcb_get_registro_rax(pcb);
+    buffer_pack_string(bufferAEnviar, registroRax);
+    free(registroRax);
+
+    char *registroRbx = cpu_pcb_get_registro_rbx(pcb);
+    buffer_pack_string(bufferAEnviar, registroRbx);
+    free(registroRbx);
+
+    char *registroRcx = cpu_pcb_get_registro_rcx(pcb);
+    buffer_pack_string(bufferAEnviar, registroRcx);
+    free(registroRcx);
+
+    char *registroRdx = cpu_pcb_get_registro_rdx(pcb);
+    buffer_pack_string(bufferAEnviar, registroRdx);
+    free(registroRdx);
+
+    return;
+}
+
 t_cpu_pcb* __desempaquetar_pcb(t_buffer* bufferPcb, t_buffer* bufferInstrucciones)
 {   
     uint32_t pid, programCounter;
@@ -60,6 +117,30 @@ t_cpu_pcb* __desempaquetar_pcb(t_buffer* bufferPcb, t_buffer* bufferInstruccione
 
     t_cpu_pcb* pcb = crear_pcb(pid, programCounter, registrosCpu, instrucciones);
     return pcb;
+}
+
+t_buffer* __empaquetar_pcb(t_cpu_pcb* pcbAEmpaquetar)
+{   
+    t_buffer* bufferAEnviar = NULL;
+    bufferAEnviar = buffer_create();
+
+    uint32_t pid, programCounter;
+    t_registros_cpu *registrosCpu;
+    t_list *instrucciones;
+
+    pid = cpu_pcb_get_pid(pcbAEmpaquetar);
+    programCounter = cpu_pcb_get_program_counter(pcbAEmpaquetar);
+    registrosCpu = cpu_pcb_get_registros(pcbAEmpaquetar);
+    // Hay un problema con esta funcion, no la toma no se porque, tal vez no se puede asignar una lista asi
+    instrucciones = cpu_pcb_get_instrucciones(pcbAEmpaquetar);
+    
+    buffer_pack(bufferAEnviar, &pid, sizeof(pid));
+    buffer_pack(bufferAEnviar, &programCounter, sizeof(programCounter));
+    buffer_pack(bufferAEnviar, &instrucciones, sizeof(instrucciones));
+
+    __cargar_registros_en_buffer(bufferAEnviar, pcbAEmpaquetar);
+
+    return bufferAEnviar;
 }
 
 // Funciones públicas
@@ -111,7 +192,7 @@ void cpu_decode_instruccion(t_instruccion *instruccion)
 void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
 {
     // tampoco es void, después lo cambio
-
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
     t_tipo_instruccion tipoInstruccion = instruccion_get_tipo_instruccion(instruccion);
 
     switch (tipoInstruccion)
@@ -125,11 +206,12 @@ void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
         uint32_t retardoInstruccion = cpu_config_get_retardo_instruccion(cpuConfig);
 
         intervalo_de_pausa(retardoInstruccion);
+        // acá hay que hacer que setee el valor en el registro, supongo que necesitamos una funcion que se fije
+        // que registro es con un switch como para saber que setter usar
         
-        // hacer el set del valor en el registro [no existe t_Registro_to_Char]
-
-        //log_info(cpuLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%d>", cpu_pcb_get_pid(pcb), t_registro_to_char(registro), valor);
-        //log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%d>", cpu_pcb_get_pid(pcb), t_registro_to_char(registro), valor);
+        // No está tomando la funcion __t_registro_to_char de las static utils
+        log_info(cpuLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%d>", cpu_pcb_get_pid(pcb), __t_registro_to_char(registro), valor);
+        log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%d>", cpu_pcb_get_pid(pcb), __t_registro_to_char(registro), valor);
 
         incrementar_program_counter(pcb);
 
@@ -138,7 +220,8 @@ void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
         log_info(cpuLogger, "PID: <%d> - Ejecutando: <YIELD>", cpu_pcb_get_pid(pcb));
         log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: <YIELD>", cpu_pcb_get_pid(pcb));
 
-        t_buffer *bufferYield = buffer_create();
+        t_buffer *bufferYield = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, bufferYield);
         buffer_destroy(bufferYield);
         break;
 
@@ -147,27 +230,8 @@ void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
         log_info(cpuLogger, "PID: <%d> - Ejecutando: <EXIT>", cpu_pcb_get_pid(pcb));
         log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: <EXIT>", cpu_pcb_get_pid(pcb));
 
-        t_buffer *bufferExit = buffer_create();
-
-        // empaquetar pid
-        uint32_t pid = cpu_pcb_get_pid(pcb);
-        buffer_pack(bufferExit, &pid, sizeof(pid));
-
-    
-        // empaquetar registros
-        t_registros_cpu *registrosActuales = cpu_pcb_get_registros(pcb);
-        // falta empaquetarlos
-        //nota de irina: hice una funcion privada en kernel en el adapter con el cpu que empaqueta los registros del pcb y los
-        //pone en un buffer, capaz si la muevo a static-utils la podemos usar aca para empaquetar
-
-        /*
-        // empaquetar program counter
-        uint32_t programCounterActual = incrementar_program_counter(pcb);
-        buffer_pack(bufferExit, &programCounterActual, sizeof(programCounterActual));
-
-        stream_send_buffer(cpu_config_get_socket_kernel(cpuConfig), HEADER_proceso_terminado, bufferExit);
-        */
-
+        t_buffer *bufferExit = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_terminado, bufferExit);
         buffer_destroy(bufferExit);
 
         break;
