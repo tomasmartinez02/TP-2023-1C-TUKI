@@ -18,6 +18,7 @@ t_pcb *crear_pcb(uint32_t pid)
     pcb->estadoAnterior = NEW;
     pcb->procesoBloqueadoOTerminado = false;
     pcb->socketProceso = -1;
+    pcb->ultimoRafagaEnCPU = 0; // Esto lo deberia devolver la CPU cuando devuelve el PCB
 
     timestamp *tiempoLlegadaReady = malloc(sizeof(*(tiempoLlegadaReady)));
     pcb->tiempoLlegadaReady = tiempoLlegadaReady;

@@ -119,6 +119,7 @@ static void __pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado, char *strin
 static void __pcb_pasar_a_ready(t_pcb* pcbAReady, char *stringEstadoViejo)
 {
     __pcb_pasar_de_estado(pcbAReady, estadoReady, stringEstadoViejo, ESTADO_READY);
+    pcb_set_tiempo_llegada_ready(pcbAReady);
     log_ingreso_cola_ready(estadoReady);
 
     return;
@@ -287,6 +288,21 @@ static void *__planificador_largo_plazo(void *args)
 
 // Planificador de corto plazo
 
+static bool __algoritmo_es_fifo()
+{
+    if (strcmp(kernel_config_get_algoritmo_planificacion(kernelConfig), "FIFO")  == 0 ){
+        return true;
+    } else return false;
+}
+
+static t_pcb *__elegir_pcb(t_estado* estado)
+{
+    if (__algoritmo_es_fifo()) {
+        return __elegir_pcb_segun_fifo(estado);
+    } else 
+        return __elegir_pcb_segun_hrrn(estado);
+}
+
 
 static t_pcb *__elegir_pcb_segun_fifo(t_estado* estado)
 {
@@ -295,10 +311,14 @@ static t_pcb *__elegir_pcb_segun_fifo(t_estado* estado)
 
 
 static t_pcb *__elegir_pcb_segun_hrrn(t_estado* estado)
-{
+{   //TODO
     return NULL;
 }
 
+static unit32_t __calcular_valor_hrrn()
+{
+
+}
  
 static void *__planificador_corto_plazo()
 {   

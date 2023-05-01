@@ -77,6 +77,7 @@ struct pcb
     bool procesoBloqueadoOTerminado;
     uint32_t socketProceso;
     pthread_mutex_t *mutex;
+    int64_t *ultimoRafagaEnCPU;
 
     /*
     char* dispositivoIoEnUso;
