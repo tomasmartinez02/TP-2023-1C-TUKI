@@ -134,7 +134,8 @@ static void __pcb_pasar_de_new_a_ready(t_pcb* pcbAReady)
 
 // Pasa un pcb de Blocked a Ready
 static void __pcb_pasar_de_blocked_a_ready(t_pcb* pcbAReady)
-{
+{   
+    pcb_set_proceso_bloqueado_o_terminado(pcbAReady, false);
     __pcb_pasar_a_ready(pcbAReady, ESTADO_BLOCKED);
 
     return;
@@ -159,6 +160,7 @@ static void __pcb_pasar_de_ready_a_running(t_pcb* pcbARunning)
 // Pasa un pcb de Running a Blocked
 static void __pcb_pasar_de_running_a_blocked(t_pcb* pcbABlocked)
 {   
+    pcb_set_proceso_bloqueado_o_terminado(pcbABlocked, true);
     __pcb_pasar_de_estado(pcbABlocked, estadoBlocked, ESTADO_EXECUTE, ESTADO_BLOCKED);
 
     return;
@@ -182,6 +184,7 @@ static void __pcb_pasar_de_null_a_new(t_pcb* pcbANew)
 static void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo)
 {
     pcb_set_estado_finalizacion(pcbAExit, pcb_get_estado_actual(pcbAExit));
+    pcb_set_proceso_bloqueado_o_terminado(pcbAExit, true);
     __pcb_pasar_de_estado(pcbAExit, estadoExit, stringEstadoViejo, ESTADO_EXIT);
 
     return;
@@ -298,12 +301,37 @@ static t_pcb *__elegir_pcb_segun_hrrn(t_estado* estado)
 
  
 static void *__planificador_corto_plazo()
-{
+{   
+    t_pcb *pcbRecibido = NULL;
+    t_header headerPcbRecibido;
     //for (;;) {
-    //t_pcb* pcb = elegir_pcb(estadoReady);
-    //__pcb_pasar_de_ready_a_running(pcb);
-    //ejecutar_proceso(pcb); // Acá se le manda el pcb a la cpu para que lo ejecute
-    //recibir_proceso_desajolado(t_pcb* pcb); // en algún momento la cpu nos devuelve el proceso pero no se cuando/donde
+    t_pcb *pcbAEjecutar = elegir_pcb(estadoReady);
+    __pcb_pasar_de_ready_a_running(pcbAEjecutar);
+    // Acá le manda el pcb a la cpu para que lo ejecute
+    ejecutar_proceso(pcbAEjecutar); 
+    // Recibe pcb de la cpu
+    headerPcbRecibido = recibir_proceso_desajolado(pcbRecibido);
+
+    switch(headerPcbRecibido)
+    {
+        case HEADER_proceso_bloqueado:
+        {   
+            __pcb_pasar_de_running_a_blocked(pcbRecibido);
+            break;
+        }
+        case HEADER_proceso_desalojado:
+        {   
+            __pcb_pasar_de_running_a_ready(pcbRecibido);
+            break;
+        }
+        case HEADER_proceso_terminado:
+        {
+            __pcb_pasar_de_running_a_exit(pcbRecibido);
+            break;
+        }
+    } 
+
+
     //}
 
     return NULL;
