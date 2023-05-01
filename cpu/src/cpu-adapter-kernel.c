@@ -143,6 +143,123 @@ t_buffer* __empaquetar_pcb(t_cpu_pcb* pcbAEmpaquetar)
     return bufferAEnviar;
 }
 
+char* get_registro_segun_tipo(t_registro tipoRegistro, t_cpu_pcb* pcb)
+{
+    switch (tipoRegistro)
+    {
+        case REGISTRO_ax:
+            
+            return cpu_pcb_get_registro_ax(pcb);
+            break;
+
+        case REGISTRO_bx:
+            
+            return cpu_pcb_get_registro_bx(pcb);
+            break;
+
+        case REGISTRO_cx:
+            
+            return cpu_pcb_get_registro_cx(pcb);
+            break;
+
+        case REGISTRO_dx:
+            
+            return cpu_pcb_get_registro_dx(pcb);
+            break;
+        case REGISTRO_eax:
+            
+            return cpu_pcb_get_registro_eax(pcb);
+            break;
+
+        case REGISTRO_ebx:
+            
+            return cpu_pcb_get_registro_ebx(pcb);
+            break;
+
+        case REGISTRO_ecx:
+            
+            return cpu_pcb_get_registro_ecx(pcb);
+            break;
+
+        case REGISTRO_edx:
+            
+            return cpu_pcb_get_registro_edx(pcb);
+            break;
+        case REGISTRO_rax:
+            
+            return cpu_pcb_get_registro_rax(pcb);
+            break;
+
+        case REGISTRO_rbx:
+            
+            return cpu_pcb_get_registro_rbx(pcb);
+            break;
+
+        case REGISTRO_rcx:
+            
+            return cpu_pcb_get_registro_rcx(pcb);
+            break;
+
+        case REGISTRO_rdx:
+            
+            return cpu_pcb_get_registro_rdx(pcb);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+}
+
+static void set_registro_segun_tipo(t_registro tipoRegistro, char* valorASetear, t_cpu_pcb* pcb)
+{
+    switch (tipoRegistro)
+    {
+        case REGISTRO_ax:
+            cpu_pcb_set_registro_ax(pcb, valorASetear);
+            break;
+        case REGISTRO_bx:
+            cpu_pcb_set_registro_bx(pcb, valorASetear);
+            break;
+        case REGISTRO_cx:
+            cpu_pcb_set_registro_cx(pcb, valorASetear);
+            break;
+        case REGISTRO_dx:
+            cpu_pcb_set_registro_dx(pcb, valorASetear);
+            break;
+        case REGISTRO_eax:
+            cpu_pcb_set_registro_eax(pcb, valorASetear);
+            break;
+        case REGISTRO_ebx:
+            cpu_pcb_set_registro_ebx(pcb, valorASetear);
+            break;
+        case REGISTRO_ecx:
+            cpu_pcb_set_registro_ecx(pcb, valorASetear);
+            break;
+        case REGISTRO_edx:
+            cpu_pcb_set_registro_edx(pcb, valorASetear);
+            break;
+        case REGISTRO_rax:
+            cpu_pcb_set_registro_rax(pcb, valorASetear);
+            break;
+        case REGISTRO_rbx:
+            cpu_pcb_set_registro_rbx(pcb, valorASetear);
+            break;
+        case REGISTRO_rcx:
+            cpu_pcb_set_registro_rcx(pcb, valorASetear);
+            break;
+        case REGISTRO_rdx:
+            cpu_pcb_set_registro_rdx(pcb, valorASetear);
+            break;        
+        default:
+            return ;
+            break;
+    }
+    log_info(cpuLogger, "Registro %s seteado con valor: %s", __t_registro_to_char(tipoRegistro), get_registro_segun_tipo(tipoRegistro, pcb));
+    log_info(cpuDebuggingLogger, "Registro %s seteado con valor: %s", __t_registro_to_char(tipoRegistro), get_registro_segun_tipo(tipoRegistro, pcb));
+}
+
+
 // Funciones públicas
 t_cpu_pcb* recibir_pcb_de_kernel() 
 {      
@@ -183,6 +300,12 @@ t_instruccion* cpu_fetch_instruccion(t_cpu_pcb *pcb)
     return proximaInstruccion;
 }
 
+void incrementar_program_counter(t_cpu_pcb* pcb)
+{   
+    int programCounter = cpu_pcb_get_program_counter(pcb);
+    cpu_pcb_set_program_counter(pcb, programCounter + 1);
+}
+
 void cpu_decode_instruccion(t_instruccion *instruccion)
 {
     // no es void, después lo cambio
@@ -210,9 +333,10 @@ void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
         // que registro es con un switch como para saber que setter usar
         
         // No está tomando la funcion __t_registro_to_char de las static utils
-        log_info(cpuLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%d>", cpu_pcb_get_pid(pcb), __t_registro_to_char(registro), valor);
-        log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%d>", cpu_pcb_get_pid(pcb), __t_registro_to_char(registro), valor);
+        log_info(cpuLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%s>", cpu_pcb_get_pid(pcb), __t_registro_to_char(registro), valor);
+        log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%s>", cpu_pcb_get_pid(pcb), __t_registro_to_char(registro), valor);
 
+        set_registro_segun_tipo(registro, valor, pcb);
         incrementar_program_counter(pcb);
 
         break;
@@ -238,10 +362,4 @@ void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
     default:
         break;
     }
-}
-
-void incrementar_program_counter(t_cpu_pcb* pcb)
-{   
-    int programCounter = cpu_pcb_get_program_counter(pcb);
-    cpu_pcb_set_program_counter(pcb, programCounter + 1);
 }
