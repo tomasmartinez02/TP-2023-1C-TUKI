@@ -41,19 +41,49 @@ static void __enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
     return;
 }
 
- t_header __recibir_pcb_de_cpu(t_pcb *pcbRecibido) // CHEQUEAR ESTA FUNCION!! LUCAS!!!! CREO QUE LA VAMOS A NECESITAR PARA EL PLANIFICADOR DE CORTO PLAZO!
-{
-    t_buffer *bufferProceso = NULL;
+static void __recibir_pcb_de_cpu(t_pcb *pcbRecibido) // CHEQUEAR ESTA FUNCION!! LUCAS!!!! CREO QUE LA VAMOS A NECESITAR PARA EL PLANIFICADOR DE CORTO PLAZO!
+{  
     uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
-    bufferProceso = buffer_create();
-
+    // Recibimos header proceso y checkeamos que sea correcto
     t_header headerProceso = stream_recv_header(socketCpu);
+
+    if(headerProceso != HEADER_proceso_desalojado) {
+        log_error(kernelLogger,"El proceso desalojado por la CPU no se pudo recibir correctamente");
+        log_error(kernelDebuggingLogger,"El proceso desalojado por la CPU no se pudo recibir correctamente");
+        exit(EXIT_FAILURE);
+    }
+
+    t_buffer *bufferProceso = buffer_create();
     stream_recv_buffer(socketCpu, bufferProceso);
 
-    buffer_unpack(bufferProceso, pcbRecibido, sizeof(pcbRecibido));
+    // Recibimos el pid y checkeamos que coincida con el proceso en ejecucion
+    uint32_t pidDesalojado;
+    uint32_t pidPcbRecibido = pcb_get_pid(pcbRecibido);
 
-    return headerProceso;
+    buffer_unpack(bufferProceso,&pidDesalojado,sizeof(pidDesalojado));
+    if(pidDesalojado!=pidPcbRecibido) {
+        log_error(kernelLogger,"El PID: %d del proceso desalojado no coincide con el proceso en ejecución con PID: %d",pidDesalojado,pidPcbRecibido);
+        log_error(kernelDebuggingLogger,"El PID: %d del proceso desalojado no coincide con el proceso en ejecución con PID: %d",pidDesalojado,pidPcbRecibido);
+        exit(EXIT_FAILURE);
+    }
+    log_info(kernelDebuggingLogger,"Se recibio correctamente el pid: %d del proceso desalojado",pidDesalojado);
+
+    // Recibimos program counter y lo actualizamos en el pcb
+    uint32_t programCounterDesalojado;
+    buffer_unpack(bufferProceso,&programCounterDesalojado,sizeof(programCounterDesalojado));
+    pcb_set_program_counter(pcbRecibido,programCounterDesalojado);
+    log_info(kernelDebuggingLogger,"El program counter del proceso desalojado se actualizo con el valor %d",programCounterDesalojado);
+
+    // Recibimos los registros y los actualizamos
+    t_registros_cpu *registrosActuales = pcb_get_registros_cpu(pcbRecibido);
+    registros_cpu_destroy(registrosActuales);
+
+    t_registros_cpu *registrosDesalojados = desempaquetar_registros(bufferProceso);
+    pcb_set_registros_cpu(pcbRecibido,registrosDesalojados);
+    log_info(kernelDebuggingLogger,"Los registros del proceso desalojado se actualizaron correctamente",programCounterDesalojado);
+
+    return;
 } 
 
 void ejecutar_proceso(t_pcb* pcbAEjecutar)
@@ -61,9 +91,13 @@ void ejecutar_proceso(t_pcb* pcbAEjecutar)
     __enviar_pcb_a_cpu(pcbAEjecutar);
 }
 
-t_header recibir_proceso_desajolado(t_pcb *pcbRecibido)
+void recibir_proceso_desajolado(t_pcb *pcbRecibido)
 {   
-    t_header headerProceso;
-    headerProceso = __recibir_pcb_de_cpu(pcbRecibido);
-    return headerProceso;
+    __recibir_pcb_de_cpu(pcbRecibido);
+    return;
+}
+
+t_header recibir_motivo_desalojo(void)
+{
+    return 0;
 }

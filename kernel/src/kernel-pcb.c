@@ -9,7 +9,7 @@ t_pcb *crear_pcb(uint32_t pid)
     pcb->pid = pid;
     pcb->instrucciones = NULL;
     pcb->programCounter = 0;
-    pcb->registrosCpu = NULL;
+    pcb->registrosCpu = registros_cpu_create();
     pcb->estimadoProxRafaga = kernel_config_get_estimacion_inicial(kernelConfig); // el valor inicial se saca del config y después se calcula
     pcb->tablaSegmentos = NULL;
     pcb->archivosAbiertos = list_create();

@@ -324,34 +324,81 @@ static void *__planificador_corto_plazo()
 {   
     t_pcb *pcbRecibido = NULL;
     t_header headerPcbRecibido;
+    
     //for (;;) {
-    t_pcb *pcbAEjecutar = elegir_pcb(estadoReady);
+    t_pcb *pcbAEjecutar = __elegir_pcb(estadoReady);
     __pcb_pasar_de_ready_a_running(pcbAEjecutar);
-    // Acá le manda el pcb a la cpu para que lo ejecute
-    ejecutar_proceso(pcbAEjecutar); 
+
+    // Se manda el pcb a la cpu para que lo ejecute
+    ejecutar_proceso(pcbAEjecutar);
+    
+    recibir_proceso_desajolado(pcbAEjecutar);
+
     // Recibe pcb de la cpu
-    headerPcbRecibido = recibir_proceso_desajolado(pcbRecibido);
+    headerPcbRecibido = recibir_motivo_desalojo(); // falta crear la función
 
     switch(headerPcbRecibido)
     {
-        case HEADER_proceso_bloqueado:
-        {   
-            __pcb_pasar_de_running_a_blocked(pcbRecibido);
-            break;
-        }
-        case HEADER_proceso_desalojado:
+        case HEADER_instruccion_yield:
         {   
             __pcb_pasar_de_running_a_ready(pcbRecibido);
             break;
         }
-        case HEADER_proceso_terminado:
+        case HEADER_instruccion_exit:
         {
-            __pcb_pasar_de_running_a_exit(pcbRecibido);
+            __terminar_proceso(pcbRecibido,FINALIZACION_SUCCESS);
+            break;
+        }
+        case HEADER_segmentation_fault:
+        {
+            __terminar_proceso(pcbRecibido,FINALIZACION_SEGFAULT);
+            break;
+        }
+        case HEADER_instruccion_io:
+        {
+            break;
+        }
+        case HEADER_instruccion_fopen:
+        {
+            break;
+        }
+        case HEADER_instruccion_fclose:
+        {
+            break;
+        }
+        case HEADER_instruccion_fseek:
+        {
+            break;
+        }
+        case HEADER_instruccion_fread:
+        {
+            break;
+        }
+        case HEADER_instruccion_fwrite:
+        {
+            break;
+        }
+        case HEADER_instruccion_ftruncate:
+        {
+            break;
+        }
+        case HEADER_instruccion_wait:
+        {
+            break;
+        }
+        case HEADER_instruccion_signal:
+        {
+            break;
+        }
+        case HEADER_instruccion_create_segment:
+        {
+            break;
+        }
+        case HEADER_instruccion_delete_segment:
+        {
             break;
         }
     } 
-
-
     //}
 
     return NULL;
