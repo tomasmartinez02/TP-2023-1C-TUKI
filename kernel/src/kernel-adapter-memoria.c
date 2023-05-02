@@ -42,7 +42,7 @@ t_buffer *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) /
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 
-    if (respuestaMemoria != HANDSHAKE_ok_continue) {
+    if (respuestaMemoria != HEADER_tabla_segmentos) {
         if (respuestaMemoria == HEADER_error) { // En que caso nos mandaria eso?
             stream_recv_empty_buffer(socketMemoria);
             pthread_mutex_unlock(&mutexSocketMemoria);
