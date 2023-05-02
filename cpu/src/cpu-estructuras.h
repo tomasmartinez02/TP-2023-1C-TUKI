@@ -3,8 +3,9 @@
 
 //Bibliotecas commons
 #include <commons/log.h>
+// Bibliotecas static utils
 #include <utils/instrucciones.h>
-
+#include <utils/tablas-pcb.h>
 //Estructuras
 struct cpu_config
 {
@@ -20,12 +21,15 @@ struct cpu_config
 typedef struct cpu_config t_cpu_config;
 
 // Aca coincidimos los datos que manda el buffer de kernel-adapter
-typedef struct  {
+struct cpu_pcb
+{
     uint32_t pid;
     uint32_t programCounter;
-    t_list* instrucciones;
-    t_registros_cpu* registrosCpu;
-} t_cpu_pcb;
+    t_list *instrucciones;
+    t_registros_cpu *registrosCpu;
+    t_info_segmentos **tablaSegmentos;
+};
+typedef struct cpu_pcb t_cpu_pcb;
 
 extern t_log *cpuDebuggingLogger; 
 extern t_log *cpuLogger;
