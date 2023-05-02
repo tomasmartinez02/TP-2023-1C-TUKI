@@ -5,6 +5,7 @@
 #include <cpu-config.h>
 #include <cpu-pcb.h>
 #include <cpu-estructuras.h>
+#include <cpu-utils.h>
 // Bibliotecas static utils
 #include <utils/logging.h>
 #include <utils/instrucciones.h>
