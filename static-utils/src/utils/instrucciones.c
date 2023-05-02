@@ -2,53 +2,6 @@
 
 // Funciones privadas
 
-// Retorna el string correspondiente al identificador del registro
-static char *__t_registro_to_char(t_registro registro)
-{
-    switch (registro)
-    {
-        case REGISTRO_ax:
-            return "AX";
-            break;
-        case REGISTRO_bx:
-            return "BX";
-            break;
-        case REGISTRO_cx:
-            return "CX";
-            break;
-        case REGISTRO_dx:
-            return "DX";
-            break;
-        case REGISTRO_eax:
-            return "EAX";
-            break;
-        case REGISTRO_ebx:
-            return "EBX";
-            break;
-        case REGISTRO_ecx:
-            return "ECX";
-            break;
-        case REGISTRO_edx:
-            return "EDX";
-            break;
-        case REGISTRO_rax:
-            return "RAX";
-            break;
-        case REGISTRO_rbx:
-            return "RBX";
-            break;
-        case REGISTRO_rcx:
-            return "RCX";
-            break;
-        case REGISTRO_rdx:
-            return "RDX";
-            break;
-        default:
-            return "NULL";
-            break;
-    }
-}
-
 // Transforma una instruccion en un string que se puede imprimir
 static char *__instruccion_to_string(t_instruccion *self) 
 {
@@ -64,9 +17,9 @@ static char *__instruccion_to_string(t_instruccion *self)
     
     char *instruccionToString;
                         // Registros/memoria
-    instruccionToString = tipoInstruccion == INSTRUCCION_set   ? string_from_format("SET %s %s", __t_registro_to_char(registro1), valorSet)
-                        : tipoInstruccion == INSTRUCCION_movin    ? string_from_format("MOV_IN %s %d", __t_registro_to_char(registro1), operando2)
-                        : tipoInstruccion == INSTRUCCION_movout  ? string_from_format("MOV_OUT %d %s", operando1, __t_registro_to_char(registro2))
+    instruccionToString = tipoInstruccion == INSTRUCCION_set   ? string_from_format("SET %s %s", t_registro_to_string(registro1), valorSet)
+                        : tipoInstruccion == INSTRUCCION_movin    ? string_from_format("MOV_IN %s %d", t_registro_to_string(registro1), operando2)
+                        : tipoInstruccion == INSTRUCCION_movout  ? string_from_format("MOV_OUT %d %s", operando1, t_registro_to_string(registro2))
                         // Dispositivos io
                         : tipoInstruccion == INSTRUCCION_io ? string_from_format("I/O %d", operando1)
                         // Archivos
@@ -141,6 +94,53 @@ static void __registros_cpu_set_registro(char *registro, char *valor, int tamani
 }
 
 // Funciones publicas
+
+// Retorna el string correspondiente al identificador del registro
+char *t_registro_to_string(t_registro registro)
+{
+    switch (registro)
+    {
+        case REGISTRO_ax:
+            return "AX";
+            break;
+        case REGISTRO_bx:
+            return "BX";
+            break;
+        case REGISTRO_cx:
+            return "CX";
+            break;
+        case REGISTRO_dx:
+            return "DX";
+            break;
+        case REGISTRO_eax:
+            return "EAX";
+            break;
+        case REGISTRO_ebx:
+            return "EBX";
+            break;
+        case REGISTRO_ecx:
+            return "ECX";
+            break;
+        case REGISTRO_edx:
+            return "EDX";
+            break;
+        case REGISTRO_rax:
+            return "RAX";
+            break;
+        case REGISTRO_rbx:
+            return "RBX";
+            break;
+        case REGISTRO_rcx:
+            return "RCX";
+            break;
+        case REGISTRO_rdx:
+            return "RDX";
+            break;
+        default:
+            return "NULL";
+            break;
+    }
+}
 
 // Creates y destroys de estructuras
 
@@ -237,6 +237,122 @@ void registros_cpu_destroy(t_registros_cpu *self)
     free(self);
 
     return;
+}
+
+// Empaquetado y desempaquetado de registros cpu
+
+void empaquetar_registros(t_buffer *bufferAEnviar, t_registros_cpu *registrosCpu)
+{
+    // Registros 4 bytes
+    char *registroAx = registros_cpu_get_registro_ax(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroAx);
+    free(registroAx);
+
+    char *registroBx = registros_cpu_get_registro_bx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroBx);
+    free(registroBx);
+
+    char *registroCx = registros_cpu_get_registro_cx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroCx);
+    free(registroCx);
+
+    char *registroDx = registros_cpu_get_registro_dx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroDx);
+    free(registroDx);
+
+    // Registros 8 bytes
+    char *registroEax = registros_cpu_get_registro_eax(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroEax);
+    free(registroEax);
+
+    char *registroEbx = registros_cpu_get_registro_ebx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroEbx);
+    free(registroEbx);
+
+    char *registroEcx = registros_cpu_get_registro_ecx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroEcx);
+    free(registroEcx);
+
+    char *registroEdx = registros_cpu_get_registro_edx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroEdx);
+    free(registroEdx);
+    
+    // Registros 16 bytes
+    char *registroRax = registros_cpu_get_registro_rax(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroRax);
+    free(registroRax);
+
+    char *registroRbx = registros_cpu_get_registro_rbx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroRbx);
+    free(registroRbx);
+
+    char *registroRcx = registros_cpu_get_registro_rcx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroRcx);
+    free(registroRcx);
+
+    char *registroRdx = registros_cpu_get_registro_rdx(registrosCpu);
+    buffer_pack_string(bufferAEnviar, registroRdx);
+    free(registroRdx);
+
+    return;
+}
+
+t_registros_cpu *desempaquetar_registros(t_buffer *bufferRecibido)
+{
+    t_registros_cpu *registrosCpu = registros_cpu_create();
+
+    // Registros 4 bytes
+    char *registroAx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_ax(registrosCpu, registroAx);
+    free(registroAx);
+
+    char *registroBx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_bx(registrosCpu, registroBx);
+    free(registroBx);
+
+    char *registroCx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_cx(registrosCpu, registroCx);
+    free(registroCx);
+
+    char *registroDx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_dx(registrosCpu, registroDx);
+    free(registroDx);
+
+    // Registros 8 bytes
+    char *registroEax = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_eax(registrosCpu, registroEax);
+    free(registroEax);
+
+    char *registroEbx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_ebx(registrosCpu, registroEbx);
+    free(registroEbx);
+
+    char *registroEcx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_ecx(registrosCpu, registroEcx);
+    free(registroEcx);
+
+    char *registroEdx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_edx(registrosCpu, registroEdx);
+    free(registroEdx);
+    
+    // Registros 16 bytes
+    char *registroRax = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_rax(registrosCpu, registroRax);
+    free(registroRax);
+
+    char *registroRbx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_rbx(registrosCpu, registroRbx);
+    free(registroRbx);
+
+    char *registroRcx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_rcx(registrosCpu, registroRcx);
+    free(registroRcx);
+
+    char *registroRdx = buffer_unpack_string(bufferRecibido);
+    registros_cpu_set_registro_rdx(registrosCpu, registroRdx);
+    free(registroRdx);
+
+    return registrosCpu;
 }
 
 // Create y destroy de la lista de instrucciones
