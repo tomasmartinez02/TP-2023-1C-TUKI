@@ -81,11 +81,19 @@ static void __recibir_pcb_de_cpu(t_pcb *pcbRecibido) // CHEQUEAR ESTA FUNCION!! 
 
     t_registros_cpu *registrosDesalojados = desempaquetar_registros(bufferProceso);
     pcb_set_registros_cpu(pcbRecibido,registrosDesalojados);
-    log_info(kernelDebuggingLogger,"Los registros del proceso desalojado se actualizaron correctamente",programCounterDesalojado);
+    log_info(kernelDebuggingLogger,"Los registros del proceso desalojado se actualizaron correctamente");
 
     return;
 } 
+t_header __recibir_header_instruccion_de_cpu()
+{
+    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+   
+    t_header headerInstruccion = stream_recv_header(socketCpu);
+    stream_recv_empty_buffer(socketCpu);
 
+    return headerInstruccion;
+}
 void ejecutar_proceso(t_pcb* pcbAEjecutar)
 {
     __enviar_pcb_a_cpu(pcbAEjecutar);
@@ -99,5 +107,5 @@ void recibir_proceso_desajolado(t_pcb *pcbRecibido)
 
 t_header recibir_motivo_desalojo(void)
 {
-    return 0;
+    return __recibir_header_instruccion_de_cpu();
 }

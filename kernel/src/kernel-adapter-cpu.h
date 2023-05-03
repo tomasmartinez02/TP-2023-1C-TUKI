@@ -14,7 +14,7 @@
 #include <serializacion/buffer.h>
 
 void ejecutar_proceso(t_pcb* pcb);
-t_header recibir_proceso_desajolado(t_pcb* pcb);
+void recibir_proceso_desajolado(t_pcb* pcb);
 t_header recibir_motivo_desalojo(void);
 
 #endif

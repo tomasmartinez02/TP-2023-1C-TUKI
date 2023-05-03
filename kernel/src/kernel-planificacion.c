@@ -377,7 +377,7 @@ static void *__planificador_corto_plazo()
     __estimar_proxima_rafaga(pcbAEjecutar, tiempoEnCpu); // Esta bien ese pcb?
 
     // Recibe pcb de la cpu
-    headerPcbRecibido = recibir_motivo_desalojo(); // falta crear la función
+    headerPcbRecibido = recibir_motivo_desalojo(); 
 
     switch(headerPcbRecibido)
     {
