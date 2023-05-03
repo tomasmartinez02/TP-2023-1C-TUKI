@@ -13,6 +13,8 @@ static t_estado *estadoExit;
 
 // Variables de uso general
 static sem_t gradoMultiprogramacion;
+static timestamp *tiempoActual;
+static uint32_t alfaHRRN;
 
 // Funciones privadas
 
@@ -54,6 +56,12 @@ static void __inicializar_semaforos(void)
     log_info(kernelDebuggingLogger, "Se inicializan los semaforos para la planificacion correctamente");
 
     return;
+}
+
+// Inicializa el valor de alfa para los calculos de HRRN
+static void __inicializar_alfa_hrrn(void)
+{
+    alfaHRRN = kernel_config_get_hrrn_alfa(kernelConfig);
 }
 
 static void __crear_hilos_planificadores(void)
@@ -295,6 +303,49 @@ static bool __algoritmo_es_fifo()
     } else return false;
 }
 
+static uint32_t __calcular_valor_hrrn(t_pcb *pcb)
+{
+    double tiempoEnReady;
+    tiempoEnReady = obtener_diferencial_de_tiempo_en_milisegundos(tiempoActual, pcb->tiempoLlegadaReady);
+    return (uint32_t) (tiempoEnReady + pcb->estimadoProxRafaga) / pcb->estimadoProxRafaga;
+}
+
+static t_pcb* _comparar_pcb_segun_hrrn(t_pcb *pcb1, t_pcb *pcb2)
+{
+    uint32_t estimacionPcb1 = 0;
+    uint32_t estimacionPcb2 = 0;
+
+    estimacionPcb1 = __calcular_valor_hrrn(pcb1);
+    estimacionPcb2 = __calcular_valor_hrrn(pcb2);
+
+    if (estimacionPcb1 >= estimacionPcb2) {
+        return pcb1;
+    } else return pcb2;
+}
+
+static t_pcb *__elegir_pcb_segun_fifo(t_estado* estado)
+{
+    return estado_desencolar_primer_pcb_atomic(estado);
+}
+
+static t_pcb *__elegir_pcb_segun_hrrn(t_estado* estado)
+{   
+    t_pcb *pcbSeleccionado;
+
+    set_timespec(tiempoActual);
+    pcbSeleccionado = (t_pcb*) list_get_maximum(estado->listaProcesos, (void*) _comparar_pcb_segun_hrrn); // Chequear si esto esta bien
+
+    //Falta eliminarlo de la lista
+
+    return pcbSeleccionado;
+}
+
+static void __estimar_proxima_rafaga(t_pcb *pcb, double tiempoEnCpu)
+{
+    double estimadoProxRafaga = alfaHRRN * tiempoEnCpu + (1 - alfaHRRN) * pcb->estimadoProxRafaga;
+    pcb_set_estimado_prox_rafaga(pcb, estimadoProxRafaga);
+}
+
 static t_pcb *__elegir_pcb(t_estado* estado)
 {
     if (__algoritmo_es_fifo()) {
@@ -303,36 +354,27 @@ static t_pcb *__elegir_pcb(t_estado* estado)
         return __elegir_pcb_segun_hrrn(estado);
 }
 
-
-static t_pcb *__elegir_pcb_segun_fifo(t_estado* estado)
-{
-    return estado_desencolar_primer_pcb_atomic(estado);
-}
-
-
-static t_pcb *__elegir_pcb_segun_hrrn(t_estado* estado)
-{   //TODO
-    return NULL;
-}
-
-static unit32_t __calcular_valor_hrrn()
-{
-
-}
- 
 static void *__planificador_corto_plazo()
 {   
     t_pcb *pcbRecibido = NULL;
     t_header headerPcbRecibido;
+    timestamp *inicioEjecucionProceso = NULL;
+    timestamp *finEjecucionProceso = NULL;
+    double tiempoEnCpu = 0;
     
     //for (;;) {
     t_pcb *pcbAEjecutar = __elegir_pcb(estadoReady);
     __pcb_pasar_de_ready_a_running(pcbAEjecutar);
 
     // Se manda el pcb a la cpu para que lo ejecute
-    ejecutar_proceso(pcbAEjecutar);
+    set_timespec(inicioEjecucionProceso);
+    ejecutar_proceso(pcbAEjecutar); 
     
     recibir_proceso_desajolado(pcbAEjecutar);
+    set_timespec(finEjecucionProceso);
+
+    tiempoEnCpu = obtener_diferencial_de_tiempo_en_milisegundos(finEjecucionProceso, inicioEjecucionProceso);
+    __estimar_proxima_rafaga(pcbAEjecutar, tiempoEnCpu); // Esta bien ese pcb?
 
     // Recibe pcb de la cpu
     headerPcbRecibido = recibir_motivo_desalojo(); // falta crear la función
@@ -474,6 +516,7 @@ void inicializar_estructuras(void)
     __inicializar_estructuras_pid();
     __inicializar_estructuras_estados();
     __inicializar_semaforos();
+    __inicializar_alfa_hrrn();
     __crear_hilos_planificadores();
 }
 

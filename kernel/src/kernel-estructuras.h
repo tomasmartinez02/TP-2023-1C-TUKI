@@ -78,6 +78,7 @@ struct pcb
     uint32_t socketProceso;
     pthread_mutex_t *mutex;
     int64_t *ultimoRafagaEnCPU;
+    int64_t *estimacionRafagaCPU; //siempre en milisegundos
 
     /*
     char* dispositivoIoEnUso;
