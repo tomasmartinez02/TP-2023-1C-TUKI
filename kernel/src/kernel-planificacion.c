@@ -306,8 +306,11 @@ static bool __algoritmo_es_fifo()
 static uint32_t __calcular_valor_hrrn(t_pcb *pcb)
 {
     double tiempoEnReady;
-    tiempoEnReady = obtener_diferencial_de_tiempo_en_milisegundos(tiempoActual, pcb->tiempoLlegadaReady);
-    return (uint32_t) (tiempoEnReady + pcb->estimadoProxRafaga) / pcb->estimadoProxRafaga;
+    timestamp tiempoLlegadaReady = pcb_get_tiempo_llegada_ready(pcb);
+    double estimadoProxRafaga = pcb_get_estimado_prox_rafaga(pcb);
+
+    tiempoEnReady = obtener_diferencial_de_tiempo_en_milisegundos(tiempoActual, tiempoLlegadaReady);
+    return (uint32_t) (tiempoEnReady + estimadoProxRafaga) / estimadoProxRafaga;
 }
 
 static t_pcb* _comparar_pcb_segun_hrrn(t_pcb *pcb1, t_pcb *pcb2)
@@ -342,7 +345,8 @@ static t_pcb *__elegir_pcb_segun_hrrn(t_estado* estado)
 
 static void __estimar_proxima_rafaga(t_pcb *pcb, double tiempoEnCpu)
 {
-    double estimadoProxRafaga = alfaHRRN * tiempoEnCpu + (1 - alfaHRRN) * pcb->estimadoProxRafaga;
+    double estimadoProxRafagaPCB = pcb_get_estimado_prox_rafaga(pcb);
+    double estimadoProxRafaga = alfaHRRN * tiempoEnCpu + (1 - alfaHRRN) * estimadoProxRafagaPCB;
     pcb_set_estimado_prox_rafaga(pcb, estimadoProxRafaga);
 }
 
