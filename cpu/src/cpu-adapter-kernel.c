@@ -168,24 +168,157 @@ void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb)
 
         break;
     }
-
     case INSTRUCCION_yield:
     {
+        incrementar_program_counter(pcb);
         log_instruccion_ejecutada(pcb, instruccion);
-
         t_buffer *bufferYield = __empaquetar_pcb(pcb);
         stream_send_buffer(socketKernel, HEADER_proceso_desalojado, bufferYield);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_yield);
         buffer_destroy(bufferYield);
         break;
     }
     case INSTRUCCION_exit:
     {
+        incrementar_program_counter(pcb);
         log_instruccion_ejecutada(pcb, instruccion);
-
         t_buffer *bufferExit = __empaquetar_pcb(pcb);
-        stream_send_buffer(socketKernel, HEADER_proceso_terminado, bufferExit);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, bufferExit);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_exit);
         buffer_destroy(bufferExit);
 
+        break;
+    }
+    case INSTRUCCION_error:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *bufferError = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, bufferError);
+        stream_send_empty_buffer(socketKernel, HEADER_error);
+        buffer_destroy(bufferError);
+        break;
+    }
+    case INSTRUCCION_movin:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        break;
+    }
+    case INSTRUCCION_movout:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        break;
+    }
+    case INSTRUCCION_io:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_io);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_fopen:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_fopen);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_fclose:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_fclose);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_fseek:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_fseek);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_fread:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_fread);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_fwrite:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_fwrite);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_ftruncate:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_ftruncate);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_wait:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_wait);
+        buffer_destroy(buffer);
+        break;
+    }
+      case INSTRUCCION_signal:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_signal);
+        buffer_destroy(buffer);
+        break;
+    }
+    case INSTRUCCION_create_segment:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_create_segment);
+        buffer_destroy(buffer);
+        break;
+    }
+      case INSTRUCCION_delete_segment:
+    {
+        incrementar_program_counter(pcb);
+        log_instruccion_ejecutada(pcb, instruccion);
+        t_buffer *buffer = __empaquetar_pcb(pcb);
+        stream_send_buffer(socketKernel, HEADER_proceso_desalojado, buffer);
+        stream_send_empty_buffer(socketKernel, HEADER_instruccion_delete_segment);
+        buffer_destroy(buffer);
         break;
     }
     default:
