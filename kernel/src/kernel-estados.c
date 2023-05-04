@@ -42,6 +42,27 @@ static bool __estado_contiene_pcb(t_estado *self, t_pcb *pcbBuscado)
     return contienePcb;
 }
 
+// Obtiene el pcb con el maximo hrrn
+t_pcb *__estado_obtener_pcb_segun_maximo_hrrn(t_estado *estado)
+{
+    t_pcb *pcbSeleccionado = (t_pcb *) list_get_maximum(estado_get_list(estado), comparar_pcb_segun_hrrn);
+
+    return pcbSeleccionado;
+}
+
+// Obtiene el pcb con el maximo hrrn de forma atomica
+static t_pcb *__estado_obtener_pcb_segun_maximo_hrrn_atomic(t_estado * estado)
+{
+    sem_wait(estado_get_semaforo(estado));
+    pthread_mutex_lock(estado_get_mutex(estado));
+    t_pcb *pcbSeleccionado = __estado_obtener_pcb_segun_maximo_hrrn(estado);
+    pthread_mutex_unlock(estado_get_mutex(estado));
+    sem_post(estado_get_semaforo(estado));
+
+    return pcbSeleccionado;
+}
+
+
 // Funciones publicas
 
 t_estado *crear_estado(t_nombre_estado nombreEstado) // A medida que avancemos le vamos a agregar cosas
@@ -118,6 +139,14 @@ bool estado_contiene_pcb_atomic(t_estado *self, t_pcb *pcbBuscado)
     pthread_mutex_unlock(estado_get_mutex(self));
     
     return contienePcb;
+}
+
+t_pcb *estado_remover_pcb_segun_maximo_hrrn_atomic(t_estado * estado)
+{
+    t_pcb *pcbObtenido = __estado_obtener_pcb_segun_maximo_hrrn_atomic(estado);
+    t_pcb *pcbMaximoHrrn = estado_remover_pcb_de_cola_atomic(estado, pcbObtenido);
+
+    return pcbMaximoHrrn;
 }
 
 t_list *estado_get_list(t_estado *self) 

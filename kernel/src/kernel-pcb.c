@@ -1,5 +1,17 @@
 #include <kernel-pcb.h>
 
+// Funciones privadas
+
+// Calcula el valor del hrrn segun el tiempo actual pasado por parametro
+static double __calcular_valor_hrrn(t_pcb *pcb, timestamp *tiempoActual)
+{
+    double estimadoProxRafaga = pcb_get_estimado_prox_rafaga(pcb);
+    timestamp *tiempoLlegadaReady = pcb_get_tiempo_llegada_ready(pcb);
+    double tiempoEnReady = obtener_diferencial_de_tiempo_en_milisegundos(tiempoActual, tiempoLlegadaReady);
+    
+    return ( 1.0 + (tiempoEnReady / estimadoProxRafaga) );
+}
+
 // Funciones publicas
 
 t_pcb *crear_pcb(uint32_t pid)
@@ -18,8 +30,7 @@ t_pcb *crear_pcb(uint32_t pid)
     pcb->estadoAnterior = NEW;
     pcb->procesoBloqueadoOTerminado = false;
     pcb->socketProceso = -1;
-    pcb->ultimoRafagaEnCPU = 0; // Esto lo deberia devolver la CPU cuando devuelve el PCB
-
+    
     timestamp *tiempoLlegadaReady = malloc(sizeof(*(tiempoLlegadaReady)));
     pcb->tiempoLlegadaReady = tiempoLlegadaReady;
 
@@ -233,3 +244,31 @@ pthread_mutex_t* pcb_get_mutex(t_pcb* pcb)
     return pcb->mutex;
 }
 
+// Funciones para estados y planificacion
+
+// Funcion auxiliar para hayar el pcb con maximo hrrn en la cola de ready
+void *comparar_pcb_segun_hrrn(void *pcbA, void *pcbB)
+{
+    t_pcb *pcb1 = (t_pcb *) pcbA;
+    t_pcb *pcb2 = (t_pcb *) pcbB;
+
+    timestamp *tiempoActual = malloc(sizeof(*tiempoActual));
+    set_timespec(tiempoActual);
+
+    double estimacionPcb1 = __calcular_valor_hrrn(pcb1, tiempoActual);
+    double estimacionPcb2 = __calcular_valor_hrrn(pcb2, tiempoActual);
+
+    free(tiempoActual);
+
+    return estimacionPcb1 >= estimacionPcb2 ? pcbA : pcbB;
+}
+
+void pcb_estimar_proxima_rafaga(t_pcb *pcbEjecutado, double tiempoRealEjecutadoEnCpu)
+{
+    double alfaHrrn = kernel_config_get_hrrn_alfa(kernelConfig);
+
+    double estimadoProxRafagaPcb = pcb_get_estimado_prox_rafaga(pcbEjecutado);
+    double estimadoProxRafagaActualizado = alfaHrrn * tiempoRealEjecutadoEnCpu + (1.0 - alfaHrrn) * estimadoProxRafagaPcb;
+    pcb_set_estimado_prox_rafaga(pcbEjecutado, estimadoProxRafagaActualizado);
+    return;
+}

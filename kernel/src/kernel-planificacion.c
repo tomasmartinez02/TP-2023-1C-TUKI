@@ -11,10 +11,9 @@ static t_estado *estadoExecute;
 static t_estado *estadoBlocked; 
 static t_estado *estadoExit;
 
-// Variables de uso general
+// Semaforos planificacion
 static sem_t gradoMultiprogramacion;
-static timestamp *tiempoActual;
-static uint32_t alfaHRRN;
+static sem_t dispatchPermitido;
 
 // Funciones privadas
 
@@ -51,6 +50,7 @@ static void __inicializar_semaforos(void)
     int valorInicialGradoMultiprogramacion = kernel_config_get_grado_max_multiprogramacion(kernelConfig);
     
     sem_init(&gradoMultiprogramacion, 0, valorInicialGradoMultiprogramacion);
+    sem_init(&dispatchPermitido, 0, 1);
 
     log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprogramacion);
     log_info(kernelDebuggingLogger, "Se inicializan los semaforos para la planificacion correctamente");
@@ -58,30 +58,9 @@ static void __inicializar_semaforos(void)
     return;
 }
 
-// Inicializa el valor de alfa para los calculos de HRRN
-static void __inicializar_alfa_hrrn(void)
-{
-    alfaHRRN = kernel_config_get_hrrn_alfa(kernelConfig);
-}
-
-static void __crear_hilos_planificadores(void)
-{
-    // PLANIFICADOR A LARZO PLAZO
-    // pthread_t largoPlazoTh;
-    // pthread_create(&largoPlazoTh, NULL, __planificador_largo_plazo, NULL);
-    // pthread_detach(largoPlazoTh);
-
-    // PLANIFICADOR A CORTO PLAZO
-    // pthread_t cortoPlazoTh;
-    // pthread_create(&cortoPlazoTh, NULL, __planificador_corto_plazo, NULL);
-    // pthread_detach(cortoPlazoTh);
-
-    return;
-}
-
 // Funciones utilitarias para la planificacion
 
-// Obtiene y actualiza el pidActual para asignarlo a un pcb
+// Obtiene y actualiza el pidActual para asignarlo a un pcb de forma atomica
 static uint32_t __obtener_siguiente_pid()
 {
     pthread_mutex_lock(&mutexPid);
@@ -284,7 +263,7 @@ static void *__planificador_largo_plazo(void *args)
         pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
 
         if (tablaSegmentos == NULL) {
-            
+            __terminar_proceso(pcbAReady, FINALIZACION_OUTOFMEMORY);
         }
         else {
            __pcb_pasar_de_new_a_ready(pcbAReady);
@@ -296,161 +275,186 @@ static void *__planificador_largo_plazo(void *args)
 
 // Planificador de corto plazo
 
-static bool __algoritmo_es_fifo()
-{
-    if (strcmp(kernel_config_get_algoritmo_planificacion(kernelConfig), "FIFO")  == 0 ){
-        return true;
-    } else return false;
-}
-
-static uint32_t __calcular_valor_hrrn(t_pcb *pcb)
-{
-    double tiempoEnReady;
-    timestamp tiempoLlegadaReady = pcb_get_tiempo_llegada_ready(pcb);
-    double estimadoProxRafaga = pcb_get_estimado_prox_rafaga(pcb);
-
-    tiempoEnReady = obtener_diferencial_de_tiempo_en_milisegundos(tiempoActual, tiempoLlegadaReady);
-    return (uint32_t) (tiempoEnReady + estimadoProxRafaga) / estimadoProxRafaga;
-}
-
-static t_pcb* _comparar_pcb_segun_hrrn(t_pcb *pcb1, t_pcb *pcb2)
-{
-    uint32_t estimacionPcb1 = 0;
-    uint32_t estimacionPcb2 = 0;
-
-    estimacionPcb1 = __calcular_valor_hrrn(pcb1);
-    estimacionPcb2 = __calcular_valor_hrrn(pcb2);
-
-    if (estimacionPcb1 >= estimacionPcb2) {
-        return pcb1;
-    } else return pcb2;
-}
-
+// Elige un pcb para dispatch segun fifo
 static t_pcb *__elegir_pcb_segun_fifo(t_estado* estado)
 {
     return estado_desencolar_primer_pcb_atomic(estado);
 }
 
+// Elige un pcb para dispatch segun hrrn
 static t_pcb *__elegir_pcb_segun_hrrn(t_estado* estado)
 {   
-    t_pcb *pcbSeleccionado;
-
-    set_timespec(tiempoActual);
-    pcbSeleccionado = (t_pcb*) list_get_maximum(estado->listaProcesos, (void*) _comparar_pcb_segun_hrrn); // Chequear si esto esta bien
-
-    //Falta eliminarlo de la lista
-
+    t_pcb *pcbSeleccionado = estado_remover_pcb_segun_maximo_hrrn_atomic(estado);
+    
     return pcbSeleccionado;
 }
 
-static void __estimar_proxima_rafaga(t_pcb *pcb, double tiempoEnCpu)
+// Chequea si el algoritmo del kernel es Fifo
+static bool __algoritmo_es_fifo()
 {
-    double estimadoProxRafagaPCB = pcb_get_estimado_prox_rafaga(pcb);
-    double estimadoProxRafaga = alfaHRRN * tiempoEnCpu + (1 - alfaHRRN) * estimadoProxRafagaPCB;
-    pcb_set_estimado_prox_rafaga(pcb, estimadoProxRafaga);
+    return strcmp(kernel_config_get_algoritmo_planificacion(kernelConfig), "FIFO") == 0;
 }
 
+// Elige el pcb segun el algoritmo que tengas
 static t_pcb *__elegir_pcb(t_estado* estado)
 {
     if (__algoritmo_es_fifo()) {
         return __elegir_pcb_segun_fifo(estado);
-    } else 
+    } 
+    else {
         return __elegir_pcb_segun_hrrn(estado);
+    }
 }
 
-static void *__planificador_corto_plazo()
-{   
-    t_pcb *pcbRecibido = NULL;
-    t_header headerPcbRecibido;
-    timestamp *inicioEjecucionProceso = NULL;
-    timestamp *finEjecucionProceso = NULL;
-    double tiempoEnCpu = 0;
-    
-    //for (;;) {
-    t_pcb *pcbAEjecutar = __elegir_pcb(estadoReady);
-    __pcb_pasar_de_ready_a_running(pcbAEjecutar);
+// Pone en ejecucion al pcb y recibe el pcb desalojado por la cpu
+static void *__ejecucion_desalojo_pcb(void *args)
+{
+    for (;;) {
+        t_pcb *pcbEnEjecucion = estado_desencolar_primer_pcb_atomic(estadoExecute);
 
-    // Se manda el pcb a la cpu para que lo ejecute
-    set_timespec(inicioEjecucionProceso);
-    ejecutar_proceso(pcbAEjecutar); 
-    
-    recibir_proceso_desajolado(pcbAEjecutar);
-    set_timespec(finEjecucionProceso);
+        timestamp inicioEjecucionProceso;
+        timestamp finEjecucionProceso;
+        
+        // Se manda el pcb a la cpu para que lo ejecute y se espera la respuesta para actualizar el pcb
+        set_timespec(&inicioEjecucionProceso);
+        ejecutar_proceso(pcbEnEjecucion); 
+        recibir_proceso_desajolado(pcbEnEjecucion);
+        set_timespec(&finEjecucionProceso);
 
-    tiempoEnCpu = obtener_diferencial_de_tiempo_en_milisegundos(finEjecucionProceso, inicioEjecucionProceso);
-    __estimar_proxima_rafaga(pcbAEjecutar, tiempoEnCpu); // Esta bien ese pcb?
+        // Actualizo el estimado en el pcb segun el real ejecutado
+        double tiempoRealEjecutadoEnCpu = obtener_diferencial_de_tiempo_en_milisegundos(&finEjecucionProceso, &inicioEjecucionProceso);
+        pcb_estimar_proxima_rafaga(pcbEnEjecucion, tiempoRealEjecutadoEnCpu);
 
-    // Recibe pcb de la cpu
-    headerPcbRecibido = recibir_motivo_desalojo(); 
+        // Recibe motivo de desalojo del proceso
+        uint8_t headerPcbRecibido = recibir_motivo_desalojo(); 
 
-    switch(headerPcbRecibido)
-    {
-        case HEADER_instruccion_yield:
-        {   
-            __pcb_pasar_de_running_a_ready(pcbRecibido);
-            break;
-        }
-        case HEADER_instruccion_exit:
+        // Ejecuto la instruccion que ha producido el desalojo
+        switch(headerPcbRecibido)
         {
-            __terminar_proceso(pcbRecibido,FINALIZACION_SUCCESS);
-            break;
-        }
-        case HEADER_segmentation_fault:
-        {
-            __terminar_proceso(pcbRecibido,FINALIZACION_SEGFAULT);
-            break;
-        }
-        case HEADER_instruccion_io:
-        {
-            break;
-        }
-        case HEADER_instruccion_fopen:
-        {
-            break;
-        }
-        case HEADER_instruccion_fclose:
-        {
-            break;
-        }
-        case HEADER_instruccion_fseek:
-        {
-            break;
-        }
-        case HEADER_instruccion_fread:
-        {
-            break;
-        }
-        case HEADER_instruccion_fwrite:
-        {
-            break;
-        }
-        case HEADER_instruccion_ftruncate:
-        {
-            break;
-        }
-        case HEADER_instruccion_wait:
-        {
-            break;
-        }
-        case HEADER_instruccion_signal:
-        {
-            break;
-        }
-        case HEADER_instruccion_create_segment:
-        {
-            break;
-        }
-        case HEADER_instruccion_delete_segment:
-        {
-            break;
-        }
-    } 
-    //}
+            case HEADER_instruccion_yield:
+            {   
+                recibir_buffer_vacio_instruccion();
+                __pcb_pasar_de_running_a_ready(pcbEnEjecucion);
+                break;
+            }
+            case HEADER_instruccion_exit:
+            {
+                recibir_buffer_vacio_instruccion();
+                __terminar_proceso(pcbEnEjecucion, FINALIZACION_SUCCESS);
+                break;
+            }
+            case HEADER_segmentation_fault:
+            {
+                recibir_buffer_vacio_instruccion();
+                __terminar_proceso(pcbEnEjecucion,FINALIZACION_SEGFAULT);
+                break;
+            }
+            case HEADER_instruccion_io:
+            {
+                uint32_t tiempoEjecucion = recibir_buffer_instruccion_io();
+                break;
+            }
+            case HEADER_instruccion_fopen:
+            {   
+                char *nombreArchivo = recibir_buffer_instruccion_fopen();
+
+                free(nombreArchivo);
+                break;
+            }
+            case HEADER_instruccion_fclose:
+            {
+                char *nombreArchivo = recibir_buffer_instruccion_fclose();
+
+                free(nombreArchivo);
+                break;
+            }
+            case HEADER_instruccion_fseek:
+            {
+                char *nombreArchivo = NULL;
+                uint32_t ubicacionNueva;
+                recibir_buffer_instruccion_fseek(&nombreArchivo, &ubicacionNueva);
+
+                free(nombreArchivo);
+                break;
+            }
+            case HEADER_instruccion_fread:
+            {
+                break;
+            }
+            case HEADER_instruccion_fwrite:
+            {
+                break;
+            }
+            case HEADER_instruccion_ftruncate:
+            {
+                break;
+            }
+            case HEADER_instruccion_wait:
+            {   
+                char* recurso = recibir_buffer_instruccion_con_recurso();
+
+                free(recurso);
+                break;
+            }
+            case HEADER_instruccion_signal:
+            {
+                char* recurso = recibir_buffer_instruccion_con_recurso();
+
+                free(recurso);
+                break;
+            }
+            case HEADER_instruccion_create_segment:
+            {
+                break;
+            }
+            case HEADER_instruccion_delete_segment:
+            {
+                break;
+            }
+        } 
+
+        sem_post(&dispatchPermitido);
+    }
 
     return NULL;
 }
 
+// Dispatcher de pcbs a execute
+static void *__planificador_corto_plazo(void *args)
+{   
+    // Desalojo de PCBs
+    pthread_t ejecucionDesalojoTh;
+    pthread_create(&ejecucionDesalojoTh, NULL, __ejecucion_desalojo_pcb, NULL);
+    pthread_detach(ejecucionDesalojoTh);
 
+    // Dispatcher
+    for (;;) {
+
+        sem_wait(&dispatchPermitido);
+        log_info(kernelDebuggingLogger, "Dispatch permitido");
+
+        t_pcb *pcbAEjecutar = __elegir_pcb(estadoReady);
+        __pcb_pasar_de_ready_a_running(pcbAEjecutar);
+    }
+
+    return NULL;
+}
+
+// Crea los hilos de planificacion principales
+static void __crear_hilos_planificadores(void)
+{
+    // Planificador largo plazo
+    pthread_t planificadorLargoPlazoTh;
+    pthread_create(&planificadorLargoPlazoTh, NULL, __planificador_largo_plazo, NULL);
+    pthread_detach(planificadorLargoPlazoTh);
+
+    // Planificador corto plazo
+    pthread_t planificadorCortoPlazoTh;
+    pthread_create(&planificadorCortoPlazoTh, NULL, __planificador_corto_plazo, NULL);
+    pthread_detach(planificadorCortoPlazoTh);
+
+    return;
+}
 
 // Funciones publicas
 
@@ -520,7 +524,6 @@ void inicializar_estructuras(void)
     __inicializar_estructuras_pid();
     __inicializar_estructuras_estados();
     __inicializar_semaforos();
-    __inicializar_alfa_hrrn();
     __crear_hilos_planificadores();
 }
 
