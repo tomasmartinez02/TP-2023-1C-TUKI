@@ -1,5 +1,5 @@
-#ifndef CPU_ADAPTER_KERNEL_H
-#define CPU_ADAPTER_KERNEL_H
+#ifndef CPU_ADAPTER_KERNEL_H_
+#define CPU_ADAPTER_KERNEL_H_
 
 // Bibliotecas internas
 #include <cpu-config.h>
@@ -15,12 +15,11 @@
 // Biblioteca commons
 #include <commons/collections/list.h>
 
+// Prototipos
 
 t_cpu_pcb* recibir_pcb_de_kernel();
-void cpu_ejecutar_instruccion(t_instruccion *instruccion, t_cpu_pcb *pcb);
-void cpu_decode_instruccion(t_instruccion *instruccion);
-t_instruccion* cpu_fetch_instruccion(t_cpu_pcb *pcb);
-void incrementar_program_counter(t_cpu_pcb* pcb);
-
+void enviar_pcb_desalojado_a_kernel(t_cpu_pcb *pcb);
+void enviar_motivo_desalojo_exit(void);
+void enviar_motivo_desalojo_yield(void);
 
 #endif

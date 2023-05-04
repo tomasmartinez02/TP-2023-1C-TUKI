@@ -39,6 +39,10 @@ void cpu_config_destroy(t_cpu_config *self)
     free(self->IP_ESCUCHA);
     free(self->PUERTO_MEMORIA);
     free(self->PUERTO_ESCUCHA);
+
+    close(self->SOCKET_MEMORIA);
+    close(self->SOCKET_KERNEL);
+
     free(self);
 
     return;

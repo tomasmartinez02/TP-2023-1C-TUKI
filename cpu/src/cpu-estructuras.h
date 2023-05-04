@@ -1,5 +1,5 @@
-#ifndef CPU_ESTRUCTURAS_H
-#define CPU_ESTRUCTURAS_H
+#ifndef CPU_ESTRUCTURAS_H_
+#define CPU_ESTRUCTURAS_H_
 
 //Bibliotecas commons
 #include <commons/log.h>

@@ -54,6 +54,16 @@ void cpu_pcb_set_instrucciones(t_cpu_pcb* pcb, t_list* instrucciones)
     pcb->instrucciones = instrucciones;
 }
 
+t_instruccion *pcb_fetch_siguiente_instruccion(t_cpu_pcb *pcb) 
+{
+    t_list *listaInstrucciones = cpu_pcb_get_instrucciones(pcb);
+    uint32_t programCounter = cpu_pcb_get_program_counter(pcb);
+
+    t_instruccion *siguienteInstruccion = list_get(listaInstrucciones, programCounter);
+
+    return siguienteInstruccion;
+}
+
 t_registros_cpu* cpu_pcb_get_registros(t_cpu_pcb* pcb)
 {
     return pcb->registrosCpu;

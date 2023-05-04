@@ -28,6 +28,7 @@
 #include <cpu-estructuras.h>
 #include <cpu-config.h>
 #include <cpu-conexiones.h>
+#include <cpu-atencion-kernel.h>
 
 
 #endif
