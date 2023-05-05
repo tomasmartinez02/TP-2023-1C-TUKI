@@ -68,9 +68,7 @@ double obtener_diferencial_de_tiempo_en_milisegundos(timestamp *end, timestamp *
 char *string_pids_ready(t_estado *estadoReady)
 {
     // Agarro la lista de pcbs en ready de forma atomica y la mapeo a una lista de sus pids
-    pthread_mutex_lock(estado_get_mutex(estadoReady));
     t_list *tempPidList = list_map(estado_get_list(estadoReady), __pcb_to_pid_transformer);
-    pthread_mutex_unlock(estado_get_mutex(estadoReady));
 
     // Creo el string de los pids en ready a partir de los pcbs en ready
     char *listaPidsString = string_new();
