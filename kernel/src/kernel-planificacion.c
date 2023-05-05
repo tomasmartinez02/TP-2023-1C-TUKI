@@ -96,8 +96,8 @@ static void __pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado, char *strin
     pcb_set_estado_anterior(pcb, pcb_get_estado_actual(pcb));
     pcb_set_estado_actual(pcb, nombreNuevoEstado);
 
-    estado_encolar_pcb_atomic(nuevoEstado, pcb);
     log_transicion_estados(stringEstadoViejo, stringEstadoNuevo, pcb_get_pid(pcb));
+    estado_encolar_pcb_atomic(nuevoEstado, pcb);
 
     return;
 }
