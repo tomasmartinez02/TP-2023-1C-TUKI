@@ -67,28 +67,28 @@ static char *__registros_cpu_get_registro(char *registro, int tamanioRegistro)
 {
     // Si es NULL y no fue cargado, retorno un string vacio
     if (registro == NULL) {
-        char *registroStringAux = malloc(TAMANIO_STRING_VACIO + 1);
+        char *registroStringAux = malloc((TAMANIO_STRING_VACIO + 1) * sizeof(*registroStringAux));
         registroStringAux[0] = '\0';
         return registroStringAux;
     }
 
     // Devuelvo un string para que su manejo sea mas sencillo
-    char *registroString = malloc(tamanioRegistro + 1);
+    char *registroString = malloc((tamanioRegistro + 1) * sizeof(*registroString));
     registroString = memcpy(registroString, registro, tamanioRegistro);
     registroString[tamanioRegistro] = '\0';
     return registroString;
 }
 
 // Funcion generica para setear un registro del cpu
-static void __registros_cpu_set_registro(char *registro, char *valor, int tamanioRegistro)
+static void __registros_cpu_set_registro(char **registro, char *valor, int tamanioRegistro)
 {
     // Si el string pasado es vacio, no cargues nada y deja el registro como NULL
     if (string_is_empty(valor)) return;
 
-    if (registro == NULL) {
-        registro = malloc(tamanioRegistro);
+    if (*registro == NULL) {
+        *registro = malloc(tamanioRegistro * sizeof(char));
     }
-    memcpy(registro, valor, tamanioRegistro);
+    memcpy(*registro, valor, tamanioRegistro * sizeof(char));
 
     return;
 }
@@ -764,72 +764,72 @@ char *registros_cpu_get_registro_rdx(t_registros_cpu *self)
 
 void registros_cpu_set_registro_ax(t_registros_cpu *self, char *valor)
 {   
-    __registros_cpu_set_registro(self->registroAx, valor, TAMANIO_REG_N);
+    __registros_cpu_set_registro(&self->registroAx, valor, TAMANIO_REG_N);
     return;
 }
 
 void registros_cpu_set_registro_bx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroBx, valor, TAMANIO_REG_N);
+    __registros_cpu_set_registro(&self->registroBx, valor, TAMANIO_REG_N);
     return;
 }
 
 void registros_cpu_set_registro_cx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroCx, valor, TAMANIO_REG_N);
+    __registros_cpu_set_registro(&self->registroCx, valor, TAMANIO_REG_N);
     return;
 }
 
 void registros_cpu_set_registro_dx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroDx, valor, TAMANIO_REG_N);
+    __registros_cpu_set_registro(&self->registroDx, valor, TAMANIO_REG_N);
     return;
 }
 
 void registros_cpu_set_registro_eax(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroEax, valor, TAMANIO_REG_E);
+    __registros_cpu_set_registro(&self->registroEax, valor, TAMANIO_REG_E);
     return;
 }
 
 void registros_cpu_set_registro_ebx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroEbx, valor, TAMANIO_REG_E);
+    __registros_cpu_set_registro(&self->registroEbx, valor, TAMANIO_REG_E);
     return;
 }
 
 void registros_cpu_set_registro_ecx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroEcx, valor, TAMANIO_REG_E);
+    __registros_cpu_set_registro(&self->registroEcx, valor, TAMANIO_REG_E);
     return;
 }
 
 void registros_cpu_set_registro_edx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroEdx, valor, TAMANIO_REG_E);
+    __registros_cpu_set_registro(&self->registroEdx, valor, TAMANIO_REG_E);
     return;
 }
 
 void registros_cpu_set_registro_rax(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroRax, valor, TAMANIO_REG_R);
+    __registros_cpu_set_registro(&self->registroRax, valor, TAMANIO_REG_R);
     return;
 }
 
 void registros_cpu_set_registro_rbx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroRbx, valor, TAMANIO_REG_R);
+    __registros_cpu_set_registro(&self->registroRbx, valor, TAMANIO_REG_R);
     return;
 }
 
 void registros_cpu_set_registro_rcx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroRcx, valor, TAMANIO_REG_R);
+    __registros_cpu_set_registro(&self->registroRcx, valor, TAMANIO_REG_R);
     return;
 }
 
 void registros_cpu_set_registro_rdx(t_registros_cpu *self, char *valor)
 {
-    __registros_cpu_set_registro(self->registroRdx, valor, TAMANIO_REG_R);
+    __registros_cpu_set_registro(&self->registroRdx, valor, TAMANIO_REG_R);
     return;
 }
