@@ -74,6 +74,8 @@ bool estado_contiene_pcb_atomic(t_estado *self, t_pcb *pcbBuscado);
 
 t_pcb *estado_remover_pcb_segun_maximo_hrrn_atomic(t_estado * estado);
 
+t_nombre_estado estado_get_nombre_estado(t_estado *self);
+
 /**
  * @brief Devuelve la lista de procesos del estado
  * 

@@ -6,6 +6,11 @@
 static void __estado_encolar_pcb(t_estado *estadoDestino, t_pcb *pcbAEncolar)
 {
     list_add(estado_get_list(estadoDestino), pcbAEncolar);
+
+    if (estado_get_nombre_estado(estadoDestino) == READY) {
+        log_ingreso_cola_ready(estadoDestino);
+        pcb_set_tiempo_llegada_ready(pcbAEncolar);
+    }
 }
 
 // Desencola el primer pcb de un estado
@@ -147,6 +152,11 @@ t_pcb *estado_remover_pcb_segun_maximo_hrrn_atomic(t_estado * estado)
     t_pcb *pcbMaximoHrrn = estado_remover_pcb_de_cola_atomic(estado, pcbObtenido);
 
     return pcbMaximoHrrn;
+}
+
+t_nombre_estado estado_get_nombre_estado(t_estado *self)
+{
+    return self->nombreEstado;
 }
 
 t_list *estado_get_list(t_estado *self) 

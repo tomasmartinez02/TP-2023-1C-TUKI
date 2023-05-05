@@ -106,9 +106,6 @@ static void __pcb_pasar_de_estado(t_pcb* pcb, t_estado *nuevoEstado, char *strin
 static void __pcb_pasar_a_ready(t_pcb* pcbAReady, char *stringEstadoViejo)
 {
     __pcb_pasar_de_estado(pcbAReady, estadoReady, stringEstadoViejo, ESTADO_READY);
-    pcb_set_tiempo_llegada_ready(pcbAReady);
-    log_ingreso_cola_ready(estadoReady);
-
     return;
 }
 
