@@ -93,8 +93,8 @@ void aceptar_conexion_kernel(int socketEscucha)
 
         // Recibo handshake
         t_handshake handshakeKernel = stream_recv_header(socketKernel);
-
         if (handshakeKernel == HANDSHAKE_kernel) {
+            stream_recv_empty_buffer(socketKernel);
             cpu_config_set_socket_kernel(cpuConfig, socketKernel);
             log_info(cpuDebuggingLogger, "Se recibio el handshake del kernel correctamente");
                 
