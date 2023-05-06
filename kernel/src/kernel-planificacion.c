@@ -154,12 +154,7 @@ static void __pcb_pasar_de_running_a_blocked(t_pcb* pcbABlocked)
 // Pasa un pcb de Null a New
 static void __pcb_pasar_de_null_a_new(t_pcb* pcbANew)
 {   
-    uint32_t pid = pcb_get_pid(pcbANew);
-
-    // Log minimo kernel creacion proceso
-    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", pid);
-    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", pid);
-
+    log_creacion_nuevo_proceso(pcbANew);
     __pcb_pasar_de_estado(pcbANew, estadoNew, ESTADO_NULL, ESTADO_NEW);
 
     return;

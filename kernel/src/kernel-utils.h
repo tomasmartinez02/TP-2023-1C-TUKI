@@ -23,11 +23,12 @@
  */
 void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *kernelDebuggingLogger);
 
-void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid);
 void set_timespec(timestamp *timespec);
 double obtener_diferencial_de_tiempo_en_milisegundos(timestamp *end, timestamp *start);
 char *string_pids_ready(t_estado *estadoReady);
-void log_ingreso_cola_ready(t_estado *estadoReady);\
+void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid);
+void log_creacion_nuevo_proceso(t_pcb *pcbNuevo);
+void log_ingreso_cola_ready(t_estado *estadoReady);
 void log_finalizacion_proceso(t_pcb *pcbFinalizado, char *motivoFinalizacion);
 
 #endif

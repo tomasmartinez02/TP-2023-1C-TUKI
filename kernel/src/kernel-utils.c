@@ -39,21 +39,6 @@ void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *k
     return;
 }
 
-void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid) 
-{
-    char *pidAmarillo = int_to_yellow_string(pid);
-    char *estadoAnteriorAmarillo = string_to_yellow_string(estadoAnterior);
-    char *estadoActualAmarillo = string_to_yellow_string(estadoActual);
-
-    log_info(kernelLogger, "PID <%s> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
-    log_info(kernelDebuggingLogger, "PID <%s> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
-
-    free(estadoActualAmarillo);
-    free(estadoAnteriorAmarillo);
-    free(pidAmarillo);
-    return;
-}
-
 void set_timespec(timestamp *timespec) 
 {
     int retVal = clock_gettime(CLOCK_REALTIME, timespec);
@@ -96,6 +81,32 @@ char *string_pids_ready(t_estado *estadoReady)
 
     list_destroy_and_destroy_elements(tempPidList, __pid_destroyer);
     return listaPidsString;
+}
+
+void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid) 
+{
+    char *pidAmarillo = int_to_yellow_string(pid);
+    char *estadoAnteriorAmarillo = string_to_yellow_string(estadoAnterior);
+    char *estadoActualAmarillo = string_to_yellow_string(estadoActual);
+
+    log_info(kernelLogger, "PID <%s> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
+    log_info(kernelDebuggingLogger, "PID <%s> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
+
+    free(estadoActualAmarillo);
+    free(estadoAnteriorAmarillo);
+    free(pidAmarillo);
+    return;
+}
+
+void log_creacion_nuevo_proceso(t_pcb *pcbNuevo)
+{
+    char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcbNuevo));
+
+    log_info(kernelLogger, "Creación de nuevo proceso con PID <%s> en NEW", pidAmarillo);
+    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%s> en NEW", pidAmarillo);
+
+    free(pidAmarillo);
+    return;
 }
 
 void log_ingreso_cola_ready(t_estado *estadoReady)

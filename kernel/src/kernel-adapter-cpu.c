@@ -88,6 +88,7 @@ static void __recibir_pcb_de_cpu(t_pcb *pcbRecibido)
     pcb_set_registros_cpu(pcbRecibido, registrosDesalojados);
     log_info(kernelDebuggingLogger, "Los registros del proceso desalojado se actualizaron correctamente");
 
+    buffer_destroy(bufferProceso);
     return;
 } 
 
