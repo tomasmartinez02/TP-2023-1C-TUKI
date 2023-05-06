@@ -11,6 +11,7 @@
 //Bibliotecas commons
 #include <commons/collections/list.h>
 #include <commons/log.h>
+#include <commons/string.h>
 
 // Prototipos
 
@@ -96,5 +97,21 @@ int cantidad_argumentos_vector_strings(char **vectorStrings);
  * @example destruir_vector_strings(vectorStrings);
  */
 void destruir_vector_strings(char **vectorStrings);
+
+/**
+ * @brief Transforma un numero en un string con el numero amarillo
+ * 
+ * @param number: Numero del que quiero obtener el string amarillo 
+ * @return char*: string amarillo del numero 
+ */
+char *int_to_yellow_string(uint32_t number);
+
+/**
+ * @brief Transforma cualquier string en un string amarillo
+ * 
+ * @param string: String sin color
+ * @return char*: String amarillo 
+ */
+char *string_to_yellow_string(char *string);
 
 #endif
