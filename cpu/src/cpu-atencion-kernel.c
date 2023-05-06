@@ -15,7 +15,6 @@ void atender_peticiones_kernel(void)
         while (!terminarEjecucion) {
             terminarEjecucion = cpu_ejecutar_siguiente_instruccion(pcbAEjecutar);
         }
-        enviar_pcb_desalojado_a_kernel(pcbAEjecutar);
 
         cpu_pcb_destroy(pcbAEjecutar);
     }

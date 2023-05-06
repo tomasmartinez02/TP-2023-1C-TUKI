@@ -31,11 +31,15 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
 
             set_registro_segun_tipo(pcb, registro, valor);
             free(valor);
+
+            incrementar_program_counter(pcb);
             break;
         }
         case INSTRUCCION_yield:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             enviar_motivo_desalojo_yield();
 
             terminarEjecucion = true;
@@ -44,6 +48,8 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         case INSTRUCCION_exit:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             enviar_motivo_desalojo_exit();
 
             terminarEjecucion = true;
@@ -53,87 +59,100 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         case INSTRUCCION_movin:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
+            incrementar_program_counter(pcb);
             break;
         }
         case INSTRUCCION_movout:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
+            incrementar_program_counter(pcb);
             break;
         }
         case INSTRUCCION_io:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_fopen:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_fclose:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_fseek:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_fread:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_fwrite:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_ftruncate:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_wait:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_signal:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_create_segment:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_delete_segment:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-
+            incrementar_program_counter(pcb);
+            enviar_pcb_desalojado_a_kernel(pcb);
             terminarEjecucion = true;
             break;
         }
@@ -147,8 +166,6 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             break;
         }
     }
-
-    incrementar_program_counter(pcb);
 
     return terminarEjecucion;
 }
