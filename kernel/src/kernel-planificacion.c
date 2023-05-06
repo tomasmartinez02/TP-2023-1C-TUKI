@@ -220,8 +220,6 @@ static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
             //error
             break;
     }
-    
-    stream_send_empty_buffer(pcb_get_socket(pcbFinalizado), HEADER_proceso_terminado); // Da aviso a la consola de que finalizo la ejecucición
     log_finalizacion_proceso(pcbFinalizado, motivoFinalizacion);
 }
 
@@ -233,8 +231,11 @@ static void* __liberar_pcbs_en_exit(void* args)
 {
     for (;;) {
         t_pcb *pcbALiberar = estado_desencolar_primer_pcb_atomic(estadoExit);
+        
         adapter_memoria_finalizar_proceso(pcbALiberar);
+        stream_send_empty_buffer(pcb_get_socket(pcbALiberar), HEADER_proceso_terminado);
         log_info(kernelDebuggingLogger, "Se liberan las estructuras del proceso PID <%d> en EXIT", pcb_get_pid(pcbALiberar));
+        
         destruir_pcb(pcbALiberar);
         sem_post(&gradoMultiprogramacion);
     }
