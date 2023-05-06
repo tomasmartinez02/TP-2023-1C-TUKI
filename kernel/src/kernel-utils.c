@@ -28,8 +28,7 @@ static void __pid_destroyer(void *pidADestruir)
     free(pidADestruir);
 }
 
-// Setea el estado final y logea la transicion 
-
+// Transforma cualquier string en un string amarillo
 
 // Funciones publicas
 
@@ -42,9 +41,16 @@ void kernel_destroy(t_kernel_config *kernelConfig, t_log *kernelLogger, t_log *k
 
 void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid) 
 {
-    log_info(kernelLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pid, estadoAnterior, estadoActual);
-    log_info(kernelDebuggingLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pid, estadoAnterior, estadoActual);
+    char *pidAmarillo = int_to_yellow_string(pid);
+    char *estadoAnteriorAmarillo = string_to_yellow_string(estadoAnterior);
+    char *estadoActualAmarillo = string_to_yellow_string(estadoActual);
 
+    log_info(kernelLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
+    log_info(kernelDebuggingLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
+
+    free(estadoActualAmarillo);
+    free(estadoAnteriorAmarillo);
+    free(pidAmarillo);
     return;
 }
 
@@ -95,18 +101,27 @@ char *string_pids_ready(t_estado *estadoReady)
 void log_ingreso_cola_ready(t_estado *estadoReady)
 {
     char *stringPidsReady = string_pids_ready(estadoReady);
-    char *algoritmoPlanificacion = kernel_config_get_algoritmo_planificacion(kernelConfig);
-    log_info(kernelLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
-    log_info(kernelDebuggingLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
-    free(stringPidsReady);
+    char *stringPidsReadyAmarillo = string_to_yellow_string(stringPidsReady);
+    char *algoritmoPlanificacionAmarillo = string_to_yellow_string(kernel_config_get_algoritmo_planificacion(kernelConfig));
+    
+    log_info(kernelLogger, "Cola Ready <%s>: %s", algoritmoPlanificacionAmarillo, stringPidsReadyAmarillo);
+    log_info(kernelDebuggingLogger, "Cola Ready <%s>: %s", algoritmoPlanificacionAmarillo, stringPidsReadyAmarillo);
 
+    free(algoritmoPlanificacionAmarillo);
+    free(stringPidsReadyAmarillo);
+    free(stringPidsReady);
     return;
 }
 
 void log_finalizacion_proceso(t_pcb *pcbFinalizado, char *motivoFinalizacion)
 {
-    log_info(kernelLogger, "Finaliza el proceso con PID <%d> - Motivo: <%s>", pcb_get_pid(pcbFinalizado), motivoFinalizacion);
-    log_info(kernelDebuggingLogger, "Finaliza el proceso con PID <%d> - Motivo: <%s>", pcb_get_pid(pcbFinalizado), motivoFinalizacion);
+    char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcbFinalizado));
+    char *motivoFinalizacionAmarillo = string_to_yellow_string(motivoFinalizacion);
+    
+    log_info(kernelLogger, "Finaliza el proceso con PID <%s> - Motivo: <%s>", pidAmarillo, motivoFinalizacionAmarillo);
+    log_info(kernelDebuggingLogger, "Finaliza el proceso con PID <%s> - Motivo: <%s>", pidAmarillo, motivoFinalizacionAmarillo);
 
+    free(motivoFinalizacionAmarillo);
+    free(pidAmarillo);
     return;
 }
