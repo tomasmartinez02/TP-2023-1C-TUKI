@@ -45,8 +45,8 @@ void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t p
     char *estadoAnteriorAmarillo = string_to_yellow_string(estadoAnterior);
     char *estadoActualAmarillo = string_to_yellow_string(estadoActual);
 
-    log_info(kernelLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
-    log_info(kernelDebuggingLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
+    log_info(kernelLogger, "PID <%s> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
+    log_info(kernelDebuggingLogger, "PID <%s> - Estado Anterior: <%s> - Estado Actual: <%s>", pidAmarillo, estadoAnteriorAmarillo, estadoActualAmarillo);
 
     free(estadoActualAmarillo);
     free(estadoAnteriorAmarillo);
