@@ -36,8 +36,6 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         case INSTRUCCION_yield:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-            
-            enviar_pcb_desalojado_a_kernel(pcb);
             enviar_motivo_desalojo_yield();
 
             terminarEjecucion = true;
@@ -46,8 +44,6 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         case INSTRUCCION_exit:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-            
-            enviar_pcb_desalojado_a_kernel(pcb);
             enviar_motivo_desalojo_exit();
 
             terminarEjecucion = true;
