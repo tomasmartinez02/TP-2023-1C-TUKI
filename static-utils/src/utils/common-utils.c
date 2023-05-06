@@ -95,3 +95,18 @@ void destruir_vector_strings(char **vectorStrings)
     }
     free(vectorStrings);
 }
+
+// Transforma un int en un string con color amarillo
+char *int_to_yellow_string(uint32_t number)
+{
+    char* yellowStringNumber = string_from_format("\e[1;93m%d\e[0m", number);
+    return yellowStringNumber;
+}
+
+// Transforma cualquier string en un string de color amarillo
+
+char *string_to_yellow_string(char *string)
+{
+    char* yellowString = string_from_format("\e[1;93m%s\e[0m", string);
+    return yellowString;
+}
