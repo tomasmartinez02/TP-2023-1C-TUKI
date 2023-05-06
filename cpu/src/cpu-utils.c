@@ -22,12 +22,15 @@ void cpu_destroy(t_cpu_config *cpuConfig, t_log *cpuLogger, t_log *cpuDebuggingL
 
 void log_instruccion_ejecutada(t_cpu_pcb *pcb, t_instruccion *instruccion)
 {
-    uint32_t pid = cpu_pcb_get_pid(pcb);
+    char *pidAmarillo = int_to_yellow_string(cpu_pcb_get_pid(pcb)); 
     char *instruccionString = instruccion_get_to_string(instruccion);
+    char *instruccionStringAmarillo = string_to_yellow_string(instruccionString);
 
-    log_info(cpuLogger, "PID: <%d> - Ejecutando: %s", pid, instruccionString);
-    log_info(cpuDebuggingLogger, "PID: <%d> - Ejecutando: %s", pid, instruccionString);
+    log_info(cpuLogger, "PID: <%s> - Ejecutando: %s", pidAmarillo, instruccionStringAmarillo);
+    log_info(cpuDebuggingLogger, "PID: <%s> - Ejecutando: %s", pidAmarillo, instruccionStringAmarillo);
 
+    free(instruccionStringAmarillo);
     free(instruccionString);
+    free(pidAmarillo);
     return;
 }
