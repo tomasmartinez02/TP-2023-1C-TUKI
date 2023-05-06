@@ -127,6 +127,8 @@ typedef struct registros_cpu t_registros_cpu;
 
 // Creates y destroys de estructuras
 
+char *t_registro_to_string(t_registro registro);
+
 /**
  * @brief Crea una instruccion
  * 
@@ -163,6 +165,11 @@ t_registros_cpu *registros_cpu_create(void);
  * @param self: Estructura de registros cpu o pcb 
  */
 void registros_cpu_destroy(t_registros_cpu *self);
+
+// Empaquetado y desempaquetado de registros cpu
+
+void empaquetar_registros(t_buffer *bufferAEnviar, t_registros_cpu *registrosCpu);
+t_registros_cpu *desempaquetar_registros(t_buffer *bufferRecibido);
 
 // Create y destroy de la lista de instrucciones
 

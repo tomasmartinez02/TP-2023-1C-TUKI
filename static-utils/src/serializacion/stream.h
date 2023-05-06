@@ -2,6 +2,15 @@
 #ifndef STREAM_H
 #define STREAM_H
 
+// Bibliotecas estandar
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+// Bibliotecas internas
+#include <serializacion/buffer.h>
+
 // Tipos
 // Headers de mensajes para ser enviados en los paquetes
 enum header
@@ -9,19 +18,29 @@ enum header
     HEADER_error,
     HEADER_pid,
     HEADER_lista_instrucciones,
-    //HEADER_interrumpir_ejecucion,
-    //HEADER_marco,
-    //HEADER_memoria_insuficiente,
+    HEADER_tabla_segmentos,
+    HEADER_memoria_insuficiente,
     HEADER_pcb_a_ejecutar,
     HEADER_proceso_bloqueado,
     HEADER_proceso_desalojado,
     HEADER_proceso_terminado,
-    //HEADER_movin,
-    //HEADER_movout,
-    //HEADER_solicitud_tabla_paginas_segmentos,
-    //HEADER_page_fault,
-    //HEADER_page_fault_resuelto,
-    //HEADER_segmentation_fault
+    HEADER_instruccion_movin,
+    HEADER_instruccion_movout,
+    HEADER_instruccion_io,
+    HEADER_instruccion_fopen,
+    HEADER_instruccion_fclose,
+    HEADER_instruccion_fseek,
+    HEADER_instruccion_fread,
+    HEADER_instruccion_fwrite,
+    HEADER_instruccion_ftruncate,
+    HEADER_instruccion_wait,
+    HEADER_instruccion_signal,
+    HEADER_instruccion_create_segment,
+    HEADER_instruccion_delete_segment,
+    HEADER_instruccion_yield,
+    HEADER_instruccion_exit,
+    HEADER_solicitud_inicializacion_proceso,
+    HEADER_segmentation_fault
 };
 typedef enum header t_header;
 
@@ -38,15 +57,6 @@ enum handshake
     HANDSHAKE_ok_continue
 };
 typedef enum handshake t_handshake;
-
-// Bibliotecas estandar
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-// Bibliotecas internas
-#include <serializacion/buffer.h>
 
 // Prototipos
 /**
