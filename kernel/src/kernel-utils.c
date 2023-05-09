@@ -136,3 +136,14 @@ void log_finalizacion_proceso(t_pcb *pcbFinalizado, char *motivoFinalizacion)
     free(pidAmarillo);
     return;
 }
+
+void log_creacion_nuevo_segmento(t_pcb *pcb, uint32_t idSegmento, uint32_t tamanio)
+{
+    char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
+    char *idSegmentoAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
+    char *tamanioAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
+
+    log_info(kernelLogger, "PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pidAmarillo, idSegmentoAmarillo, tamanioAmarillo);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pidAmarillo, idSegmentoAmarillo, tamanioAmarillo);
+    return;
+}

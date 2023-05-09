@@ -102,9 +102,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(tablaSegmentos);
             pcb_set_tabla_segmentos(pcb, bufferTablaSegmentosActualizada);
 
-            // Crear log obligatorio en utils
-            log_info(kernelLogger, "PID: %d - Crear Segmento - Id: %d - Tamaño: %d", pcb_get_pid(pcb), idSegmento, tamanio);
-            log_info(kernelDebuggingLogger, "PID: %d - Crear Segmento - Id: %d - Tamaño: %d", pcb_get_pid(pcb), idSegmento, tamanio);
+            log_creacion_nuevo_segmento(pcb, idSegmento, tamanio);
 
             break;
         }
