@@ -31,6 +31,16 @@ static t_buffer *__recibir_tabla_segmentos(t_pcb *pcbInicializado, int socketMem
     return bufferTablaSegmentos;
 }
 
+// Recibe la base y tamanio de un segmento y los agrega a la tabla de segmentos en su posicion correspondiente segun su id
+static void __agregarSegmentoATabla(uint32_t base, uint32_t tamanio, uint32_t idSegmento, t_info_segmentos **tablaSegmentos)
+{   
+    t_info_segmentos *segmento = tablaSegmentos[idSegmento];
+    info_segmentos_set_direccion_base(segmento, base);
+    info_segmentos_set_tamanio(segmento, tamanio);
+
+    return; 
+}
+
 // Funciones publicas
 
 t_buffer *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) // REVISAR ESTA FUNCION!!!!
@@ -54,10 +64,75 @@ t_buffer *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) /
         }
     }
 
+    uint32_t tamanio_tabla_segmentos;
+    buffer_unpack(tablaSegmentos, &tamanio_tabla_segmentos, sizeof(tamanio_tabla_segmentos));
+    pcb_set_tamanio_tabla_segmentos(pcbAInicializar, tamanio_tabla_segmentos);
+
     t_buffer *tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
     pthread_mutex_unlock(&mutexSocketMemoria);
 
     return tablaSegmentos;
+}
+
+void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t tamanio, t_pcb* pcb)
+{   
+    int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
+
+    pthread_mutex_lock(&mutexSocketMemoria);
+    __enviar_info_segmento_a_crear(idSegmento, tamanio, pid, socketMemoria);
+
+    uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
+
+    switch(respuestaMemoria)
+    {
+        case HEADER_segmento_creado:
+        {
+            t_buffer *bufferBaseNuevoSegmento;
+            stream_recv_buffer(socketMemoria, bufferBaseNuevoSegmento);
+            uint32_t baseNuevoSegmento;
+            buffer_unpack(bufferBaseNuevoSegmento, &baseNuevoSegmento, sizeof(baseNuevoSegmento));
+            buffer_destroy(bufferBaseNuevoSegmento);     
+
+            t_buffer *bufferTablaSegmentos = pcb_get_tabla_segmentos(pcb);       
+            t_info_segmentos *tablaSegmentos= desempaquetar_tabla_segmentos(bufferTablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb)); 
+            buffer_destroy(bufferTablaSegmentos);
+            
+            __agregarSegmentoATabla(baseNuevoSegmento, tamanio, tablaSegmentos); 
+
+            t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(tablaSegmentos);
+            pcb_set_tabla_segmentos(pcb, bufferTablaSegmentosActualizada);
+
+            // Crear log obligatorio en utils
+            log_info(kernelLogger, "PID: %d - Crear Segmento - Id: %d - Tamaño: %d", pcb_get_pid(pcb), idSegmento, tamanio);
+            log_info(kernelDebuggingLogger, "PID: %d - Crear Segmento - Id: %d - Tamaño: %d", pcb_get_pid(pcb), idSegmento, tamanio);
+
+            break;
+        }
+
+        case HEADER_out_of_memory:
+        {
+            // Acá hay que marcar un error
+            break;
+        }
+
+        case HEADER_necesita_compactacion:
+        {
+            // Aca se deberia compactar la memoria y despues crear el segmento
+            break;
+        }
+        
+        default:
+        {   
+            log_error(kernelDebuggingLogger, "Error al intentar crear el segmento solicitado");
+            exit(EXIT_FAILURE);
+            // Aca deberiamos loguear un error
+            break;
+        }
+    }
+
+    pthread_mutex_unlock(&mutexSocketMemoria);
+
+    return;
 }
 
 

@@ -397,7 +397,11 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 break;
             }
             case HEADER_instruccion_create_segment:
-            {
+            {   
+                uint32_t idSegmento;
+                uint32_t tamanio; 
+                recibir_buffer_instruccion_create_segment(idSegmento, tamanio);
+                adapter_memoria_pedir_creacion_segmento(idSegmento, tamanio, pcbEnEjecucion);
                 break;
             }
             case HEADER_instruccion_delete_segment:

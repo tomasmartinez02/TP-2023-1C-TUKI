@@ -9,6 +9,7 @@
 // Bibliotecas commons
 #include <commons/log.h>
 #include <commons/collections/list.h>
+#include <commons/collections/dictionary.h>
 
 //Static-utils libraries
 #include <serializacion/buffer.h>
@@ -30,8 +31,7 @@ struct kernel_config
     double ESTIMACION_INICIAL;
     double HRRN_ALFA;
     uint32_t GRADO_MAX_MULTIPROGRAMACION;
-    char **RECURSOS;
-    char **INSTANCIAS_RECURSOS;
+    t_dictionary *DICCIONARIO_SEMAFOROS_RECURSOS;
     int SOCKET_MEMORIA;
     int SOCKET_CPU;
     int SOCKET_FILESYSTEM;
@@ -46,6 +46,7 @@ enum nombre_estado
     EXEC,
     EXIT,
     BLOCKED,
+    RECURSO
 };
 typedef enum nombre_estado t_nombre_estado;
 
@@ -69,7 +70,8 @@ struct pcb
     t_registros_cpu* registrosCpu;
     double estimadoProxRafaga;
     timestamp *tiempoLlegadaReady;
-    t_list *archivosAbiertos; 
+    t_list *archivosAbiertos;
+    uint32_t tamanioTablaSegmentos; 
     t_buffer *tablaSegmentos;
     t_nombre_estado estadoActual; 
     t_nombre_estado estadoDeFinalizacion;
@@ -84,6 +86,13 @@ struct pcb
     */
 };
 typedef struct pcb t_pcb;
+
+struct semaforo_recurso
+{
+    uint32_t instancias;
+    t_estado *estadoRecurso;
+};
+typedef struct semaforo_recurso t_semaforo_recurso;
 
 // Variables globales
 extern t_log *kernelDebuggingLogger;

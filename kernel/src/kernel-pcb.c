@@ -151,6 +151,18 @@ void pcb_set_tabla_segmentos(t_pcb *pcb, t_buffer *tablaSegmentos)
     return;
 }
 
+// Get y Set tamanio tabla segmentos
+
+uint32_t pcb_get_tamanio_tabla_segmentos (t_pcb *pcb)
+{
+    return pcb->tamanioTablaSegmentos;
+}
+
+void pcb_set_tamanio_tabla_segmentos (t_pcb *pcb, uint32_t tamanioTablaSegmentos) 
+{
+    pcb->tamanioTablaSegmentos = tamanioTablaSegmentos;
+}
+
 // Set y Get Tiempo de Llegada a Ready PCB
 
 timestamp *pcb_get_tiempo_llegada_ready(t_pcb *pcb)

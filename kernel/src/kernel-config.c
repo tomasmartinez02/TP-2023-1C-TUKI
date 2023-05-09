@@ -19,8 +19,14 @@ static void __kernel_config_initializer(void *moduleConfig, t_config *tempCfg)
     kernelConfig->ESTIMACION_INICIAL = config_get_double_value(tempCfg, "ESTIMACION_INICIAL");
     kernelConfig->HRRN_ALFA = config_get_double_value(tempCfg, "HRRN_ALFA");
     kernelConfig->GRADO_MAX_MULTIPROGRAMACION = (uint32_t) config_get_int_value(tempCfg, "GRADO_MAX_MULTIPROGRAMACION");
-    kernelConfig->RECURSOS = config_get_array_value(tempCfg, "RECURSOS");
-    kernelConfig->INSTANCIAS_RECURSOS = config_get_array_value(tempCfg, "INSTANCIAS_RECURSOS");
+    
+    // Inicializacion recursos e instancias recursos en diccionario
+    char **recursos = config_get_array_value(tempCfg, "RECURSOS");
+    char **instanciasRecursos = config_get_array_value(tempCfg, "INSTANCIAS_RECURSOS");
+    kernelConfig -> DICCIONARIO_SEMAFOROS_RECURSOS = crear_diccionario_semaforos_recursos(recursos, instanciasRecursos);
+    string_array_destroy(instanciasRecursos);
+    string_array_destroy(recursos);
+
     kernelConfig->SOCKET_MEMORIA = -1;
     kernelConfig->SOCKET_CPU = -1;
     kernelConfig->SOCKET_FILESYSTEM = -1;
@@ -56,8 +62,8 @@ void kernel_config_destroy(t_kernel_config *self)
     // free(self-> ESTIMACION_INICIAL);       Estos 3 no los liberamos porque son ints
     // free(self-> HRRN_ALFA);
     // free(self-> GRADO_MAX_MULTIPROGRAMACION);
-    string_array_destroy(self->RECURSOS);
-    string_array_destroy(self->INSTANCIAS_RECURSOS);
+    destruir_diccionario_semaforos_recursos(self->DICCIONARIO_SEMAFOROS_RECURSOS);
+
     free(self);
 
     return;
@@ -123,16 +129,6 @@ double kernel_config_get_hrrn_alfa(t_kernel_config *self)
 uint32_t kernel_config_get_grado_max_multiprogramacion(t_kernel_config *self)
 {
     return self->GRADO_MAX_MULTIPROGRAMACION;
-}
-
-char **kernel_config_get_recursos(t_kernel_config *self)
-{
-    return self->RECURSOS;
-}
-
-char **kernel_config_get_instancias_recursos(t_kernel_config *self)
-{
-    return self->INSTANCIAS_RECURSOS;
 }
 
 int kernel_config_get_socket_memoria(t_kernel_config *self)

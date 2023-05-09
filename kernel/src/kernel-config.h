@@ -14,6 +14,7 @@
 //Bibliotecas internas modulo kernel
 //#include <kernel-utils.h>
 #include <kernel-estructuras.h>
+#include <kernel-semaforos-recursos.h>
 
 /**
  * @brief Crea una instancia de t_kernel_config y la instancia segun el archivo de configuracion pasado por path
@@ -155,26 +156,6 @@ double kernel_config_get_hrrn_alfa(t_kernel_config *self);
  * @example char *gradoMaxMultiprogramacion = kernel_config_get_grado_max_multiprogramacion(kernelConfig);
  */
 uint32_t kernel_config_get_grado_max_multiprogramacion(t_kernel_config *self);
-
-/**
- * @brief Toma el valor de los recursos guardado en configuracion
- * 
- * @param self: Estructura de configuracion del kernel
- * @return char*: Recursos guardados en la configuracion
- * 
- * @example char **recursos = kernel_config_get_recursos(kernelConfig);
- */
-char **kernel_config_get_recursos(t_kernel_config *self);
-
-/**
- * @brief Toma el valor de las instancias de los recursos guardado en configuracion
- * 
- * @param self: Estructura de configuracion del kernel
- * @return char*: Recursos guardados en la configuracion
- * 
- * @example char **instanciasRecursos = kernel_config_get_instancias_recursos(kernelConfig);
- */
-char **kernel_config_get_instancias_recursos(t_kernel_config *self);
 
 /**
  * @brief Toma el descriptor del socket de memoria guardado en configuracion

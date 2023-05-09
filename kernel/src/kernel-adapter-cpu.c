@@ -33,7 +33,7 @@ static void __enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
     t_buffer *bufferPcb = __serializar_pcb_para_ejecucion(pcbAEnviar);
     stream_send_buffer(socketCpu, HEADER_pcb_a_ejecutar, bufferPcb);
     buffer_destroy(bufferPcb);
-
+    // Nunca recibimos tamanio tabla segmentos
     t_buffer *bufferTablaSegmentos = pcb_get_tabla_segmentos(pcbAEnviar);
     stream_send_buffer(socketCpu, HEADER_tabla_segmentos, bufferTablaSegmentos);
 
@@ -179,6 +179,26 @@ void recibir_buffer_instruccion_fseek(char **nombreArchivo, uint32_t *ubicacionN
     *ubicacionNueva = ubicacion;
 
     buffer_destroy(bufferFseek);
+
+    return;
+}
+
+void recibir_buffer_instruccion_create_segment(uint32_t *idSegmento, uint32_t *tamanio)
+{   
+    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+
+    t_buffer *bufferCreateSegment = buffer_create();
+    stream_recv_buffer(socketCpu, bufferCreateSegment);
+
+    uint32_t idSegmentoNuevo;
+    buffer_unpack(bufferCreateSegment, &idSegmentoNuevo, sizeof(idSegmentoNuevo));
+    *idSegmento = idSegmentoNuevo;
+
+    uint32_t tamanioNuevo;
+    buffer_unpack(bufferCreateSegment, &tamanioNuevo, sizeof(tamanioNuevo));
+    *tamanio = tamanioNuevo;
+
+    buffer_destroy(bufferCreateSegment);
 
     return;
 }

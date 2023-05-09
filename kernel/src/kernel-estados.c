@@ -67,6 +67,13 @@ static t_pcb *__estado_obtener_pcb_segun_maximo_hrrn_atomic(t_estado * estado)
     return pcbSeleccionado;
 }
 
+// Retorna si el estado contiene pcbs en su lista
+static bool __estado_contiene_pcbs(t_estado *estado)
+{
+    t_list *listaEstado = estado_get_list(estado);
+
+    return !list_is_empty(listaEstado);
+}
 
 // Funciones publicas
 
@@ -146,12 +153,21 @@ bool estado_contiene_pcb_atomic(t_estado *self, t_pcb *pcbBuscado)
     return contienePcb;
 }
 
-t_pcb *estado_remover_pcb_segun_maximo_hrrn_atomic(t_estado * estado)
+t_pcb *estado_remover_pcb_segun_maximo_hrrn_atomic(t_estado *estado)
 {
     t_pcb *pcbObtenido = __estado_obtener_pcb_segun_maximo_hrrn_atomic(estado);
     t_pcb *pcbMaximoHrrn = estado_remover_pcb_de_cola_atomic(estado, pcbObtenido);
 
     return pcbMaximoHrrn;
+}
+
+bool estado_contiene_pcbs_atomic(t_estado *estado)
+{
+    pthread_mutex_lock(estado_get_semaforo(estado));
+    bool contienePcbs = __estado_contiene_pcbs(estado);
+    pthread_mutex_lock(estado_get_semaforo(estado));
+
+    return contienePcbs;
 }
 
 t_nombre_estado estado_get_nombre_estado(t_estado *self)
