@@ -24,6 +24,7 @@
 #include <kernel-adapter-memoria.h>
 #include <kernel-adapter-cpu.h>
 #include <kernel-pcb.h>
+#include <kernel-instrucciones.h>
 
 //Bibliotecas Static Utils
 #include <serializacion/buffer.h>

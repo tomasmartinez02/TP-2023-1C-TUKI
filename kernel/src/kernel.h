@@ -28,6 +28,8 @@
 #include <kernel-estados.h>
 #include <kernel-pcb.h>
 #include <kernel-planificacion.h>
+#include <kernel-instrucciones.h>
+#include <kernel-semaforos-recursos.h>
 
 // Estructuras (TADS)
 

@@ -194,6 +194,20 @@ static void __pcb_pasar_de_blocked_a_exit(t_pcb* pcbAExit)
     return;
 }
 
+void pcb_pasar_de_blocked_a_ready_public(t_pcb* pcbAReady)
+{   
+    __pcb_pasar_de_blocked_a_ready(pcbAReady);
+    return;
+}
+
+void pcb_pasar_de_running_a_blocked_public(t_pcb* pcbABlocked)
+{   
+    __pcb_pasar_de_running_a_blocked(pcbABlocked);
+    return;
+}
+
+
+
 // Termina el proceso del cual se le pasa el PCB
 static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 {
@@ -345,6 +359,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
             case HEADER_instruccion_io:
             {
                 uint32_t tiempoEjecucion = recibir_buffer_instruccion_io();
+                ejecutar_instruccion_io(pcbEnEjecucion, tiempoEjecucion);
                 break;
             }
             case HEADER_instruccion_fopen:
@@ -384,16 +399,16 @@ static void *__ejecucion_desalojo_pcb(void *args)
             }
             case HEADER_instruccion_wait:
             {   
-                char* recurso = recibir_buffer_instruccion_con_recurso();
-
-                free(recurso);
+                char* nombreRecurso = recibir_buffer_instruccion_con_recurso();
+                ejecutar_instruccion_wait(pcbEnEjecucion, nombreRecurso);
+                free(nombreRecurso);
                 break;
             }
             case HEADER_instruccion_signal:
             {
-                char* recurso = recibir_buffer_instruccion_con_recurso();
-
-                free(recurso);
+                char* nombreRecurso = recibir_buffer_instruccion_con_recurso();
+                ejecutar_instruccion_signal(pcbEnEjecucion, nombreRecurso);
+                free(nombreRecurso);
                 break;
             }
             case HEADER_instruccion_create_segment:

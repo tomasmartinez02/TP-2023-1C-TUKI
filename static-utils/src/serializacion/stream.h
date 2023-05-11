@@ -40,7 +40,10 @@ enum header
     HEADER_instruccion_yield,
     HEADER_instruccion_exit,
     HEADER_solicitud_inicializacion_proceso,
-    HEADER_segmentation_fault
+    HEADER_segmentation_fault,
+    HEADER_necesita_compactacion,
+    HEADER_segmento_creado,
+    HEADER_out_of_memory
 };
 typedef enum header t_header;
 

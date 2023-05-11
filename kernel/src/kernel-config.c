@@ -160,3 +160,8 @@ void kernel_config_set_socket_filesystem(t_kernel_config *self, int socketFilesy
 {
     self->SOCKET_FILESYSTEM = socketFilesystem;
 }
+
+t_dictionary *kernel_config_get_diccionario_semaforos(t_kernel_config *self) 
+{
+    return self->DICCIONARIO_SEMAFOROS_RECURSOS;
+}

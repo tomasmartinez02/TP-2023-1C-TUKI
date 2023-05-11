@@ -143,7 +143,53 @@ void log_creacion_nuevo_segmento(t_pcb *pcb, uint32_t idSegmento, uint32_t taman
     char *idSegmentoAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
     char *tamanioAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
 
-    log_info(kernelLogger, "PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pidAmarillo, idSegmentoAmarillo, tamanioAmarillo);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pidAmarillo, idSegmentoAmarillo, tamanioAmarillo);
+    log_info(kernelLogger, "PID: <%s> - Crear Segmento - Id: <%s> - Tamaño: <%s>", pidAmarillo, idSegmentoAmarillo, tamanioAmarillo);
+    log_info(kernelDebuggingLogger, "PID: <%s> - Crear Segmento - Id: <%s> - Tamaño: <%s>", pidAmarillo, idSegmentoAmarillo, tamanioAmarillo);
+    
+    free(pidAmarillo);
+    free(idSegmentoAmarillo);
+    free(tamanioAmarillo);
     return;
 }
+
+void log_ejecucion_wait(t_pcb* pcb, char* nombreRecurso, uint32_t instanciasRecurso)
+{   
+    char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
+    char *nombreRecursoAmarillo = string_to_yellow_string(nombreRecurso);
+    char *instanciasRecursoAmarillo = int_to_yellow_string(instanciasRecurso);
+
+    log_info(kernelLogger, "PID: <%s> - Wait: <%s> - Instancias: <%s>", pidAmarillo, nombreRecursoAmarillo, instanciasRecursoAmarillo);
+    log_info(kernelDebuggingLogger, "PID: <%s> - Wait: <%s> - Instancias: <%s>", pidAmarillo, nombreRecursoAmarillo, instanciasRecursoAmarillo);
+    
+    free(pidAmarillo);
+    free(nombreRecursoAmarillo);
+    free(instanciasRecursoAmarillo);
+    return;
+}
+
+void log_ejecucion_signal(t_pcb* pcb, char* nombreRecurso, uint32_t instanciasRecurso)
+{   
+    char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
+    char *nombreRecursoAmarillo = string_to_yellow_string(nombreRecurso);
+    char *instanciasRecursoAmarillo = int_to_yellow_string(instanciasRecurso);
+
+    log_info(kernelLogger, "PID: <%s> - Signal: <%s> - Instancias: <%s>", pidAmarillo, nombreRecursoAmarillo, instanciasRecursoAmarillo);
+    log_info(kernelDebuggingLogger, "PID: <%s> - Signal: <%s> - Instancias: <%s>", pidAmarillo, nombreRecursoAmarillo, instanciasRecursoAmarillo);
+    free(pidAmarillo);
+    free(nombreRecursoAmarillo);
+    free(instanciasRecursoAmarillo);
+    return;
+}
+
+void log_ejecucion_io(t_pcb* pcb, uint32_t tiempo)
+{   
+    char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
+    char *tiempoAmarillo = int_to_yellow_string(tiempo);
+
+    log_info(kernelLogger, "PID: <%s> - Ejecuta IO: <%s>" , pidAmarillo, tiempoAmarillo);
+    log_info(kernelDebuggingLogger, "PID: <%s> - Ejecuta IO: <%s>" , pidAmarillo, tiempoAmarillo);
+    free(pidAmarillo);
+    free(tiempoAmarillo);
+    return;   
+}
+
