@@ -22,6 +22,7 @@ bool semaforo_recurso_puedo_utilizar_recurso(t_semaforo_recurso *self);
 bool semaforo_recurso_hay_procesos_bloqueados(t_semaforo_recurso *self);
 void semaforo_recurso_bloquear_proceso(t_semaforo_recurso *self, t_pcb *pcbBloqueado);
 t_pcb *semaforo_recurso_desbloquear_primer_proceso_bloqueado(t_semaforo_recurso *self);
+bool semaforo_recurso_debe_bloquear_proceso(t_semaforo_recurso *self);
 
 // Interfaz de diccionario semaforos recursos
 

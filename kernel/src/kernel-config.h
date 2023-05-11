@@ -217,5 +217,6 @@ void kernel_config_set_socket_cpu(t_kernel_config *self, int socketCpu);
  */
 void kernel_config_set_socket_filesystem(t_kernel_config *self, int socketFilesystem);
 
+t_dictionary *kernel_config_get_diccionario_semaforos(t_kernel_config *self);
 
 #endif

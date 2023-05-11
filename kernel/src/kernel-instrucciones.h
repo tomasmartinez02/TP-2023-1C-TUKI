@@ -8,8 +8,8 @@
 #include <kernel-planificacion.h>
 #include <unistd.h>
 
-void* ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempoEjecucion);
-void* ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *recurso);
-void *ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *recurso);
+void ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempoEjecucion);
+void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *recurso);
+void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *recurso);
 
 #endif

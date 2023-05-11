@@ -207,7 +207,6 @@ void pcb_pasar_de_running_a_blocked_public(t_pcb* pcbABlocked)
 }
 
 
-
 // Termina el proceso del cual se le pasa el PCB
 static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 {
@@ -230,6 +229,13 @@ static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
             break;
     }
     log_finalizacion_proceso(pcbFinalizado, motivoFinalizacion);
+}
+
+void pcb_pasar_de_running_a_exit_public(t_pcb* pcbAExit)
+{   
+    __pcb_pasar_de_running_a_exit(pcbAExit);
+    __terminar_proceso(pcbAExit, "El recurso solicitado no existe");
+    return;
 }
 
 // Planificadores
