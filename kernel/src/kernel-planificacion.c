@@ -161,10 +161,11 @@ static void __pcb_pasar_de_null_a_new(t_pcb* pcbANew)
 }
 
 // Funcion generica para pasar un pcb a Exit desde cualquier estado
-static void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo)
+static void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo) // Habria que borrar estructuras de memoria
 {
     pcb_set_estado_finalizacion(pcbAExit, pcb_get_estado_actual(pcbAExit));
     pcb_set_proceso_bloqueado_o_terminado(pcbAExit, true);
+    log_finalizacion_proceso(pcbAExit, stringEstadoViejo);
     __pcb_pasar_de_estado(pcbAExit, estadoExit, stringEstadoViejo, ESTADO_EXIT);
 
     return;
@@ -427,6 +428,9 @@ static void *__ejecucion_desalojo_pcb(void *args)
             }
             case HEADER_instruccion_delete_segment:
             {
+                uint32_t idSegmento;
+                idSegmento = recibir_buffer_instruccion_delete_segment();
+                adapter_memoria_pedir_eliminar_segmento(idSegmento, pcbEnEjecucion);
                 break;
             }
         } 
