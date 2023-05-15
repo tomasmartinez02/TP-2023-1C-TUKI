@@ -54,6 +54,12 @@ void intervalo_de_pausa(uint32_t duracionEnMilisegundos)
     return;
 }
 
+void* sleepHilo(void* tiempoIo) {
+    uint32_t tiempo = *(uint32_t*) tiempoIo;
+    sleep(tiempo);
+    return NULL;
+}
+
 void module_destroy(void *moduleConfig, void (*config_destroyer)(void *moduleConfig), t_log *moduleLogger, t_log *moduleMinimalLogger)
 {
     config_destroyer(moduleConfig);

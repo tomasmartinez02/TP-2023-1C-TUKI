@@ -3,8 +3,12 @@
 //  El proceso se bloquea por una cantidad determinada de tiempo.
 void ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempo)
 {
+    pthread_t ejecutarTiempoIO;
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
-    intervalo_de_pausa(tiempo);
+
+    pthread_create(&ejecutarTiempoIO, NULL, sleepHilo, (void*) &tiempo);
+    pthread_detach(ejecutarTiempoIO);
+
     pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
     return;
 }
@@ -53,10 +57,10 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
     if(semaforo_recurso_hay_procesos_bloqueados(semaforoRecurso) && instaciasDisponibles > 0)
     {
         pcbAEjecutar = semaforo_recurso_desbloquear_primer_proceso_bloqueado(semaforoRecurso);
+        // Desbloquea al primer proceso de la cola de bloqueados del recurso 
+        pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
     }
 
-     // Devolver la ejecucion al proceso que peticiono el SIGNAL
-    pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
-
+     // Seguir la ejecucion del proceso que peticiono el SIGNAL
     return;
 }
