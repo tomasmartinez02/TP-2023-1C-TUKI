@@ -372,14 +372,14 @@ static void *__ejecucion_desalojo_pcb(void *args)
             case HEADER_instruccion_fopen:
             {   
                 char *nombreArchivo = recibir_buffer_instruccion_fopen();
-
+                ejecutar_instruccion_fopen(pcbEnEjecucion, nombreArchivo);
                 free(nombreArchivo);
                 break;
             }
             case HEADER_instruccion_fclose:
             {
                 char *nombreArchivo = recibir_buffer_instruccion_fclose();
-
+                ejecutar_instruccion_fclose(pcbEnEjecucion, nombreArchivo);
                 free(nombreArchivo);
                 break;
             }
@@ -388,7 +388,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 char *nombreArchivo = NULL;
                 uint32_t ubicacionNueva;
                 recibir_buffer_instruccion_fseek(&nombreArchivo, &ubicacionNueva);
-
+                ejecutar_instruccion_fseek(pcbEnEjecucion, nombreArchivo, ubicacionNueva);
                 free(nombreArchivo);
                 break;
             }

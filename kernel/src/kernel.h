@@ -30,6 +30,9 @@
 #include <kernel-planificacion.h>
 #include <kernel-instrucciones.h>
 #include <kernel-semaforos-recursos.h>
+#include <kernel-adapter-cpu.h>
+#include <kernel-adapter-filesystem.h>
+#include <kernel-adapter-memoria.h>
 
 // Estructuras (TADS)
 

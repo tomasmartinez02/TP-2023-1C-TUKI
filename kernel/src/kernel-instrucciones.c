@@ -70,3 +70,18 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
      // Seguir la ejecucion del proceso que peticiono el SIGNAL
     return;
 }
+
+void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
+{
+    return;
+}
+
+void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)
+{
+    return;
+}
+
+void ejecutar_instruccion_fseek(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t ubicacionNueva)
+{
+    return;
+}
