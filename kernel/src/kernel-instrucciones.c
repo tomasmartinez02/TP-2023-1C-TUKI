@@ -1,4 +1,10 @@
 #include <kernel-instrucciones.h>
+// Utils
+void* sleepHilo(void* tiempoIo) {
+    uint32_t tiempo = *(uint32_t*) tiempoIo;
+    sleep(tiempo);
+    return NULL;
+}
 
 //  El proceso se bloquea por una cantidad determinada de tiempo.
 void ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempo)
