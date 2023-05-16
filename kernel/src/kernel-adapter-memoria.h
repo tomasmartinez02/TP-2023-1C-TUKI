@@ -7,6 +7,7 @@
 
 #include <kernel-estructuras.h>
 #include <kernel-pcb.h>
+#include <kernel-planificacion.h>
 
 #include <serializacion/stream.h>
 #include <utils/common-utils.h>
@@ -35,7 +36,8 @@ t_buffer *adapter_memoria_pedir_inicializacion_proceso (t_pcb *pcbAMandar);
  */
 void adapter_memoria_finalizar_proceso (t_pcb *pcbATerminar);
 
-
-
+void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t tamanio, t_pcb* pcb);
+void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb);
+void adapter_memoria_pedir_compactacion(); 
 
 #endif

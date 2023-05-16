@@ -56,5 +56,6 @@ void pcb_set_registros_cpu(t_pcb *pcb, t_registros_cpu *registrosCpu);
 void pcb_set_tabla_segmentos(t_pcb *pcb, t_buffer *tablaSegmentos);
 void *comparar_pcb_segun_hrrn(void *pcbA, void *pcbB);
 void pcb_estimar_proxima_rafaga(t_pcb *pcbEjecutado, double tiempoRealEjecutadoEnCpu);
-
+void pcb_set_tamanio_tabla_segmentos (t_pcb *pcb, uint32_t tamanioTablaSegmentos); 
+uint32_t pcb_get_tamanio_tabla_segmentos (t_pcb *pcb);
 #endif 

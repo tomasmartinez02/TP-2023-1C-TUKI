@@ -49,7 +49,7 @@ static void __enviar_info_segmento_a_crear (uint32_t idSegmento, uint32_t tamani
     buffer_pack(bufferAEnviar, &id, sizeof(id));
 
     uint32_t tamanioSegmento = tamanio;
-    buffer_pack(bufferAEnviar, &id, sizeof(id));
+    buffer_pack(bufferAEnviar, &id, sizeof(tamanioSegmento));
 
     uint32_t pidProceso = pid;
     buffer_pack(bufferAEnviar, &pidProceso, sizeof(pidProceso));
@@ -60,7 +60,7 @@ static void __enviar_info_segmento_a_crear (uint32_t idSegmento, uint32_t tamani
     return;
 }
 
-static void __enviar_pedido_compactacion(socketMemoria)
+static void __enviar_pedido_compactacion(int socketMemoria)
 {
     stream_send_empty_buffer(socketMemoria, HEADER_necesita_compactacion); // No se si este header esta creado
 
@@ -91,11 +91,12 @@ t_buffer *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) /
         }
     }
 
+    t_buffer *tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
+
     uint32_t tamanio_tabla_segmentos;
     buffer_unpack(tablaSegmentos, &tamanio_tabla_segmentos, sizeof(tamanio_tabla_segmentos));
     pcb_set_tamanio_tabla_segmentos(pcbAInicializar, tamanio_tabla_segmentos);
 
-    t_buffer *tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
     pthread_mutex_unlock(&mutexSocketMemoria);
 
     return tablaSegmentos;
@@ -106,7 +107,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
     pthread_mutex_lock(&mutexSocketMemoria);
-    __enviar_info_segmento_a_crear(idSegmento, tamanio, pid, socketMemoria);
+    __enviar_info_segmento_a_crear(idSegmento, tamanio, pcb_get_pid(pcb), socketMemoria);
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 
@@ -121,17 +122,17 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             buffer_destroy(bufferBaseNuevoSegmento);     
 
             t_buffer *bufferTablaSegmentos = pcb_get_tabla_segmentos(pcb);       
-            t_info_segmentos *tablaSegmentos= desempaquetar_tabla_segmentos(bufferTablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb)); 
+            t_info_segmentos *tablaSegmentos = *desempaquetar_tabla_segmentos(bufferTablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb));
             buffer_destroy(bufferTablaSegmentos);
             
-            __agregarSegmentoATabla(baseNuevoSegmento, tamanio, tablaSegmentos); 
+            //__agregarSegmentoATabla(baseNuevoSegmento, tamanio, tablaSegmentos); MUY IMPORTANTE VER ESTO
 
             t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(tablaSegmentos);
             pcb_set_tabla_segmentos(pcb, bufferTablaSegmentosActualizada);
 
             log_creacion_nuevo_segmento(pcb, idSegmento, tamanio);
 
-            __enviar_pcb_a_cpu(pcb);
+            enviar_pcb_a_cpu(pcb);
 
             pthread_mutex_unlock(&mutexSocketMemoria);
 
@@ -167,7 +168,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
     return;
 }
 
-void adapter_memoria_pedir_compactacion(uint32_t socketMemoria) 
+void adapter_memoria_pedir_compactacion() 
 {
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
@@ -216,11 +217,15 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
 void actualizarTablaSegmentos(void* elemento, t_buffer* nuevoValor) {
     t_pcb* pcb = (t_pcb*)elemento;
     // Realiza la actualización del campo tablaSegmentos en el pcb
-    pcb->tablaSegmentos = nuevoValor;
+    pcb->tablaSegmentos = nuevoValor; 
 }
 
 void actualizarTablasSegmentosEnListaProcesos(t_estado* estado, t_buffer* nuevoValor) {
-    list_iterate(estado->listaProcesos, actualizarTablaSegmentos, nuevoValor);
+    /* void* __list_iter(void* list_elem) {
+        list_ele
+    }
+    }
+    list_iterate(estado->listaProcesos, actualizarTablaSegmentos, nuevoValor);*/
 }
 
 void funcion2(void* lista, t_buffer bufferTablaSegmentos) {

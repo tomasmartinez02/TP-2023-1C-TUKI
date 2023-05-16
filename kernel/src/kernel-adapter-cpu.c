@@ -26,7 +26,7 @@ static t_buffer *__serializar_pcb_para_ejecucion(t_pcb *pcb)
 }
 
 // Envia pcb + tabla segmentos + instrucciones a cpu
-static void __enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
+void enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
 {
     int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
     
@@ -105,7 +105,7 @@ static t_header __recibir_header_instruccion_de_cpu()
 
 void ejecutar_proceso(t_pcb* pcbAEjecutar)
 {
-    __enviar_pcb_a_cpu(pcbAEjecutar);
+    enviar_pcb_a_cpu(pcbAEjecutar);
     return;
 }
 
@@ -201,4 +201,20 @@ void recibir_buffer_instruccion_create_segment(uint32_t *idSegmento, uint32_t *t
     buffer_destroy(bufferCreateSegment);
 
     return;
+}
+
+uint32_t recibir_buffer_instruccion_delete_segment()
+{   
+    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+
+    t_buffer *bufferDeleteSegment = buffer_create();
+    stream_recv_buffer(socketCpu, bufferDeleteSegment);
+
+    uint32_t idSegmentoAEliminar;
+    buffer_unpack(bufferDeleteSegment, &idSegmentoAEliminar, sizeof(idSegmentoAEliminar));
+    idSegmento = idSegmentoAEliminar;
+
+    buffer_destroy(bufferDeleteSegment);
+
+    return idSegmento;
 }

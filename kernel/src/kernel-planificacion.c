@@ -422,7 +422,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
             {   
                 uint32_t idSegmento;
                 uint32_t tamanio; 
-                recibir_buffer_instruccion_create_segment(idSegmento, tamanio);
+                recibir_buffer_instruccion_create_segment(&idSegmento, &tamanio);
                 adapter_memoria_pedir_creacion_segmento(idSegmento, tamanio, pcbEnEjecucion);
                 break;
             }
