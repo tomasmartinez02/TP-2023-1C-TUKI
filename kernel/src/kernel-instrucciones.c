@@ -1,21 +1,35 @@
 #include <kernel-instrucciones.h>
 // Utils
-void* sleepHilo(void* tiempoIo) {
-    uint32_t tiempo = *(uint32_t*) tiempoIo;
+struct parametrosHilo{
+    t_pcb* pcb;
+    uint32_t tiempo;
+} ParametrosHilo;
+typedef struct parametrosHilo t_parametros_hilo;
+
+void* sleepHilo(void* parametrosHilo) {
+    t_parametros_hilo* parametros = (t_parametros_hilo*)parametrosHilo;
+    uint32_t tiempo = parametros->tiempo;
+    t_pcb *pcbEnEjecucion = parametros->pcb;
+
     sleep(tiempo);
+    pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
+
+    free(parametros);
     return NULL;
 }
 
 //  El proceso se bloquea por una cantidad determinada de tiempo.
 void ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempo)
-{
+{   
     pthread_t ejecutarTiempoIO;
+    t_parametros_hilo* parametrosHilo = (t_parametros_hilo*)malloc(sizeof(t_parametros_hilo));
+    parametrosHilo->tiempo = tiempo;
+    parametrosHilo->pcb = pcbEnEjecucion;
+
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
 
-    pthread_create(&ejecutarTiempoIO, NULL, sleepHilo, (void*) &tiempo);
+    pthread_create(&ejecutarTiempoIO, NULL, sleepHilo, (void*) parametrosHilo);
     pthread_detach(ejecutarTiempoIO);
-
-    pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
     return;
 }
 
