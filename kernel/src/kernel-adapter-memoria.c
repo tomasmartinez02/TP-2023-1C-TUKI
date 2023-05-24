@@ -54,7 +54,7 @@ static void __enviar_info_segmento_a_crear (uint32_t idSegmento, uint32_t tamani
     uint32_t pidProceso = pid;
     buffer_pack(bufferAEnviar, &pidProceso, sizeof(pidProceso));
 
-    stream_send_buffer(socketMemoria, 1/*HEADER_crear_segmento*/, bufferAEnviar); // Este header hay que crearlo
+    stream_send_buffer(socketMemoria, HEADER_crear_segmento, bufferAEnviar); 
     buffer_destroy(bufferAEnviar);
 
     return;
@@ -182,7 +182,7 @@ void adapter_memoria_pedir_compactacion()
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 
-    if(respuestaMemoria == 1/*HEADER_memoria_compactada*/) // Este header hay que crearlo
+    if(respuestaMemoria == HEADER_memoria_compactada)
     { 
         t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
@@ -206,7 +206,7 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 
-    if(respuestaMemoria == 1/*HEADER_segmento_destruido*/) // Este header hay que crearlo
+    if(respuestaMemoria == HEADER_segmento_destruido)
     { 
         t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
