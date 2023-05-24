@@ -39,6 +39,8 @@ enum header
     HEADER_instruccion_delete_segment,
     HEADER_instruccion_yield,
     HEADER_instruccion_exit,
+    HEADER_tiempo_io,
+    HEADER_dispositivo_io,
     HEADER_solicitud_inicializacion_proceso,
     HEADER_segmentation_fault
 };

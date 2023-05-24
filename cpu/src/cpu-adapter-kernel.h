@@ -21,5 +21,8 @@ t_cpu_pcb* recibir_pcb_de_kernel();
 void enviar_pcb_desalojado_a_kernel(t_cpu_pcb *pcb);
 void enviar_motivo_desalojo_exit(void);
 void enviar_motivo_desalojo_yield(void);
+void enviar_motivo_desalojo_io(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_signal(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_wait(t_instruccion *siguienteInstruccion);
 
 #endif

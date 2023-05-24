@@ -73,6 +73,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
             incrementar_program_counter(pcb);
             enviar_pcb_desalojado_a_kernel(pcb);
+            enviar_motivo_desalojo_io(siguienteInstruccion);
             terminarEjecucion = true;
             break;
         }
@@ -129,6 +130,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
             incrementar_program_counter(pcb);
             enviar_pcb_desalojado_a_kernel(pcb);
+            enviar_motivo_desalojo_wait(siguienteInstruccion);
             terminarEjecucion = true;
             break;
         }
@@ -137,6 +139,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
             incrementar_program_counter(pcb);
             enviar_pcb_desalojado_a_kernel(pcb);
+            enviar_motivo_desalojo_signal(siguienteInstruccion);
             terminarEjecucion = true;
             break;
         }
