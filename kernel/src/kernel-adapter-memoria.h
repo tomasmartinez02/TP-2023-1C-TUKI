@@ -13,7 +13,6 @@
 #include <utils/common-utils.h>
 #include <serializacion/buffer.h>
 
-
 // Acá hay q ver cuales poner
 
 // Prototipos
@@ -36,8 +35,12 @@ t_buffer *adapter_memoria_pedir_inicializacion_proceso (t_pcb *pcbAMandar);
  */
 void adapter_memoria_finalizar_proceso (t_pcb *pcbATerminar);
 
+void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo);
+
 void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t tamanio, t_pcb* pcb);
 void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb);
 void adapter_memoria_pedir_compactacion(); 
+
+void actualizar_tabla_segmentos(t_buffer *bufferTablaSegmentos, t_list *listaProcesos);
 
 #endif

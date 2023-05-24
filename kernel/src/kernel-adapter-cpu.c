@@ -212,7 +212,7 @@ uint32_t recibir_buffer_instruccion_delete_segment()
 
     uint32_t idSegmentoAEliminar;
     buffer_unpack(bufferDeleteSegment, &idSegmentoAEliminar, sizeof(idSegmentoAEliminar));
-    idSegmento = idSegmentoAEliminar;
+    uint32_t idSegmento = idSegmentoAEliminar;
 
     buffer_destroy(bufferDeleteSegment);
 

@@ -99,4 +99,11 @@ extern t_log *kernelDebuggingLogger;
 extern t_log *kernelLogger;
 extern t_kernel_config *kernelConfig;
 
+// Estados
+extern t_estado *estadoNew;
+extern t_estado *estadoReady;
+extern t_estado *estadoExecute;
+extern t_estado *estadoBlocked; 
+extern t_estado *estadoExit;
+
 #endif

@@ -54,7 +54,7 @@ static void __enviar_info_segmento_a_crear (uint32_t idSegmento, uint32_t tamani
     uint32_t pidProceso = pid;
     buffer_pack(bufferAEnviar, &pidProceso, sizeof(pidProceso));
 
-    stream_send_buffer(socketMemoria, HEADER_crear_segmento, bufferAEnviar); // Este header hay que crearlo
+    stream_send_buffer(socketMemoria, 1/*HEADER_crear_segmento*/, bufferAEnviar); // Este header hay que crearlo
     buffer_destroy(bufferAEnviar);
 
     return;
@@ -64,6 +64,12 @@ static void __enviar_pedido_compactacion(int socketMemoria)
 {
     stream_send_empty_buffer(socketMemoria, HEADER_necesita_compactacion); // No se si este header esta creado
 
+    return;
+}
+
+static void __enviar_pedido_eliminar_segmento(int socketMemoria)
+{
+    //TODO
     return;
 }
 
@@ -115,7 +121,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
     {
         case HEADER_segmento_creado:
         {
-            t_buffer *bufferBaseNuevoSegmento;
+            t_buffer *bufferBaseNuevoSegmento = buffer_create();
             stream_recv_buffer(socketMemoria, bufferBaseNuevoSegmento);
             uint32_t baseNuevoSegmento;
             buffer_unpack(bufferBaseNuevoSegmento, &baseNuevoSegmento, sizeof(baseNuevoSegmento));
@@ -125,9 +131,9 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             t_info_segmentos *tablaSegmentos = *desempaquetar_tabla_segmentos(bufferTablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb));
             buffer_destroy(bufferTablaSegmentos);
             
-            //__agregarSegmentoATabla(baseNuevoSegmento, tamanio, tablaSegmentos); MUY IMPORTANTE VER ESTO
+            __agregarSegmentoATabla(baseNuevoSegmento, tamanio, idSegmento, &tablaSegmentos); 
 
-            t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(tablaSegmentos);
+            t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(&tablaSegmentos);
             pcb_set_tabla_segmentos(pcb, bufferTablaSegmentosActualizada);
 
             log_creacion_nuevo_segmento(pcb, idSegmento, tamanio);
@@ -176,14 +182,14 @@ void adapter_memoria_pedir_compactacion()
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 
-    if(respuestaMemoria == HEADER_memoria_compactada) // Este header hay que crearlo
+    if(respuestaMemoria == 1/*HEADER_memoria_compactada*/) // Este header hay que crearlo
     { 
-        t_buffer *bufferTablaDeSegmentosActualizada;
+        t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
 
-        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estadoReady->listaProcesos);
-        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estadoBlocked->listaProcesos);
-        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estadoExecute->listaProcesos);
+        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estado_get_list(estadoReady));
+        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estado_get_list(estadoBlocked));
+        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estado_get_list(estadoExecute));
     } else {
         // error
     }
@@ -200,9 +206,9 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
 
-    if(respuestaMemoria == HEADER_segmento_destruido) // Este header hay que crearlo
+    if(respuestaMemoria == 1/*HEADER_segmento_destruido*/) // Este header hay que crearlo
     { 
-        t_buffer *bufferTablaDeSegmentosActualizada;
+        t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
 
         pcb_set_tabla_segmentos(pcb, bufferTablaDeSegmentosActualizada);
@@ -211,62 +217,20 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
         // error
     }
 
-    return;   
+    return ;   
 }
 
-void actualizarTablaSegmentos(void* elemento, t_buffer* nuevoValor) {
-    t_pcb* pcb = (t_pcb*)elemento;
-    // Realiza la actualización del campo tablaSegmentos en el pcb
-    pcb->tablaSegmentos = nuevoValor; 
-}
-
-void actualizarTablasSegmentosEnListaProcesos(t_estado* estado, t_buffer* nuevoValor) {
-    /* void* __list_iter(void* list_elem) {
-        list_ele
-    }
-    }
-    list_iterate(estado->listaProcesos, actualizarTablaSegmentos, nuevoValor);*/
-}
-
-void funcion2(void* lista, t_buffer bufferTablaSegmentos) {
-    // Realizar operaciones utilizando los parámetros recibidos
-    // ...
-}
-
-void funcion1(auxiliarParaIterar* aux) {
-    myClosure(aux->lista, aux->bufferTablaSegmentos);
-}
-
-void actualizar_tabla_segmentos(t_buffer *bufferTablaSegmentos, t_list *listaProcesos)
-{   
-    auxiliarParaIterar aux;
-
-    aux.lista = listaProcesos;
-    aux.bufferTablaSegmentos = bufferTablaSegmentos;
-
-    list_iterate(listaProcesos, funcion1);
-
-
-
-
-
-    t_list_iterator* aux = NULL;
-    aux = list_iterator_create(t_list* list);
-    
-    while(aux != NULL){
-        pcb_set_tabla_segmentos(aux->actual,bufferTablaSegmentos);
-        aux = list_iterator_next(aux);
-    }
-}
-
-void* funcion (t_pcb *pcb, )
+void actualizar_tabla_segmentos(t_buffer *bufferTablaDeSegmentosActualizada, t_list *listaProcesos)
 {
-    pcb_set_tabla_segmentos()
-}
+    void __cambiar_tabla_segmentos(void* pcb)
+    {
+        pcb_set_tabla_segmentos(pcb, bufferTablaDeSegmentosActualizada);
+        return ;
+    }
 
-void actualizar_lista_segmentos_atomic(t_pcb *pcbATerminar, t_buffer *bufferTablaSegmentos)
-{
-    
+    list_iterate(listaProcesos, __cambiar_tabla_segmentos);
+
+    return ;
 }
 
 void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
@@ -303,6 +267,8 @@ void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
     } else {
             log_error(kernelLogger, "El proceso con PID <%d> finalizado no pudo ser creado por falta de memoria", pcb_get_pid(pcbATerminar));
     }
+    
     */
+
    return;
 }

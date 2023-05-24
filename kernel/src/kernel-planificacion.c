@@ -4,12 +4,12 @@
 static uint32_t pidActual;
 static pthread_mutex_t mutexPid;
 
-// Estados
-static t_estado *estadoNew;
-static t_estado *estadoReady;
-static t_estado *estadoExecute;
-static t_estado *estadoBlocked; 
-static t_estado *estadoExit;
+// Estados (estan aca porque en el adapter de memoria)
+t_estado *estadoNew;
+t_estado *estadoReady;
+t_estado *estadoExecute;
+t_estado *estadoBlocked; 
+t_estado *estadoExit;
 
 // Semaforos planificacion
 static sem_t gradoMultiprogramacion;
@@ -161,7 +161,7 @@ static void __pcb_pasar_de_null_a_new(t_pcb* pcbANew)
 }
 
 // Funcion generica para pasar un pcb a Exit desde cualquier estado
-static void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo) // Habria que borrar estructuras de memoria
+void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo) // Habria que borrar estructuras de memoria // hicimos que deje de ser ser estatica para poder usarla en el adapter de memori
 {
     pcb_set_estado_finalizacion(pcbAExit, pcb_get_estado_actual(pcbAExit));
     pcb_set_proceso_bloqueado_o_terminado(pcbAExit, true);

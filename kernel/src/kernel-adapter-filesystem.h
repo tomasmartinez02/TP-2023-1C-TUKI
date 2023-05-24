@@ -12,7 +12,11 @@
 #include <utils/common-utils.h>
 #include <serializacion/buffer.h>
 
+/*
+
 bool condicionBusqueda(void* elemento, void* elementoBuscado);
 bool archivo_esta_abierto(char *nombreArchivo);
+
+*/
 
 #endif

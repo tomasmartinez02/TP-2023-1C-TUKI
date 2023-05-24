@@ -163,9 +163,9 @@ t_pcb *estado_remover_pcb_segun_maximo_hrrn_atomic(t_estado *estado)
 
 bool estado_contiene_pcbs_atomic(t_estado *estado)
 {
-    pthread_mutex_lock(estado_get_semaforo(estado));
+    pthread_mutex_lock(estado_get_mutex(estado));
     bool contienePcbs = __estado_contiene_pcbs(estado);
-    pthread_mutex_lock(estado_get_semaforo(estado));
+    pthread_mutex_lock(estado_get_mutex(estado));
 
     return contienePcbs;
 }
