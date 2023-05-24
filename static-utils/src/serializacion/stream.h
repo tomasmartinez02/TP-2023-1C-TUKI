@@ -43,7 +43,10 @@ enum header
     HEADER_segmentation_fault,
     HEADER_necesita_compactacion,
     HEADER_segmento_creado,
-    HEADER_out_of_memory
+    HEADER_out_of_memory,
+    HEADER_crear_segmento,
+    HEADER_memoria_compactada,
+    HEADER_segmento_destruido
 };
 typedef enum header t_header;
 
