@@ -24,5 +24,7 @@ void enviar_motivo_desalojo_yield(void);
 void enviar_motivo_desalojo_io(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_signal(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_wait(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_create_segment(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_delete_segment(t_instruccion *siguienteInstruccion);
 
 #endif

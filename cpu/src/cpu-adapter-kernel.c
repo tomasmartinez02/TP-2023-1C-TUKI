@@ -175,3 +175,25 @@ void enviar_motivo_desalojo_wait(t_instruccion *siguienteInstruccion)
 {
     enviar_motivo_desalojo_signal(siguienteInstruccion);
 }
+
+void enviar_motivo_desalojo_create_segment(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoCreateSegment = buffer_create();
+    uint32_t idSegmento = instruccion_get_operando1(siguienteInstruccion);
+    buffer_pack(desalojoCreateSegment, &idSegmento, sizeof(idSegmento));
+    uint32_t tamanio = instruccion_get_operando2(siguienteInstruccion); 
+    buffer_pack(desalojoCreateSegment, &tamanio, sizeof(tamanio));
+    stream_send_buffer(socketKernel, HEADER_instruccion_create_segment, desalojoCreateSegment); // Revisar header
+    buffer_destroy(desalojoCreateSegment);
+}
+
+void enviar_motivo_desalojo_delete_segment(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoDeleteSegment = buffer_create();
+    uint32_t idSegmentoAEliminar = instruccion_get_operando1(siguienteInstruccion);
+    buffer_pack(desalojoDeleteSegment, &idSegmentoAEliminar, sizeof(idSegmentoAEliminar));
+    stream_send_buffer(socketKernel, HEADER_instruccion_delete_segment, desalojoDeleteSegment); // Revisar header
+    buffer_destroy(desalojoDeleteSegment);
+}
