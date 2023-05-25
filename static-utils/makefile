@@ -2,14 +2,14 @@ include settings.mk
 
 ################################################################################
 
-filename = $(1).out
+filename = lib$(1).a
 
 define compile_bin
-gcc $(CFLAGS) -o "$@" $^ $(IDIRS:%=-I%) $(LIBDIRS:%=-L%) $(RUNDIRS:%=-Wl,-rpath,%) $(LIBS:%=-l%)
+ar rcs -o "$@" $^
 endef
 
 define compile_objs
-gcc $(CFLAGS) -c -o "$@" $< $(IDIRS:%=-I%)
+gcc $(CFLAGS) -fPIC -c -o "$@" $< $(IDIRS:%=-I%)
 endef
 
 ################################################################################
@@ -49,7 +49,7 @@ release: clean $(BIN) $(TEST)
 
 .PHONY: clean
 clean:
-	-rm -rfv obj bin logs
+	-rm -rfv obj bin
 
 .PHONY: watch
 watch:
@@ -73,29 +73,7 @@ $(DEPS): $$(shell find $$(patsubst %bin/,%src/,$$(dir $$@)) -iname "*.c") \
 	make --no-print-directory -C $(patsubst %bin/,%,$(dir $@))
 
 $(sort $(dir $(BIN) $(OBJS))):
-	mkdir -pv $@ logs
-
-
-################################################################################
-
-.PHONY: start
-start: $(BIN)
-	valgrind --tool=none ./$(BIN) $(ARGS)
-
-.PHONY: daemon
-daemon:
-	@test $(shell which entr) || entr
-	while sleep 0.1; do \
-		find src/ | entr -d make start --no-print-directory; \
-	done
-
-.PHONY: memcheck
-memcheck: $(BIN)
-	valgrind --leak-check=full $(MEMCHECK_FLAGS) ./$(BIN) $(ARGS)
-
-.PHONY: helgrind
-helgrind: $(BIN)
-	valgrind --tool=helgrind $(HELGRIND_FLAGS) ./$(BIN) $(ARGS)
+	mkdir -pv $@
 
 
 ################################################################################

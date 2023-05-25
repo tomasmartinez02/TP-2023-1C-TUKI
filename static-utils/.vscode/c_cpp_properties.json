@@ -1,10 +1,12 @@
 {
+  // See https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference
+  // for the documentation about the c_cpp_properties.json format
   "configurations": [
     {
       "name": "Linux",
       "includePath": [
-        "${workspaceFolder}/src",
-        "${workspaceFolder}/../static-utils/src"
+        "${workspaceFolder}/src"
+        // TODO: Agregar los directorios de las bibliotecas a utilizar
       ],
       "defines": [],
       "compilerPath": "/usr/bin/gcc",
