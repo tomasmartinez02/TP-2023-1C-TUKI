@@ -23,6 +23,22 @@ struct filesystem_config
 };
 typedef struct filesystem_config t_filesystem_config;
 
+struct superbloque
+{
+    uint32_t BLOCK_SIZE;
+    uint32_t BLOCK_COUNT;
+};
+typedef struct superbloque t_superbloque;
+
+struct fcb
+{
+    char *NOMBRE_ARCHIVO;
+    uint32_t TAMANIO_ARCHIVO;
+    uint32_t PUNTERO_DIRECTO;
+    uint32_t PUNTERO_INDIRECTO;
+};
+typedef struct fcb t_fcb;
+
 // Variables globales
 extern t_log *filesystemLogger;
 extern t_log *filesystemDebuggingLogger;

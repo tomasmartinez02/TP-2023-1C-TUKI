@@ -24,5 +24,6 @@
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
 #include <filesystem-conexiones.h>
+#include <filesystem-archivos.h>
 
 #endif
