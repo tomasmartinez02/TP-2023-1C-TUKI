@@ -6,7 +6,7 @@
 #include <kernel-semaforos-recursos.h>
 #include <kernel-utils.h>
 #include <kernel-planificacion.h>
-#include <kernel-archivos.h>
+#include <kernel-tabla-archivos.h>
 
 #include <unistd.h>
 #include <pthread.h>

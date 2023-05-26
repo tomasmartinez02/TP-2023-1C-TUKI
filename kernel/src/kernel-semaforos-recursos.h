@@ -30,5 +30,6 @@ t_dictionary *crear_diccionario_semaforos_recursos(char **recursos, char **insta
 void destruir_diccionario_semaforos_recursos(t_dictionary *diccionarioSemaforosRecursos);
 bool diccionario_semaforos_recursos_existe_recurso(t_dictionary *diccionarioSemaforosRecursos, char *nombreRecurso);
 t_semaforo_recurso *diccionario_semaforos_recursos_get_semaforo_recurso(t_dictionary *diccionarioSemaforosRecursos, char *nombreRecurso);
+bool semaforo_recurso_debe_desbloquear_recurso(t_semaforo_recurso *self);
 
 #endif

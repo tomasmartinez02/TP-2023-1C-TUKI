@@ -51,12 +51,17 @@ bool semaforo_recurso_puedo_utilizar_recurso(t_semaforo_recurso *self)
     return instancias >= 0;
 }
 
-bool semaforo_recurso_debe_bloquear_proceso(t_semaforo_recurso *self)
+bool semaforo_recurso_debe_desbloquear_recurso(t_semaforo_recurso *self)
 {
     uint32_t instancias = semaforo_recurso_get_instancias(self);
-    return instancias < 0;
-    // return !semaforo_recurso_puedo_utilizar_recurso(self) -- No se que manera queda mejor
+    return (semaforo_recurso_hay_procesos_bloqueados(self) && instancias == 0);
 }
+
+bool semaforo_recurso_debe_bloquear_proceso(t_semaforo_recurso *self)
+{
+    return !semaforo_recurso_puedo_utilizar_recurso(self);
+}
+
 bool semaforo_recurso_hay_procesos_bloqueados(t_semaforo_recurso *self)
 {
     t_estado *colaBloqueados = semaforo_recurso_get_estado_recurso(self);

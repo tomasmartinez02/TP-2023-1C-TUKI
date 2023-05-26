@@ -70,7 +70,7 @@ struct pcb
     t_registros_cpu* registrosCpu;
     double estimadoProxRafaga;
     timestamp *tiempoLlegadaReady;
-    t_list *archivosAbiertos;
+    t_dictionary *archivosAbiertos;
     uint32_t tamanioTablaSegmentos; 
     t_buffer *tablaSegmentos;
     t_nombre_estado estadoActual; 
@@ -105,6 +105,8 @@ extern t_estado *estadoReady;
 extern t_estado *estadoExecute;
 extern t_estado *estadoBlocked; 
 extern t_estado *estadoExit;
+extern t_estado *archivoAbierto;
+extern t_estado *archivoCerrado;
 
 struct archivo
 {

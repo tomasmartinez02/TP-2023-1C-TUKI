@@ -4,7 +4,7 @@
 t_log *kernelDebuggingLogger;
 t_log *kernelLogger;
 t_kernel_config *kernelConfig;
-t_list *tablaArchivosAbiertos;
+t_dictionary *tablaArchivosAbiertos;
 
 int main(int argc, char* argv[]) 
 {
@@ -17,8 +17,6 @@ int main(int argc, char* argv[])
     char *pathArchivoConfiguracion = string_duplicate(argv[1]);
     kernelConfig = kernel_config_create(pathArchivoConfiguracion, kernelDebuggingLogger);
     free(pathArchivoConfiguracion);
-
-    tablaArchivosAbiertos = list_create();
 
     // Conexion con Memoria
     //conectar_a_memoria();
@@ -33,6 +31,7 @@ int main(int argc, char* argv[])
     const int socketEscucha = inicializar_servidor_kernel();
     
     inicializar_estructuras();
+    tablaArchivosAbiertos = crear_diccionario_semaforos_archivos();
 
     aceptar_conexiones_kernel(socketEscucha);
 
