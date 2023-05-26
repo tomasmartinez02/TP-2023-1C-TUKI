@@ -79,9 +79,9 @@ struct pcb
     bool procesoBloqueadoOTerminado;
     uint32_t socketProceso;
     pthread_mutex_t *mutex;
-    /*
     char* dispositivoIoEnUso;
-    int32_t cantidadUnidadesTiemposIo;
+    /*
+    int32_t cantidadUnidadesTiemposIo; estos los necesitamos??
     t_registro registroUsadoEnIo;
     */
 };
@@ -106,4 +106,12 @@ extern t_estado *estadoExecute;
 extern t_estado *estadoBlocked; 
 extern t_estado *estadoExit;
 
+struct archivo
+{
+    char* nombre;
+    bool abierto;
+    pthread_mutex_t *mutex;
+    uint32_t posicionPuntero;
+};
+typedef struct archivo t_archivo;
 #endif

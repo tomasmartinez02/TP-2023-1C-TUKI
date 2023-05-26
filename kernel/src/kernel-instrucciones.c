@@ -79,6 +79,7 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         pcbAEjecutar = semaforo_recurso_desbloquear_primer_proceso_bloqueado(semaforoRecurso);
         // Desbloquea al primer proceso de la cola de bloqueados del recurso 
         pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
+        pcb_set_dispositivoIO(pcbAEjecutar, nombreRecurso); 
     }
 
      // Seguir la ejecucion del proceso que peticiono el SIGNAL
@@ -87,7 +88,14 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
 
 void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 {
-    return;
+    if (archivo_esta_abierto(nombreArchivo))
+    {
+        // Bloquear proceso
+    }
+    else
+    {
+        // Consultar a filesystem si existe el archivo
+    }
 }
 
 void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)

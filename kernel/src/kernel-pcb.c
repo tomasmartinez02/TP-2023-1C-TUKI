@@ -38,8 +38,9 @@ t_pcb *crear_pcb(uint32_t pid)
     pthread_mutex_init(mutex, NULL);
     pcb->mutex = mutex;
     
-    /*
     pcb->dispositivoIoEnUso = NULL;
+
+    /*
     pcb->cantidadUnidadesTiemposIo = 0;
     pcb->registroUsadoEnIo = REGISTRO_null;
     
@@ -69,6 +70,11 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
     t_list *archivosAbiertos = pcb->archivosAbiertos;
     if (archivosAbiertos != NULL) {
         destruir_lista_archivos_abiertos(archivosAbiertos);
+    }
+
+    char *dispositivoIO = pcb->dispositivoIoEnUso;
+    if (dispositivoIO != NULL) {
+        free(dispositivoIO);
     }
 
     free(pcb->tiempoLlegadaReady);
@@ -283,4 +289,15 @@ void pcb_estimar_proxima_rafaga(t_pcb *pcbEjecutado, double tiempoRealEjecutadoE
     double estimadoProxRafagaActualizado = alfaHrrn * tiempoRealEjecutadoEnCpu + (1.0 - alfaHrrn) * estimadoProxRafagaPcb;
     pcb_set_estimado_prox_rafaga(pcbEjecutado, estimadoProxRafagaActualizado);
     return;
+}
+
+// Set y Get dispositivo IO en uso
+char *pcb_get_dispositivoIO(t_pcb* pcb) 
+{
+    return pcb->dispositivoIoEnUso;
+}
+
+void pcb_set_dispositivoIO(t_pcb* pcb, char* dispositivoIo) 
+{
+     pcb->dispositivoIoEnUso = strdup(dispositivoIo);
 }
