@@ -197,3 +197,78 @@ void enviar_motivo_desalojo_delete_segment(t_instruccion *siguienteInstruccion)
     stream_send_buffer(socketKernel, HEADER_instruccion_delete_segment, desalojoDeleteSegment); // Revisar header
     buffer_destroy(desalojoDeleteSegment);
 }
+
+void enviar_motivo_desalojo_fopen(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoArchivo = buffer_create();
+    char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
+    buffer_pack(desalojoArchivo, nombreArchivo, strlen(nombreArchivo)+1);
+    stream_send_buffer(socketKernel, HEADER_instruccion_fopen, desalojoArchivo);
+    buffer_destroy(desalojoArchivo);
+}
+
+void enviar_motivo_desalojo_fclose(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoArchivo = buffer_create();
+    char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
+    buffer_pack(desalojoArchivo, nombreArchivo, strlen(nombreArchivo)+1);
+    stream_send_buffer(socketKernel, HEADER_instruccion_fclose, desalojoArchivo);
+    buffer_destroy(desalojoArchivo);
+}
+
+void enviar_motivo_desalojo_fseek(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoArchivo = buffer_create();
+    char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
+    uint32_t ubicacion = instruccion_get_operando2(siguienteInstruccion);
+    buffer_pack(desalojoArchivo, nombreArchivo, strlen(nombreArchivo)+1);
+    buffer_pack(desalojoArchivo, &ubicacion, sizeof(ubicacion));
+    stream_send_buffer(socketKernel, HEADER_instruccion_fseek, desalojoArchivo);
+    buffer_destroy(desalojoArchivo);
+}
+
+void enviar_motivo_desalojo_ftruncate(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoArchivo = buffer_create();
+    char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
+    uint32_t tamanio = instruccion_get_operando2(siguienteInstruccion);
+    buffer_pack(desalojoArchivo, nombreArchivo, strlen(nombreArchivo)+1);
+    buffer_pack(desalojoArchivo, &tamanio, sizeof(tamanio));
+    stream_send_buffer(socketKernel, HEADER_instruccion_ftruncate, desalojoArchivo);
+    buffer_destroy(desalojoArchivo);
+}
+
+void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoArchivo = buffer_create();
+    char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
+    uint32_t direccionLogica = instruccion_get_operando2(siguienteInstruccion);
+    uint32_t bytes = instruccion_get_operando3(siguienteInstruccion);
+    buffer_pack(desalojoArchivo, nombreArchivo, strlen(nombreArchivo)+1);
+    buffer_pack(desalojoArchivo, &direccionLogica, sizeof(direccionLogica));
+    buffer_pack(desalojoArchivo, &bytes, sizeof(bytes));
+    stream_send_buffer(socketKernel, HEADER_instruccion_fwrite, desalojoArchivo);
+    buffer_destroy(desalojoArchivo);
+}
+
+void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion)
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoArchivo = buffer_create();
+    char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
+    uint32_t direccionLogica = instruccion_get_operando2(siguienteInstruccion);
+    uint32_t bytes = instruccion_get_operando3(siguienteInstruccion);
+    buffer_pack(desalojoArchivo, nombreArchivo, strlen(nombreArchivo)+1);
+    buffer_pack(desalojoArchivo, &direccionLogica, sizeof(direccionLogica));
+    buffer_pack(desalojoArchivo, &bytes, sizeof(bytes));
+    stream_send_buffer(socketKernel, HEADER_instruccion_fread, desalojoArchivo);
+    buffer_destroy(desalojoArchivo);
+}
+
+
+

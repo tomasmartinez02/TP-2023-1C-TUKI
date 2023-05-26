@@ -26,5 +26,11 @@ void enviar_motivo_desalojo_signal(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_wait(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_create_segment(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_delete_segment(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_fopen(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_fclose(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_fseek(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_ftruncate(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion);
+void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion);
 
 #endif
