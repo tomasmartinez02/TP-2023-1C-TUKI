@@ -3,15 +3,12 @@
 		"files.associations": { 
 			"*.h": "c", 
 		}, 
-		"C_Cpp.errorSquiggles": "Disabled", 
+		"C_Cpp.errorSquiggles": "disabled", 
 	}, 
 	
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../tp0"
 		}
 	]
 }
