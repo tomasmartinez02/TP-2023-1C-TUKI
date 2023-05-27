@@ -2,19 +2,17 @@
 
 void __enviar_consulta_existencia_archivo(int socketFilesystem, char* nombreArchivo)
 {
-    int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     t_buffer *bufferConsulta = buffer_create();
     buffer_pack_string(bufferConsulta, nombreArchivo);
-    stream_send_buffer(socketMemoria, HEADER_consulta_existencia_archivo, bufferConsulta);
+    stream_send_buffer(socketFilesystem, HEADER_consulta_existencia_archivo, bufferConsulta);
     buffer_destroy(bufferConsulta);
 }
 
 void __solicitar_creacion_archivo(int socketFilesystem, char* nombreArchivo)
 {
-    int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     t_buffer *bufferSolicitud = buffer_create();
     buffer_pack_string(bufferSolicitud, nombreArchivo);
-    stream_send_buffer(socketMemoria, HEADER_solicitud_creacion_archivo, bufferSolicitud);
+    stream_send_buffer(socketFilesystem, HEADER_solicitud_creacion_archivo, bufferSolicitud);
     buffer_destroy(bufferSolicitud);
 } 
 bool adapter_filesystem_existe_archivo(char *nombreArchivo)

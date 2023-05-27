@@ -173,13 +173,13 @@ void recibir_buffer_instruccion_fseek(char **nombreArchivo, uint32_t *ubicacionN
 
     char *nombreArchivoFseek = buffer_unpack_string(bufferFseek);
     *nombreArchivo = strdup(nombreArchivoFseek);
+    free(nombreArchivoFseek);
     
     uint32_t ubicacion;
     buffer_unpack(bufferFseek, &ubicacion, sizeof(ubicacion));
     *ubicacionNueva = ubicacion;
 
     buffer_destroy(bufferFseek);
-    buffer_destroy(nombreArchivoFseek);
 
     return;
 }
@@ -193,13 +193,13 @@ void recibir_buffer_instruccion_ftruncate(char **nombreArchivo, uint32_t *tamani
 
     char *nombreArchivoFtruncate = buffer_unpack_string(bufferFtruncate);
     *nombreArchivo = strdup(nombreArchivoFtruncate);
+    free(nombreArchivoFtruncate);
     
     uint32_t tamanio;
     buffer_unpack(bufferFtruncate, &tamanio, sizeof(tamanio));
     *tamanioNuevo = tamanio;
 
     buffer_destroy(bufferFtruncate);
-    buffer_destroy(nombreArchivoFtruncate);
 
     return;
 }
@@ -213,6 +213,7 @@ void recibir_buffer_instruccion_fread(char **nombreArchivo, uint32_t *direccionL
 
     char *nombreArchivoFread = buffer_unpack_string(bufferFread);
     *nombreArchivo = strdup(nombreArchivoFread);
+    free(nombreArchivoFread);
     
     uint32_t direccion;
     buffer_unpack(bufferFread, &direccion, sizeof(direccion));
@@ -223,7 +224,6 @@ void recibir_buffer_instruccion_fread(char **nombreArchivo, uint32_t *direccionL
     *cantidadBytes = bytes;
 
     buffer_destroy(bufferFread);
-    buffer_destroy(nombreArchivoFread);
     return;
 }
 
@@ -238,6 +238,7 @@ void recibir_buffer_instruccion_fwrite(char **nombreArchivo, uint32_t *direccion
 
     char *nombreArchivoFread = buffer_unpack_string(bufferFread);
     *nombreArchivo = strdup(nombreArchivoFread);
+    free(nombreArchivoFread);
     
     uint32_t direccion;
     buffer_unpack(bufferFread, &direccion, sizeof(direccion));
@@ -248,7 +249,6 @@ void recibir_buffer_instruccion_fwrite(char **nombreArchivo, uint32_t *direccion
     *cantidadBytes = bytes;
 
     buffer_destroy(bufferFread);
-    buffer_destroy(nombreArchivoFread);
     return;
 
 }
