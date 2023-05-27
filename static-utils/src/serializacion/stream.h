@@ -15,10 +15,6 @@
 // Headers de mensajes para ser enviados en los paquetes
 enum header
 {
-    HEADER_archivo_creado,
-    HEADER_archivo_existe_en_filesystem,
-    HEADER_consulta_existencia_archivo,
-    HEADER_crear_segmento,
     HEADER_error,
     HEADER_instruccion_movin,
     HEADER_instruccion_movout,
@@ -45,9 +41,16 @@ enum header
     HEADER_proceso_terminado,
     HEADER_segmento_destruido,
     HEADER_segmentation_fault,
+    HEADER_necesita_compactacion,
+    HEADER_segmento_creado,
+    HEADER_out_of_memory,
     HEADER_solicitud_creacion_archivo,
     HEADER_solicitud_inicializacion_proceso,
-    HEADER_tabla_segmentos
+    HEADER_tabla_segmentos,
+    HEADER_archivo_creado,
+    HEADER_archivo_existe_en_filesystem,
+    HEADER_consulta_existencia_archivo,
+    HEADER_crear_segmento
 };
 typedef enum header t_header;
 
