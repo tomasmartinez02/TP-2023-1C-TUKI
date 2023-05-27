@@ -15,15 +15,11 @@
 // Headers de mensajes para ser enviados en los paquetes
 enum header
 {
+    HEADER_archivo_creado,
+    HEADER_archivo_existe_en_filesystem,
+    HEADER_consulta_existencia_archivo,
+    HEADER_crear_segmento,
     HEADER_error,
-    HEADER_pid,
-    HEADER_lista_instrucciones,
-    HEADER_tabla_segmentos,
-    HEADER_memoria_insuficiente,
-    HEADER_pcb_a_ejecutar,
-    HEADER_proceso_bloqueado,
-    HEADER_proceso_desalojado,
-    HEADER_proceso_terminado,
     HEADER_instruccion_movin,
     HEADER_instruccion_movout,
     HEADER_instruccion_io,
@@ -39,11 +35,19 @@ enum header
     HEADER_instruccion_delete_segment,
     HEADER_instruccion_yield,
     HEADER_instruccion_exit,
-    HEADER_solicitud_inicializacion_proceso,
-    HEADER_segmentation_fault,
-    HEADER_crear_segmento,
+    HEADER_lista_instrucciones,
     HEADER_memoria_compactada,
-    HEADER_segmento_destruido
+    HEADER_memoria_insuficiente,
+    HEADER_pcb_a_ejecutar,
+    HEADER_pid,
+    HEADER_proceso_bloqueado,
+    HEADER_proceso_desalojado,
+    HEADER_proceso_terminado,
+    HEADER_segmento_destruido,
+    HEADER_segmentation_fault,
+    HEADER_solicitud_creacion_archivo,
+    HEADER_solicitud_inicializacion_proceso,
+    HEADER_tabla_segmentos
 };
 typedef enum header t_header;
 
