@@ -1,7 +1,7 @@
 #include <memoria-config.h>
 
 // Variables estaticas
-static void* memoriaPrincipal; // por el momento va aca, despues vemos donde va
+void* memoriaPrincipal; // por el momento va aca, despues vemos donde va
 
 // Funciones privadas
 

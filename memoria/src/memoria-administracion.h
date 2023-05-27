@@ -7,6 +7,7 @@
 
 // Bibliotecas internas
 #include <memoria-utils.h>
+#include <memoria-estructuras.h>
 
 // Prototipos
 

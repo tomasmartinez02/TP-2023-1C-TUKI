@@ -26,5 +26,6 @@ typedef struct memoria_config t_memoria_config;
 extern t_log *memoriaDebuggingLogger;
 extern t_log *memoriaLogger;
 extern t_memoria_config *memoriaConfig;
+extern void *memoriaPrincipal;
 
 #endif
