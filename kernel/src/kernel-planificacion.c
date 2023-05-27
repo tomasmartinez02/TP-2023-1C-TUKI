@@ -394,14 +394,31 @@ static void *__ejecucion_desalojo_pcb(void *args)
             }
             case HEADER_instruccion_fread:
             {
+                char *nombreArchivo = NULL;
+                uint32_t direccionLogica;
+                uint32_t cantidadBytes;
+                recibir_buffer_instruccion_fread(&nombreArchivo, &direccionLogica, &cantidadBytes);
+                ejecutar_instruccion_fread(pcbEnEjecucion, nombreArchivo, direccionLogica, cantidadBytes);
+                free(nombreArchivo);
                 break;
             }
             case HEADER_instruccion_fwrite:
             {
+                 char *nombreArchivo = NULL;
+                uint32_t direccionLogica;
+                uint32_t cantidadBytes;
+                recibir_buffer_instruccion_fwrite(&nombreArchivo, &direccionLogica, &cantidadBytes);
+                ejecutar_instruccion_fwrite(pcbEnEjecucion, nombreArchivo, direccionLogica, cantidadBytes);
+                free(nombreArchivo);
                 break;
             }
             case HEADER_instruccion_ftruncate:
             {
+                char *nombreArchivo = NULL;
+                uint32_t tamanio;
+                recibir_buffer_instruccion_ftruncate(&nombreArchivo, &tamanio);
+                ejecutar_instruccion_ftruncate(pcbEnEjecucion, nombreArchivo, tamanio);
+                free(nombreArchivo);
                 break;
             }
             case HEADER_instruccion_wait:

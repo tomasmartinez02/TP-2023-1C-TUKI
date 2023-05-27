@@ -33,8 +33,7 @@
 #include <kernel-adapter-cpu.h>
 #include <kernel-adapter-filesystem.h>
 #include <kernel-adapter-memoria.h>
-#include <kernel-archivos.h>
-#include <kernel-tabla.archivos.h>
+#include <kernel-tabla-archivos.h>
 // Estructuras (TADS)
 
 

@@ -172,15 +172,85 @@ void recibir_buffer_instruccion_fseek(char **nombreArchivo, uint32_t *ubicacionN
     stream_recv_buffer(socketCpu, bufferFseek);
 
     char *nombreArchivoFseek = buffer_unpack_string(bufferFseek);
-    *nombreArchivo = nombreArchivoFseek;
+    *nombreArchivo = strdup(nombreArchivoFseek);
     
     uint32_t ubicacion;
     buffer_unpack(bufferFseek, &ubicacion, sizeof(ubicacion));
     *ubicacionNueva = ubicacion;
 
     buffer_destroy(bufferFseek);
+    buffer_destroy(nombreArchivoFseek);
 
     return;
+}
+
+void recibir_buffer_instruccion_ftruncate(char **nombreArchivo, uint32_t *tamanioNuevo)
+{
+    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+
+    t_buffer *bufferFtruncate = buffer_create();
+    stream_recv_buffer(socketCpu, bufferFtruncate);
+
+    char *nombreArchivoFtruncate = buffer_unpack_string(bufferFtruncate);
+    *nombreArchivo = strdup(nombreArchivoFtruncate);
+    
+    uint32_t tamanio;
+    buffer_unpack(bufferFtruncate, &tamanio, sizeof(tamanio));
+    *tamanioNuevo = tamanio;
+
+    buffer_destroy(bufferFtruncate);
+    buffer_destroy(nombreArchivoFtruncate);
+
+    return;
+}
+
+void recibir_buffer_instruccion_fread(char **nombreArchivo, uint32_t *direccionLogica, uint32_t *cantidadBytes)
+{
+   uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+
+    t_buffer *bufferFread = buffer_create();
+    stream_recv_buffer(socketCpu, bufferFread);
+
+    char *nombreArchivoFread = buffer_unpack_string(bufferFread);
+    *nombreArchivo = strdup(nombreArchivoFread);
+    
+    uint32_t direccion;
+    buffer_unpack(bufferFread, &direccion, sizeof(direccion));
+    *direccionLogica = direccion;
+
+    uint32_t bytes;
+    buffer_unpack(bufferFread, &bytes, sizeof(bytes));
+    *cantidadBytes = bytes;
+
+    buffer_destroy(bufferFread);
+    buffer_destroy(nombreArchivoFread);
+    return;
+}
+
+void recibir_buffer_instruccion_fwrite(char **nombreArchivo, uint32_t *direccionLogica, uint32_t *cantidadBytes)
+{
+    //recibir_buffer_instruccion_fread(&nombreArchivo, &direccionLogica, &cantidadBytes);
+    // se q estoy repitiendo codigo pero no se si la linea de arriba funciona bien
+    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+
+    t_buffer *bufferFread = buffer_create();
+    stream_recv_buffer(socketCpu, bufferFread);
+
+    char *nombreArchivoFread = buffer_unpack_string(bufferFread);
+    *nombreArchivo = strdup(nombreArchivoFread);
+    
+    uint32_t direccion;
+    buffer_unpack(bufferFread, &direccion, sizeof(direccion));
+    *direccionLogica = direccion;
+
+    uint32_t bytes;
+    buffer_unpack(bufferFread, &bytes, sizeof(bytes));
+    *cantidadBytes = bytes;
+
+    buffer_destroy(bufferFread);
+    buffer_destroy(nombreArchivoFread);
+    return;
+
 }
 
 void recibir_buffer_instruccion_create_segment(uint32_t *idSegmento, uint32_t *tamanio)

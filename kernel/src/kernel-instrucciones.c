@@ -73,9 +73,9 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
     log_ejecucion_signal(pcbEnEjecucion, nombreRecurso, instanciasRecurso);
 
     if(semaforo_recurso_debe_desbloquear_recurso(semaforoRecurso))
-    {
-        t_pcb *pcbAEjecutar = semaforo_recurso_desbloquear_primer_proceso_bloqueado(semaforoRecurso);
+    {   
         // Desbloquea al primer proceso de la cola de bloqueados del recurso 
+        t_pcb *pcbAEjecutar = semaforo_recurso_desbloquear_primer_proceso_bloqueado(semaforoRecurso);
         pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
     }
 
@@ -89,21 +89,15 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
     {
         t_semaforo_recurso *semaforoArchivo = diccionario_semaforos_recursos_get_semaforo_recurso(tablaArchivosAbiertos, nombreArchivo);
         semaforo_recurso_bloquear_proceso(semaforoArchivo, pcbEnEjecucion);
-        
+        semaforo_recurso_wait(semaforoArchivo);
+    }
+    // NO SE SI HACE FALTA hacer un ELSE O SI YA CUANDO EL RECURSO SE BLOQUEA YA DEJA DE EJECUTAR LA FUNCION X ENDE NO EJECUTARIA LO SIGUIENTE
+    if (!adapter_filesystem_existe_archivo(nombreArchivo))
+    {
+        adapter_filesystem_pedir_creacion_archivo(nombreArchivo);
     }
     
-    // NO SE SI HACE FALTA hacer un ELSE O SI YA CUANDO EL RECURSO SE BLOQUEA YA DEJA DE EJECUTAR LA FUNCION X ENDE NO EJECUTARIA LO SIGUIENTE
- 
-    if (archivo_existe_en_filesystem(nombreArchivo))
-    {
-        abrir_archivo(nombreArchivo);
-    }
-    else
-    {
-        pedir_creacion_archivo_a_filesystem(nombreArchivo);
-        abrir_archivo(nombreArchivo);
-    }
-
+    abrir_archivo_globalmente(nombreArchivo);
     // Agrego archivo a la tabla de archivos abiertos del proceso con el puntero en la posición 0. 
     abrir_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo);
     return;
@@ -111,11 +105,42 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 
 void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 {   
+    t_semaforo_recurso *semaforoArchivo = diccionario_semaforos_recursos_get_semaforo_recurso(tablaArchivosAbiertos, nombreArchivo);
     cerrar_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo);
+    semaforo_recurso_post(semaforoArchivo);
+    // Checkea que haya procesos esperando y que el archivo este disponible
+    if (semaforo_archivo_debe_desbloquear_archivo(semaforoArchivo))
+    {
+        // Desbloquea al primer proceso de la cola de bloqueados del recurso 
+        t_pcb *pcbAEjecutar = semaforo_recurso_desbloquear_primer_proceso_bloqueado(semaforoArchivo);
+        pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
+    }
+    else
+    {
+        // Si no queda ningún proceso que tenga abierto el archivo, se elimina la entrada de la tabla global de archivos abiertos.
+        cerrar_archivo_globalmente(nombreArchivo);
+    }
+    
     return;
 }
 
 void ejecutar_instruccion_fseek(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t ubicacionNueva)
+{
+    actualizar_puntero_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo, ubicacionNueva);
+    return;
+}
+
+void ejecutar_instruccion_ftruncate(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t tamanio)
+{
+    return;
+}
+
+void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionLogica, uint32_t cantidadBytes)
+{
+    return;
+}
+
+void ejecutar_instruccion_fwrite(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionLogica, uint32_t cantidadBytes)
 {
     return;
 }

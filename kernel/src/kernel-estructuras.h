@@ -105,15 +105,5 @@ extern t_estado *estadoReady;
 extern t_estado *estadoExecute;
 extern t_estado *estadoBlocked; 
 extern t_estado *estadoExit;
-extern t_estado *archivoAbierto;
-extern t_estado *archivoCerrado;
 
-struct archivo
-{
-    char* nombre;
-    bool abierto;
-    pthread_mutex_t *mutex;
-    uint32_t posicionPuntero;
-};
-typedef struct archivo t_archivo;
 #endif

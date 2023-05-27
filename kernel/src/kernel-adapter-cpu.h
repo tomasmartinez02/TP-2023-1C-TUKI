@@ -22,6 +22,9 @@ char *recibir_buffer_instruccion_con_recurso(void);
 char *recibir_buffer_instruccion_fopen(void);
 char *recibir_buffer_instruccion_fclose(void);
 void recibir_buffer_instruccion_fseek(char **nombreArchivo, uint32_t *ubicacionNueva);
+void recibir_buffer_instruccion_ftruncate(char **nombreArchivo, uint32_t *tamanioNuevo);
+void recibir_buffer_instruccion_fread(char **nombreArchivo, uint32_t *direccionLogica, uint32_t *cantidadBytes);
+void recibir_buffer_instruccion_fwrite(char **nombreArchivo, uint32_t *direccionLogica, uint32_t *cantidadBytes);
 
 void recibir_buffer_instruccion_create_segment(uint32_t *idSegmento, uint32_t *tamanio);
 uint32_t recibir_buffer_instruccion_delete_segment();
