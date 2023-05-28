@@ -2,7 +2,7 @@
 
 // Variables estaticas
 void* memoriaPrincipal; 
-t_info_segmento* tablaSegmentos;
+t_info_segmentos* tablaSegmentos;
 
 // Funciones privadas
 
@@ -23,7 +23,9 @@ static void __inicializar_memoria_principal(void){
 
 void __inicializar_tabla_segmentos(void){
 
+    uint32_t tamanioSegmentoCero = memoria_config_get_tamanio_segmento_cero(memoriaConfig);
 
+    tablaSegmentos = crear_info_segmentos(0, tamanioSegmentoCero);
 
     return;
 

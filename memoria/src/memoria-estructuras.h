@@ -4,6 +4,7 @@
 
 // Bibliotecas commons
 #include <commons/log.h>
+#include <utils/tablas-pcb.h>
 
 // Estructuras
 struct memoria_config 
@@ -27,6 +28,6 @@ extern t_log *memoriaDebuggingLogger;
 extern t_log *memoriaLogger;
 extern t_memoria_config *memoriaConfig;
 extern void *memoriaPrincipal;
-extern t_info_segmento *tablaSegmentos;
+extern t_info_segmentos *tablaSegmentos;
 
 #endif
