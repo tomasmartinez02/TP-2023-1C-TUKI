@@ -1,7 +1,8 @@
 #include <memoria-config.h>
 
 // Variables estaticas
-void* memoriaPrincipal; // por el momento va aca, despues vemos donde va
+void* memoriaPrincipal; 
+t_info_segmento* tablaSegmentos;
 
 // Funciones privadas
 
@@ -20,10 +21,19 @@ static void __inicializar_memoria_principal(void){
 
 }
 
+void __inicializar_tabla_segmentos(void){
+
+
+
+    return;
+
+}
+
 // Funciones publicas
 
 void inicializar_memoria(void){
-    
+
+    __inicializar_tabla_segmentos();
     __inicializar_memoria_principal();
 
     return;
