@@ -17,13 +17,10 @@ int main(int argc, char* argv[])
     filesystemConfig = filesystem_config_create(pathArchivoConfiguracion, filesystemDebuggingLogger);
     free(pathArchivoConfiguracion);
 
-    // Despues ver de hacer una funcion que inicialice estructuras
-    char *pathSuperbloque = filesystem_config_get_path_superbloque(filesystemConfig);
-    t_superbloque *superbloque = crear_superbloque(pathSuperbloque);
-    free(pathSuperbloque);
-
     // Conexion con Memoria
     conectar_a_memoria();
+
+    inicializar_estructuras();
 
     // Levantar servidor del Kernel
     const int socketEscucha = inicializar_servidor_filesystem();

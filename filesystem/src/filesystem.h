@@ -26,4 +26,7 @@
 #include <filesystem-conexiones.h>
 #include <filesystem-archivos.h>
 
+// Funciones publicas   
+void inicializar_estructuras(void);
+
 #endif

@@ -43,5 +43,7 @@ typedef struct fcb t_fcb;
 extern t_log *filesystemLogger;
 extern t_log *filesystemDebuggingLogger;
 extern t_filesystem_config *filesystemConfig;
+extern t_superbloque *superbloque;
+extern t_bitarray *bitmap;
 
 #endif

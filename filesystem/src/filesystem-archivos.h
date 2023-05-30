@@ -5,12 +5,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
 //Bibliotecas commons
 #include <commons/log.h>
+#include <commons/bitarray.h>
 //Bibliotecas static-utils
 #include <utils/config-modulo.h>
 //Bibliotecas internas modulo filesystem
 #include <filesystem-estructuras.h>
+#include <filesystem-config.h>
 
 // Prototipos
 
@@ -52,5 +57,9 @@ uint32_t get_superbloque_block_size (t_superbloque *superbloque);
  * @example uint32_t block_count = get_superbloque_block_count (superbloque);
  */
 uint32_t get_superbloque_block_count(t_superbloque *superbloque);
+
+t_bitarray *abrir_bitmap (char* pathBitmap, uint32_t blockCount);
+
+void crear_bitmap(char *pathBitmap, uint32_t blockCount);
 
 #endif
