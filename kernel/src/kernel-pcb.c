@@ -67,9 +67,9 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
         buffer_destroy(tablaSegmentos);
     }
 
-    t_list *archivosAbiertos = pcb->archivosAbiertos;
+    t_dictionary *archivosAbiertos = pcb->archivosAbiertos;
     if (archivosAbiertos != NULL) {
-        destruir_lista_archivos_abiertos(archivosAbiertos);
+        destruir_diccionario_semaforos_recursos(archivosAbiertos);
     }
 
     char *dispositivoIO = pcb->dispositivoIoEnUso;
@@ -133,7 +133,7 @@ void pcb_set_estimado_prox_rafaga(t_pcb *pcb, double estimadoProxRafaga)
 
 // Getter y setter archivosAbiertos
 
-t_list *pcb_get_archivos_abiertos(t_pcb *pcb)
+t_dictionary *pcb_get_archivos_abiertos(t_pcb *pcb)
 {
     return pcb->archivosAbiertos;
 }

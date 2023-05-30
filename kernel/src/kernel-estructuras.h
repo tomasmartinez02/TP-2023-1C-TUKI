@@ -98,7 +98,7 @@ typedef struct semaforo_recurso t_semaforo_recurso;
 extern t_log *kernelDebuggingLogger;
 extern t_log *kernelLogger;
 extern t_kernel_config *kernelConfig;
-
+extern t_dictionary *tablaArchivosAbiertos;
 // Estados
 extern t_estado *estadoNew;
 extern t_estado *estadoReady;

@@ -18,7 +18,7 @@ void __solicitar_creacion_archivo(int socketFilesystem, char* nombreArchivo)
 bool adapter_filesystem_existe_archivo(char *nombreArchivo)
 {
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
-    __enviar_consulta_existencia_archivo(socketFilesystem);
+    __enviar_consulta_existencia_archivo(socketFilesystem, nombreArchivo);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     if (respuestaFilesystem == HEADER_archivo_existe_en_filesystem)
     {
@@ -31,16 +31,12 @@ bool adapter_filesystem_existe_archivo(char *nombreArchivo)
 void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo)
 {   
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
-    __solicitar_creacion_archivo(int socketFilesystem, char* nombreArchivo);
+    __solicitar_creacion_archivo(socketFilesystem, nombreArchivo);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
-    if (respuestaFilesystem == HEADER_archivo_creado)
-    {
-        return true;
-    }
-    else
+    if (respuestaFilesystem != HEADER_archivo_creado)
     {
         // Siempre será posible crear un archivo y por lo tanto esta operación deberá devolver OK.
         //error
     }
-    return false;
+    return ;
 }
