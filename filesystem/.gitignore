@@ -2,7 +2,7 @@
 bin/
 obj/
 *.log
-
+../static-utils/*
 # Eclipse files
 RemoteSystemsTempFiles/
 Debug/
