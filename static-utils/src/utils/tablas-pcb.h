@@ -24,7 +24,7 @@ typedef struct info_segmentos t_info_segmentos;
 // Prototipos
 
 // Info segmentos y tabla segmentos
-t_info_segmentos *crear_info_segmentos(void);
+t_info_segmentos *crear_info_segmentos(uint32_t base, uint32_t tamanio);
 void destruir_info_segmentos(t_info_segmentos *infoSegmentos);
 t_buffer *empaquetar_tabla_segmentos(t_info_segmentos **tablaSegmentos);
 t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos, uint32_t tamanioTablaSegmentos);
