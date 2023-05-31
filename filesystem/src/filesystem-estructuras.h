@@ -4,6 +4,7 @@
 
 // Bibliotecas commons
 #include <commons/log.h>
+#include <commons/bitarray.h>
 #include <stdint.h>
 
 // Estructuras
