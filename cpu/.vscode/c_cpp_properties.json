@@ -1,6 +1,4 @@
 {
-  // See https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference
-  // for the documentation about the c_cpp_properties.json format
   "configurations": [
     {
       "name": "Linux",

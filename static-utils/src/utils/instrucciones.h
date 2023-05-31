@@ -254,4 +254,6 @@ void registros_cpu_set_registro_rbx(t_registros_cpu *self, char *valor);
 void registros_cpu_set_registro_rcx(t_registros_cpu *self, char *valor);
 void registros_cpu_set_registro_rdx(t_registros_cpu *self, char *valor);
 
+
+
 #endif

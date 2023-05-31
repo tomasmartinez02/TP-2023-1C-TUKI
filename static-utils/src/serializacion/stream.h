@@ -45,6 +45,8 @@ enum header
     HEADER_segmento_creado,
     HEADER_out_of_memory,
     HEADER_solicitud_creacion_archivo,
+    HEADER_tiempo_io,
+    HEADER_dispositivo_io,
     HEADER_solicitud_inicializacion_proceso,
     HEADER_tabla_segmentos,
     HEADER_archivo_creado,
