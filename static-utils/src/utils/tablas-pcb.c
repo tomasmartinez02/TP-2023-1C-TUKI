@@ -4,12 +4,12 @@
 
 // Funciones publicas
 
-t_info_segmentos *crear_info_segmentos(void)
+t_info_segmentos *crear_info_segmentos(uint32_t base, uint32_t tamanio)
 {
     t_info_segmentos *infoSegmentos = malloc(sizeof(*infoSegmentos));
 
-    infoSegmentos->direccionBase = 0;
-    infoSegmentos->tamanio = 0;
+    infoSegmentos->direccionBase = base;
+    infoSegmentos->tamanio = tamanio;
 
     return infoSegmentos;
 }
@@ -45,7 +45,7 @@ t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos,
     memset(tablaSegmentos, '\0', tamanioTablaSegmentos + 1);
 
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
-        t_info_segmentos *infoSegmento = crear_info_segmentos();
+        t_info_segmentos *infoSegmento = crear_info_segmentos(0,0);
 
         uint32_t direccionBase;
         buffer_unpack(bufferTablaSegmentos, &direccionBase, sizeof(direccionBase));
