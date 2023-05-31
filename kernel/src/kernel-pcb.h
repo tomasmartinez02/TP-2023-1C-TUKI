@@ -22,7 +22,6 @@
 // Builders y destroyers de estructuras
 t_pcb *crear_pcb(uint32_t pid);
 void destruir_pcb(t_pcb* pcb);
-t_info_segmentos *crear_info_segmentos(void);
 void destruir_info_segmentos(t_info_segmentos *infoSegmentos);
 
 // Interfaz pcb
