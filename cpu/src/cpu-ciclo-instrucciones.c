@@ -137,7 +137,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             incrementar_program_counter(pcb);
             enviar_pcb_desalojado_a_kernel(pcb);
             enviar_motivo_desalojo_wait(siguienteInstruccion);
-            terminarEjecucion = true;
+            // terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_signal:
@@ -146,7 +146,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             incrementar_program_counter(pcb);
             enviar_pcb_desalojado_a_kernel(pcb);
             enviar_motivo_desalojo_signal(siguienteInstruccion);
-            terminarEjecucion = true;
+            // terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_create_segment:

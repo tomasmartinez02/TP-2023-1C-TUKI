@@ -7,7 +7,6 @@
 void atender_peticiones_kernel(void)
 {
     for (;;) {
-
         t_cpu_pcb *pcbAEjecutar = recibir_pcb_de_kernel();
 
         bool terminarEjecucion = false;
@@ -17,6 +16,7 @@ void atender_peticiones_kernel(void)
         }
 
         cpu_pcb_destroy(pcbAEjecutar);
+
     }
 
     return;

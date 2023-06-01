@@ -17,7 +17,7 @@ void cpu_pcb_destroy(t_cpu_pcb* pcb)
 {
     destroy_lista_instrucciones(pcb->instrucciones);
     registros_cpu_destroy(pcb->registrosCpu);
-    destruir_tabla_segmentos(pcb->tablaSegmentos);
+    //destruir_tabla_segmentos(pcb->tablaSegmentos);
     free(pcb);
 
     return;

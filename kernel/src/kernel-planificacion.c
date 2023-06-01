@@ -165,7 +165,7 @@ void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo) // Habria que 
 {
     pcb_set_estado_finalizacion(pcbAExit, pcb_get_estado_actual(pcbAExit));
     pcb_set_proceso_bloqueado_o_terminado(pcbAExit, true);
-    log_finalizacion_proceso(pcbAExit, stringEstadoViejo);
+    // log_finalizacion_proceso(pcbAExit, stringEstadoViejo);
     __pcb_pasar_de_estado(pcbAExit, estadoExit, stringEstadoViejo, ESTADO_EXIT);
 
     return;
@@ -271,9 +271,8 @@ static void *__planificador_largo_plazo(void *args)
         t_pcb *pcbAReady = estado_desencolar_primer_pcb_atomic(estadoNew);
         sem_wait(&gradoMultiprogramacion); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
 
-
         // Pido a la memoria que inicialice al pcb y me devuelca la tabla de segmentos
-        t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
+        /* t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
         pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
 
         if (tablaSegmentos == NULL) {
@@ -281,7 +280,8 @@ static void *__planificador_largo_plazo(void *args)
         }
         else {
            __pcb_pasar_de_new_a_ready(pcbAReady);
-        }
+        } */
+        __pcb_pasar_de_new_a_ready(pcbAReady);
     }
 
     return NULL;
@@ -364,7 +364,8 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 break;
             }
             case HEADER_instruccion_io:
-            {
+            {   
+                log_info(kernelLogger, "Entra a la instruccion I/O");
                 uint32_t tiempoEjecucion = recibir_buffer_instruccion_io();
                 ejecutar_instruccion_io(pcbEnEjecucion, tiempoEjecucion);
                 break;
