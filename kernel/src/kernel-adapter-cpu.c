@@ -142,14 +142,10 @@ uint32_t recibir_buffer_instruccion_io(void)
 
 char *recibir_buffer_instruccion_con_recurso(void)
 {
-    log_info(kernelLogger, "Entra a recibir buffer instruccion con recurso");
     uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
     t_buffer *bufferRecurso = buffer_create();
-    log_info(kernelLogger, "Antes de recibir el buffer del recurso");
     stream_recv_buffer(socketCpu, bufferRecurso);
-    log_info(kernelLogger, "Recibe el buffer del recurso");
     char *recurso = buffer_unpack_string(bufferRecurso);
-    log_info(kernelDebuggingLogger, "Se recibio el recurso: %s", recurso);
     buffer_destroy(bufferRecurso);
 
     return recurso;

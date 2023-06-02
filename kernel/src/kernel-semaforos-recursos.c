@@ -53,9 +53,7 @@ bool semaforo_recurso_puedo_utilizar_recurso(t_semaforo_recurso *self)
 
 bool semaforo_recurso_debe_desbloquear_recurso(t_semaforo_recurso *self)
 {
-    log_info(kernelLogger, "Entra a debe desbloquear recurso");
     uint32_t instancias = semaforo_recurso_get_instancias(self);
-    log_info(kernelLogger, "obtiene las instancias");
     return (semaforo_recurso_hay_procesos_bloqueados(self) && instancias == 0);
 }
 
@@ -66,9 +64,7 @@ bool semaforo_recurso_debe_bloquear_proceso(t_semaforo_recurso *self)
 
 bool semaforo_recurso_hay_procesos_bloqueados(t_semaforo_recurso *self)
 {
-    log_info(kernelLogger, "Entra a hay procesos bloqueados");
     t_estado *colaBloqueados = semaforo_recurso_get_estado_recurso(self);
-    log_info(kernelLogger, "obtiene los recursos");
     return estado_contiene_pcbs_atomic(colaBloqueados);
 }
 

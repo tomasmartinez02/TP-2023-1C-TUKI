@@ -11,7 +11,7 @@ void* sleepHilo(void* parametrosHilo) {
     uint32_t tiempo = parametros->tiempo;
     t_pcb *pcbEnEjecucion = parametros->pcb;
 
-    intervalo_de_pausa(tiempo);
+    intervalo_de_pausa(tiempo*1000);
     pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
 
     free(parametros);
@@ -21,14 +21,12 @@ void* sleepHilo(void* parametrosHilo) {
 //  El proceso se bloquea por una cantidad determinada de tiempo.
 void ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempo)
 {   
-    log_info(kernelLogger, "Entra a io");
     pthread_t ejecutarTiempoIO;
     t_parametros_hilo* parametrosHilo = (t_parametros_hilo*)malloc(sizeof(t_parametros_hilo));
     parametrosHilo->tiempo = tiempo;
     parametrosHilo->pcb = pcbEnEjecucion;
 
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
-    log_info(kernelLogger, "Lo bloquea");
 
     pthread_create(&ejecutarTiempoIO, NULL, sleepHilo, (void*) parametrosHilo);
     pthread_detach(ejecutarTiempoIO);
@@ -51,16 +49,16 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         uint32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
 
         semaforo_recurso_wait(semaforoRecurso);
-        log_info(kernelLogger, "Bool bloqueo proceso: %d", semaforo_recurso_debe_bloquear_proceso(semaforoRecurso));
         if (semaforo_recurso_debe_bloquear_proceso(semaforoRecurso))
         {   
-            log_info(kernelLogger, "Entra en el if que no deberia");
             semaforo_recurso_bloquear_proceso(semaforoRecurso, pcbEnEjecucion); // Acá faltaria loguear la transicion de estados
             pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
             log_info(kernelDebuggingLogger, "No hay instancias del recurso solicitado, se bloquea el proceso.");
             log_info(kernelLogger, "No hay instancias del recurso solicitado, se bloquea el proceso.");
+        } else {
+            seguir_ejecutando(pcbEnEjecucion);
         }
-    
+
         log_ejecucion_wait(pcbEnEjecucion, nombreRecurso, instanciasRecurso);
     }
     return;
@@ -78,14 +76,10 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
     }
     else
     {
-        log_info(kernelLogger, "Entra al else");
         t_semaforo_recurso *semaforoRecurso = diccionario_semaforos_recursos_get_semaforo_recurso(diccionarioSemaforosRecursos, nombreRecurso);
         uint32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
-        log_info(kernelLogger, "linea 84");
         semaforo_recurso_post(semaforoRecurso);
-        log_info(kernelLogger, "linea 86");
         log_ejecucion_signal(pcbEnEjecucion, nombreRecurso, instanciasRecurso);
-        log_info(kernelLogger, "linea 88");
 
         if(semaforo_recurso_debe_desbloquear_recurso(semaforoRecurso))
         {   
@@ -95,10 +89,11 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
             log_info(kernelDebuggingLogger, "Se desbloquea el primer proceso de la cola de bloqueados del recurso %s", nombreRecurso);
             pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
         }
-        log_info(kernelLogger, "linea 98");
     }
-    log_info(kernelLogger, "Sale del else");
-     // Seguir la ejecucion del proceso que peticiono el SIGNAL
+    
+    seguir_ejecutando(pcbEnEjecucion);
+    
+    // Seguir la ejecucion del proceso que peticiono el SIGNAL
     return;
 }
 

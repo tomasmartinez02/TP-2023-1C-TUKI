@@ -70,9 +70,7 @@ static t_pcb *__estado_obtener_pcb_segun_maximo_hrrn_atomic(t_estado * estado)
 // Retorna si el estado contiene pcbs en su lista
 static bool __estado_contiene_pcbs(t_estado *estado)
 {
-    log_info(kernelLogger, "Entra a contiene pcbs");
     t_list *listaEstado = estado_get_list(estado);
-    log_info(kernelLogger, "Obtiene la lista");
 
     return !list_is_empty(listaEstado);
 }
@@ -128,11 +126,8 @@ void estado_encolar_pcb_atomic(t_estado *estadoDestino, t_pcb *pcbAEncolar)
 
 t_pcb *estado_desencolar_primer_pcb_atomic(t_estado *self) 
 {
-    log_info(kernelLogger, "Entra a desencolar primer pcb atomic");
     sem_wait(estado_get_semaforo(self));
-    log_info(kernelLogger, "Hace el wait del semaforo");
     pthread_mutex_lock(estado_get_mutex(self));
-    log_info(kernelLogger, "Hace el wait del mutex");
     t_pcb *pcb = __estado_desencolar_primer_pcb(self);
     pthread_mutex_unlock(estado_get_mutex(self));
     
@@ -168,13 +163,9 @@ t_pcb *estado_remover_pcb_segun_maximo_hrrn_atomic(t_estado *estado)
 
 bool estado_contiene_pcbs_atomic(t_estado *estado)
 {
-    log_info(kernelLogger, "Entra a contiene pcbs atomic");
     pthread_mutex_lock(estado_get_mutex(estado));
-    log_info(kernelLogger, "Entra al mutex");
     bool contienePcbs = __estado_contiene_pcbs(estado);
-    log_info(kernelLogger, "Iguala el booleano");
     pthread_mutex_unlock(estado_get_mutex(estado));
-    log_info(kernelLogger, "Libera el recurso");
 
     return contienePcbs;
 }
