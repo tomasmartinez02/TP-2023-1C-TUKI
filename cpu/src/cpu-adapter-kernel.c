@@ -157,7 +157,7 @@ void enviar_motivo_desalojo_io(t_instruccion *siguienteInstruccion)
     t_buffer *desalojoIo = buffer_create();
     uint32_t tiempoIo = instruccion_get_operando1(siguienteInstruccion);
     buffer_pack(desalojoIo, &tiempoIo, sizeof(tiempoIo));
-    stream_send_buffer(socketKernel, HEADER_tiempo_io, desalojoIo);
+    stream_send_buffer(socketKernel, HEADER_instruccion_io, desalojoIo);
     buffer_destroy(desalojoIo);
 }
 
@@ -167,9 +167,12 @@ void enviar_motivo_desalojo_signal(t_instruccion *siguienteInstruccion)
     t_buffer *desalojoSignal = buffer_create();
     char* dispositivoIo = instruccion_get_dispositivo_io(siguienteInstruccion);
     buffer_pack_string(desalojoSignal, dispositivoIo);
+    log_info(cpuLogger, "empaqueta el buffer de desalojo");
     stream_send_buffer(socketKernel, HEADER_instruccion_signal, desalojoSignal);
+    log_info(cpuLogger, "envia el buffer de desalojo");
     buffer_destroy(desalojoSignal);
     free(dispositivoIo); // no se si tengo que hacerlo
+    log_info(cpuLogger, "destruye el buffer de desalojo");
 }
 
 void enviar_motivo_desalojo_wait(t_instruccion *siguienteInstruccion)

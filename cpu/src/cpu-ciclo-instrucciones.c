@@ -72,8 +72,11 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
             incrementar_program_counter(pcb);
+            log_info(cpuLogger, "Se incrementa el pc");
             enviar_pcb_desalojado_a_kernel(pcb);
+            log_info(cpuLogger, "Envia el pcb");
             enviar_motivo_desalojo_io(siguienteInstruccion);
+            log_info(cpuLogger, "Envia el desalojo");
             terminarEjecucion = true;
             break;
         }
@@ -133,10 +136,15 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         }
         case INSTRUCCION_wait:
         {
+            log_info(cpuLogger, "Entra a wait");
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
+            log_info(cpuLogger, "Ejecuta wait");
             incrementar_program_counter(pcb);
+            log_info(cpuLogger, "Incrementa pc");
             enviar_pcb_desalojado_a_kernel(pcb);
+            log_info(cpuLogger, "Envia pcb");
             enviar_motivo_desalojo_wait(siguienteInstruccion);
+            log_info(cpuLogger, "Envia desalojo");
             // terminarEjecucion = true;
             break;
         }

@@ -195,19 +195,6 @@ static void __pcb_pasar_de_blocked_a_exit(t_pcb* pcbAExit)
     return;
 }
 
-void pcb_pasar_de_blocked_a_ready_public(t_pcb* pcbAReady)
-{   
-    __pcb_pasar_de_blocked_a_ready(pcbAReady);
-    return;
-}
-
-void pcb_pasar_de_running_a_blocked_public(t_pcb* pcbABlocked)
-{   
-    __pcb_pasar_de_running_a_blocked(pcbABlocked);
-    return;
-}
-
-
 // Termina el proceso del cual se le pasa el PCB
 static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 {
@@ -236,6 +223,18 @@ void pcb_pasar_de_running_a_exit_public(t_pcb* pcbAExit)
 {   
     __pcb_pasar_de_running_a_exit(pcbAExit);
     __terminar_proceso(pcbAExit, "El recurso solicitado no existe");
+    return;
+}
+
+void pcb_pasar_de_blocked_a_ready_public(t_pcb* pcbAReady)
+{   
+    __pcb_pasar_de_blocked_a_ready(pcbAReady);
+    return;
+}
+
+void pcb_pasar_de_running_a_blocked_public(t_pcb* pcbABlocked)
+{   
+    __pcb_pasar_de_running_a_blocked(pcbABlocked);
     return;
 }
 
@@ -324,7 +323,9 @@ static t_pcb *__elegir_pcb(t_estado* estado)
 static void *__ejecucion_desalojo_pcb(void *args)
 {
     for (;;) {
+        log_info(kernelLogger, "Desencola el pcb");
         t_pcb *pcbEnEjecucion = estado_desencolar_primer_pcb_atomic(estadoExecute);
+        log_info(kernelLogger, "Desencola el pcb");
 
         timestamp inicioEjecucionProceso;
         timestamp finEjecucionProceso;
@@ -334,15 +335,19 @@ static void *__ejecucion_desalojo_pcb(void *args)
         ejecutar_proceso(pcbEnEjecucion); 
         recibir_proceso_desajolado(pcbEnEjecucion);
         set_timespec(&finEjecucionProceso);
+        log_info(kernelLogger, "setea los timestamps");
 
         // Actualizo el estimado en el pcb segun el real ejecutado
         double tiempoRealEjecutadoEnCpu = obtener_diferencial_de_tiempo_en_milisegundos(&finEjecucionProceso, &inicioEjecucionProceso);
         pcb_estimar_proxima_rafaga(pcbEnEjecucion, tiempoRealEjecutadoEnCpu);
+        log_info(kernelLogger, "Estima la proxima rafaga");
 
         // Recibe motivo de desalojo del proceso
         uint8_t headerPcbRecibido = recibir_motivo_desalojo(); 
+        log_info(kernelLogger, "Recibe el motivo de desalojo");
 
         // Ejecuto la instruccion que ha producido el desalojo
+        log_info(kernelLogger,"se recibe el header %d", headerPcbRecibido);
         switch(headerPcbRecibido)
         {
             case HEADER_instruccion_yield:
@@ -424,15 +429,21 @@ static void *__ejecucion_desalojo_pcb(void *args)
             }
             case HEADER_instruccion_wait:
             {   
+                log_info(kernelLogger, "Entra a la instruccion wait");
                 char* nombreRecurso = recibir_buffer_instruccion_con_recurso();
+                log_info(kernelLogger, "Evia el buffer");
                 ejecutar_instruccion_wait(pcbEnEjecucion, nombreRecurso);
+                log_info(kernelLogger, "Ejecuta wait");
                 free(nombreRecurso);
                 break;
             }
             case HEADER_instruccion_signal:
             {
+                log_info(kernelLogger, "Entra a signal");
                 char* nombreRecurso = recibir_buffer_instruccion_con_recurso();
+                log_info(kernelLogger, "Recibe el buffer");
                 ejecutar_instruccion_signal(pcbEnEjecucion, nombreRecurso);
+                log_info(kernelLogger, "Ejecuta signal");
                 free(nombreRecurso);
                 break;
             }
@@ -454,6 +465,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
         } 
 
         sem_post(&dispatchPermitido);
+        log_info(kernelLogger, "Hace el post de dispatch");
     }
 
     return NULL;

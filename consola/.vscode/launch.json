@@ -12,7 +12,7 @@
       "args": [
         // TODO: Agregar los argumentos que se necesiten
         "./config/config-inicial.config",
-        "./instrucciones/instrucciones1"
+        "./instrucciones/instrucciones2"
       ],
       "stopAtEntry": true,
       "cwd": "${workspaceFolder}",
