@@ -152,7 +152,7 @@ void log_creacion_nuevo_segmento(t_pcb *pcb, uint32_t idSegmento, uint32_t taman
     return;
 }
 
-void log_ejecucion_wait(t_pcb* pcb, char* nombreRecurso, uint32_t instanciasRecurso)
+void log_ejecucion_wait(t_pcb* pcb, char* nombreRecurso, int32_t instanciasRecurso)
 {   
     char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
     char *nombreRecursoAmarillo = string_to_yellow_string(nombreRecurso);
@@ -167,7 +167,7 @@ void log_ejecucion_wait(t_pcb* pcb, char* nombreRecurso, uint32_t instanciasRecu
     return;
 }
 
-void log_ejecucion_signal(t_pcb* pcb, char* nombreRecurso, uint32_t instanciasRecurso)
+void log_ejecucion_signal(t_pcb* pcb, char* nombreRecurso, int32_t instanciasRecurso)
 {   
     char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
     char *nombreRecursoAmarillo = string_to_yellow_string(nombreRecurso);

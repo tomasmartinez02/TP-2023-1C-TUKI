@@ -1,5 +1,6 @@
 #include <kernel-instrucciones.h>
 // Utils
+
 struct parametrosHilo{
     t_pcb* pcb;
     uint32_t tiempo;
@@ -42,11 +43,12 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         log_error(kernelLogger, "El recurso solicitado no existe");
         log_error(kernelDebuggingLogger, "El recurso solicitado no existe");
         pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
+        sem_post(&dispatchPermitido);
     }
     else 
     {
         t_semaforo_recurso *semaforoRecurso = diccionario_semaforos_recursos_get_semaforo_recurso(diccionarioSemaforosRecursos, nombreRecurso);
-        uint32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
+        int32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
 
         semaforo_recurso_wait(semaforoRecurso);
         if (semaforo_recurso_debe_bloquear_proceso(semaforoRecurso))
@@ -55,6 +57,7 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
             pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
             log_info(kernelDebuggingLogger, "No hay instancias del recurso solicitado, se bloquea el proceso.");
             log_info(kernelLogger, "No hay instancias del recurso solicitado, se bloquea el proceso.");
+            sem_post(&dispatchPermitido);
         } else {
             seguir_ejecutando(pcbEnEjecucion);
         }
@@ -73,11 +76,12 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         log_error(kernelLogger, "El recurso solicitado no existe");
         log_error(kernelDebuggingLogger, "El recurso solicitado no existe");
         pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
+        sem_post(&dispatchPermitido);
     }
     else
     {
         t_semaforo_recurso *semaforoRecurso = diccionario_semaforos_recursos_get_semaforo_recurso(diccionarioSemaforosRecursos, nombreRecurso);
-        uint32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
+        int32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
         semaforo_recurso_post(semaforoRecurso);
         log_ejecucion_signal(pcbEnEjecucion, nombreRecurso, instanciasRecurso);
 
@@ -89,9 +93,8 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
             log_info(kernelDebuggingLogger, "Se desbloquea el primer proceso de la cola de bloqueados del recurso %s", nombreRecurso);
             pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
         }
+        seguir_ejecutando(pcbEnEjecucion);
     }
-    
-    seguir_ejecutando(pcbEnEjecucion);
     
     // Seguir la ejecucion del proceso que peticiono el SIGNAL
     return;

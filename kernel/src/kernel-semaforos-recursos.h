@@ -14,7 +14,7 @@
 // Interfaz de semaforo_recurso
 
 // Getters y setters semaforo recurso
-uint32_t semaforo_recurso_get_instancias(t_semaforo_recurso *self);
+int32_t semaforo_recurso_get_instancias(t_semaforo_recurso *self);
 t_estado *semaforo_recurso_get_estado_recurso(t_semaforo_recurso *self);
 void semaforo_recurso_wait(t_semaforo_recurso *self);
 void semaforo_recurso_post(t_semaforo_recurso *self);
