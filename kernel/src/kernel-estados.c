@@ -165,7 +165,7 @@ bool estado_contiene_pcbs_atomic(t_estado *estado)
 {
     pthread_mutex_lock(estado_get_mutex(estado));
     bool contienePcbs = __estado_contiene_pcbs(estado);
-    pthread_mutex_lock(estado_get_mutex(estado));
+    pthread_mutex_unlock(estado_get_mutex(estado));
 
     return contienePcbs;
 }

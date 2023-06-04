@@ -30,8 +30,8 @@ void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t p
 void log_creacion_nuevo_proceso(t_pcb *pcbNuevo);
 void log_ingreso_cola_ready(t_estado *estadoReady);
 void log_finalizacion_proceso(t_pcb *pcbFinalizado, char *motivoFinalizacion);
-void log_ejecucion_signal(t_pcb* pcb, char* nombreRecurso, uint32_t instanciasRecurso);
-void log_ejecucion_wait(t_pcb* pcb, char* nombreRecurso, uint32_t instanciasRecurso);
+void log_ejecucion_signal(t_pcb* pcb, char* nombreRecurso, int32_t instanciasRecurso);
+void log_ejecucion_wait(t_pcb* pcb, char* nombreRecurso, int32_t instanciasRecurso);
 void log_ejecucion_io(t_pcb* pcb, uint32_t tiempo);
 void log_creacion_nuevo_segmento(t_pcb *pcb, uint32_t idSegmento, uint32_t tamanio);
 

@@ -3,7 +3,7 @@
 // Funciones privadas
 
 // Crea una instancia de semaforo recurso para el diccionario de recursos
-static t_semaforo_recurso *__crear_semaforo_recurso(uint32_t instancias)
+static t_semaforo_recurso *__crear_semaforo_recurso(int32_t instancias)
 {
     t_semaforo_recurso *semaforoRecurso = malloc(sizeof(*semaforoRecurso));
     
@@ -25,7 +25,7 @@ static void __destruir_semaforo_recurso(void *semaforoRecursoVoid)
 // Funciones publicas
 
 // Getters y setters semaforo recurso
-uint32_t semaforo_recurso_get_instancias(t_semaforo_recurso *self)
+int32_t semaforo_recurso_get_instancias(t_semaforo_recurso *self)
 {
     return self->instancias;
 }
@@ -47,13 +47,13 @@ void semaforo_recurso_post(t_semaforo_recurso *self)
 
 bool semaforo_recurso_puedo_utilizar_recurso(t_semaforo_recurso *self)
 {
-    uint32_t instancias = semaforo_recurso_get_instancias(self);
+    int32_t instancias = semaforo_recurso_get_instancias(self);
     return instancias >= 0;
 }
 
 bool semaforo_recurso_debe_desbloquear_recurso(t_semaforo_recurso *self)
 {
-    uint32_t instancias = semaforo_recurso_get_instancias(self);
+    int32_t instancias = semaforo_recurso_get_instancias(self);
     return (semaforo_recurso_hay_procesos_bloqueados(self) && instancias == 0);
 }
 
@@ -88,7 +88,7 @@ t_dictionary *crear_diccionario_semaforos_recursos(char **recursos, char **insta
     t_dictionary *diccionarioSemaforosRecursos = dictionary_create();
 
     for (int i = 0; recursos[i] != NULL && instanciasRecursos[i] != NULL; i++) {
-        uint32_t instancias = (uint32_t) atoi(instanciasRecursos[i]);
+        int32_t instancias = (uint32_t) atoi(instanciasRecursos[i]);
         t_semaforo_recurso *semaforoRecurso = __crear_semaforo_recurso(instancias);
 
         char *nombreRecurso = recursos[i];

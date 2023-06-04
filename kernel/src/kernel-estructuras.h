@@ -89,7 +89,7 @@ typedef struct pcb t_pcb;
 
 struct semaforo_recurso
 {
-    uint32_t instancias;
+    int32_t instancias;
     t_estado *estadoRecurso;
 };
 typedef struct semaforo_recurso t_semaforo_recurso;
@@ -99,6 +99,7 @@ extern t_log *kernelDebuggingLogger;
 extern t_log *kernelLogger;
 extern t_kernel_config *kernelConfig;
 extern t_dictionary *tablaArchivosAbiertos;
+extern sem_t dispatchPermitido;
 // Estados
 extern t_estado *estadoNew;
 extern t_estado *estadoReady;

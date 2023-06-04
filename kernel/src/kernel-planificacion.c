@@ -13,7 +13,7 @@ t_estado *estadoExit;
 
 // Semaforos planificacion
 static sem_t gradoMultiprogramacion;
-static sem_t dispatchPermitido;
+sem_t dispatchPermitido;
 
 // Funciones privadas
 
@@ -85,6 +85,12 @@ static t_pcb *__crear_nuevo_pcb(int socketConsola, t_buffer *bufferInstrucciones
     return nuevoPcb;
 }
 
+// Funcion para que siga ejecutando el mismo pcb
+void seguir_ejecutando(t_pcb* pcbEnEjecucion)
+{
+    estado_encolar_pcb_atomic(estadoExecute, pcbEnEjecucion);
+    return ;
+}
 
 // TRANSICIONES DE ESTADOS
 
@@ -165,7 +171,7 @@ void __pcb_pasar_a_exit(t_pcb* pcbAExit, char *stringEstadoViejo) // Habria que 
 {
     pcb_set_estado_finalizacion(pcbAExit, pcb_get_estado_actual(pcbAExit));
     pcb_set_proceso_bloqueado_o_terminado(pcbAExit, true);
-    log_finalizacion_proceso(pcbAExit, stringEstadoViejo);
+    // log_finalizacion_proceso(pcbAExit, stringEstadoViejo);
     __pcb_pasar_de_estado(pcbAExit, estadoExit, stringEstadoViejo, ESTADO_EXIT);
 
     return;
@@ -195,19 +201,6 @@ static void __pcb_pasar_de_blocked_a_exit(t_pcb* pcbAExit)
     return;
 }
 
-void pcb_pasar_de_blocked_a_ready_public(t_pcb* pcbAReady)
-{   
-    __pcb_pasar_de_blocked_a_ready(pcbAReady);
-    return;
-}
-
-void pcb_pasar_de_running_a_blocked_public(t_pcb* pcbABlocked)
-{   
-    __pcb_pasar_de_running_a_blocked(pcbABlocked);
-    return;
-}
-
-
 // Termina el proceso del cual se le pasa el PCB
 static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 {
@@ -236,6 +229,18 @@ void pcb_pasar_de_running_a_exit_public(t_pcb* pcbAExit)
 {   
     __pcb_pasar_de_running_a_exit(pcbAExit);
     __terminar_proceso(pcbAExit, "El recurso solicitado no existe");
+    return;
+}
+
+void pcb_pasar_de_blocked_a_ready_public(t_pcb* pcbAReady)
+{   
+    __pcb_pasar_de_blocked_a_ready(pcbAReady);
+    return;
+}
+
+void pcb_pasar_de_running_a_blocked_public(t_pcb* pcbABlocked)
+{   
+    __pcb_pasar_de_running_a_blocked(pcbABlocked);
     return;
 }
 
@@ -271,9 +276,8 @@ static void *__planificador_largo_plazo(void *args)
         t_pcb *pcbAReady = estado_desencolar_primer_pcb_atomic(estadoNew);
         sem_wait(&gradoMultiprogramacion); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
 
-
         // Pido a la memoria que inicialice al pcb y me devuelca la tabla de segmentos
-        t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
+        /* t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
         pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
 
         if (tablaSegmentos == NULL) {
@@ -281,7 +285,8 @@ static void *__planificador_largo_plazo(void *args)
         }
         else {
            __pcb_pasar_de_new_a_ready(pcbAReady);
-        }
+        } */
+        __pcb_pasar_de_new_a_ready(pcbAReady);
     }
 
     return NULL;
@@ -320,6 +325,17 @@ static t_pcb *__elegir_pcb(t_estado* estado)
     }
 }
 
+// Permite o no el dispatch
+/*static void __evaluarDispatch(sem_t *dispatchPermitido,char* nombreRecurso)
+{
+    t_dictionary *diccionarioSemaforosRecursos = kernel_config_get_diccionario_semaforos(kernelConfig);
+    t_semaforo_recurso *semaforoRecurso = diccionario_semaforos_recursos_get_semaforo_recurso(diccionarioSemaforosRecursos, nombreRecurso);
+     if (semaforo_recurso_debe_bloquear_proceso(semaforoRecurso)){
+    sem_post(dispatchPermitido);
+    log_info(kernelDebuggingLogger, "Hace el post de dispatch");
+    }
+} */
+
 // Pone en ejecucion al pcb y recibe el pcb desalojado por la cpu
 static void *__ejecucion_desalojo_pcb(void *args)
 {
@@ -349,24 +365,28 @@ static void *__ejecucion_desalojo_pcb(void *args)
             {   
                 recibir_buffer_vacio_instruccion();
                 __pcb_pasar_de_running_a_ready(pcbEnEjecucion);
+                sem_post(&dispatchPermitido);
                 break;
             }
             case HEADER_instruccion_exit:
             {
                 recibir_buffer_vacio_instruccion();
                 __terminar_proceso(pcbEnEjecucion, FINALIZACION_SUCCESS);
+                sem_post(&dispatchPermitido);
                 break;
             }
             case HEADER_segmentation_fault:
             {
                 recibir_buffer_vacio_instruccion();
                 __terminar_proceso(pcbEnEjecucion,FINALIZACION_SEGFAULT);
+                sem_post(&dispatchPermitido);
                 break;
             }
             case HEADER_instruccion_io:
             {
                 uint32_t tiempoEjecucion = recibir_buffer_instruccion_io();
                 ejecutar_instruccion_io(pcbEnEjecucion, tiempoEjecucion);
+                sem_post(&dispatchPermitido);
                 break;
             }
             case HEADER_instruccion_fopen:
@@ -432,6 +452,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
             {
                 char* nombreRecurso = recibir_buffer_instruccion_con_recurso();
                 ejecutar_instruccion_signal(pcbEnEjecucion, nombreRecurso);
+                //__evaluarDispatch(&dispatchPermitido,nombreRecurso);
                 free(nombreRecurso);
                 break;
             }
@@ -452,7 +473,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
             }
         } 
 
-        sem_post(&dispatchPermitido);
+        // sem_post(&dispatchPermitido);
     }
 
     return NULL;

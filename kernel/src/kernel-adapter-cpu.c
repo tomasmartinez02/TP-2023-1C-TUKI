@@ -34,8 +34,8 @@ void enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
     stream_send_buffer(socketCpu, HEADER_pcb_a_ejecutar, bufferPcb);
     buffer_destroy(bufferPcb);
     // Nunca recibimos tamanio tabla segmentos
-    t_buffer *bufferTablaSegmentos = pcb_get_tabla_segmentos(pcbAEnviar);
-    stream_send_buffer(socketCpu, HEADER_tabla_segmentos, bufferTablaSegmentos);
+    // t_buffer *bufferTablaSegmentos = pcb_get_tabla_segmentos(pcbAEnviar);
+    // stream_send_buffer(socketCpu, HEADER_tabla_segmentos, bufferTablaSegmentos);
 
     t_buffer *bufferInstrucciones = pcb_get_instrucciones(pcbAEnviar);
     stream_send_buffer(socketCpu, HEADER_lista_instrucciones, bufferInstrucciones);
