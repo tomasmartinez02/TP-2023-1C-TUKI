@@ -50,7 +50,7 @@ static t_info_segmentos **__desempaquetar_tabla_segmentos()
     // Recibo header y chequeo que no haya error
     t_header headerTablaSegmentos = stream_recv_header(socketKernel);
     if (headerTablaSegmentos != HEADER_tabla_segmentos) {
-        log_error(cpuLogger, "Error al intentar recibir tabla de segmentos del pcb del kernel");
+        log_error(cpuLogger, "Error al intentar recibir tabla de segmentos del pcb del kernel %d", headerTablaSegmentos);
         log_error(cpuDebuggingLogger, "Error al intentar recibir tabla de segmentos del pcb del kernel");
         exit(EXIT_FAILURE);
     }
@@ -118,8 +118,8 @@ t_cpu_pcb *recibir_pcb_de_kernel()
 {   
     t_cpu_pcb *pcbRecibido = __desempaquetar_pcb();
 
-    t_info_segmentos **tablaSegmentos = __desempaquetar_tabla_segmentos();
-    cpu_pcb_set_tabla_segmentos(pcbRecibido, tablaSegmentos);
+    // t_info_segmentos **tablaSegmentos = __desempaquetar_tabla_segmentos();
+    // cpu_pcb_set_tabla_segmentos(pcbRecibido, tablaSegmentos);
     
     t_list *listaInstrucciones = __desempaquetar_instrucciones();
     cpu_pcb_set_instrucciones(pcbRecibido, listaInstrucciones);
@@ -156,7 +156,7 @@ void enviar_motivo_desalojo_io(t_instruccion *siguienteInstruccion)
     t_buffer *desalojoIo = buffer_create();
     uint32_t tiempoIo = instruccion_get_operando1(siguienteInstruccion);
     buffer_pack(desalojoIo, &tiempoIo, sizeof(tiempoIo));
-    stream_send_buffer(socketKernel, HEADER_tiempo_io, desalojoIo);
+    stream_send_buffer(socketKernel, HEADER_instruccion_io, desalojoIo);
     buffer_destroy(desalojoIo);
 }
 
@@ -166,14 +166,21 @@ void enviar_motivo_desalojo_signal(t_instruccion *siguienteInstruccion)
     t_buffer *desalojoSignal = buffer_create();
     char* dispositivoIo = instruccion_get_dispositivo_io(siguienteInstruccion);
     buffer_pack(desalojoSignal, dispositivoIo, strlen(dispositivoIo)+1);
-    stream_send_buffer(socketKernel, HEADER_dispositivo_io, desalojoSignal);
+    buffer_pack_string(desalojoSignal, dispositivoIo);
+    stream_send_buffer(socketKernel, HEADER_instruccion_signal, desalojoSignal);
     buffer_destroy(desalojoSignal);
     free(dispositivoIo); // no se si tengo que hacerlo
 }
 
 void enviar_motivo_desalojo_wait(t_instruccion *siguienteInstruccion)
 {
-    enviar_motivo_desalojo_signal(siguienteInstruccion);
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoSignal = buffer_create();
+    char* dispositivoIo = instruccion_get_dispositivo_io(siguienteInstruccion);
+    buffer_pack_string(desalojoSignal, dispositivoIo);
+    stream_send_buffer(socketKernel, HEADER_instruccion_wait, desalojoSignal);
+    buffer_destroy(desalojoSignal);
+    free(dispositivoIo); // no se si tengo que hacerlo
 }
 
 void enviar_motivo_desalojo_create_segment(t_instruccion *siguienteInstruccion)
