@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": { 
+		"files.associations": {
+			"*.h": "c",
+			"cstdint": "c"
+		}, 
+		"C_Cpp.errorSquiggles": "disabled", 
+	}, 
+}
