@@ -183,13 +183,57 @@ void log_ejecucion_signal(t_pcb* pcb, char* nombreRecurso, int32_t instanciasRec
 
 void log_ejecucion_io(t_pcb* pcb, uint32_t tiempo)
 {   
-    char *pidAmarillo = int_to_yellow_string(pcb_get_pid(pcb));
-    char *tiempoAmarillo = int_to_yellow_string(tiempo);
+    uint32_t pid = pcb_get_pid(pcb);
+    log_info(kernelLogger, "PID: <%d> - Ejecuta IO: <%d>", pid, tiempo);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Ejecuta IO: <%d>", pid, tiempo);
+    return;   
+}
+void log_ejecucion_fopen(t_pcb* pcb, char *nombreArchivo)
+{   
+    uint32_t pid = pcb_get_pid(pcb);
+    log_info(kernelLogger, "PID: <%d> - Abrir Archivo: <%s>", pid, nombreArchivo);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Abrir Archivo: <%s>", pid, nombreArchivo);
+    return;   
+}
 
-    log_info(kernelLogger, "PID: <%s> - Ejecuta IO: <%s>" , pidAmarillo, tiempoAmarillo);
-    log_info(kernelDebuggingLogger, "PID: <%s> - Ejecuta IO: <%s>" , pidAmarillo, tiempoAmarillo);
-    free(pidAmarillo);
-    free(tiempoAmarillo);
+void log_ejecucion_fclose(t_pcb* pcb, char *nombreArchivo)
+{   
+    uint32_t pid = pcb_get_pid(pcb);
+    log_info(kernelLogger, "PID: <%d> - Cerrar Archivo: <%s>", pid, nombreArchivo);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Cerrar Archivo: <%s> <3", pid, nombreArchivo);
+    return;   
+}
+
+void log_ejecucion_fseek(t_pcb* pcb, char *nombreArchivo, uint32_t puntero)
+{
+    //Nota: El valor del puntero debe ser luego de ejecutar F_SEEK.
+    uint32_t pid = pcb_get_pid(pcb);
+    log_info(kernelLogger, "PID: <%d> - Actualizar puntero Archivo: <%s> - Puntero: <%d>", pid, nombreArchivo, puntero);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Actualizar puntero Archivo: <%s> - Puntero: <%d>", pid, nombreArchivo, puntero);
+    return;   
+}
+
+void log_ejecucion_ftruncate(t_pcb* pcb, char *nombreArchivo, uint32_t tamanio)
+{   
+    uint32_t pid = pcb_get_pid(pcb);
+    log_info(kernelLogger, "PID: <%d> - Abrir Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Abrir Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
+    return;   
+}
+
+void log_ejecucion_fread(t_pcb* pcb, char *nombreArchivo, uint32_t puntero, uint32_t direccion, uint32_t tamanio)
+{   
+    uint32_t pid = pcb_get_pid(pcb);
+    log_info(kernelLogger, "PID: <%d> - Leer Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Leer Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
+    return;   
+}
+
+void log_ejecucion_fwrite(t_pcb* pcb, char *nombreArchivo, uint32_t puntero, uint32_t direccion, uint32_t tamanio)
+{   
+    uint32_t pid = pcb_get_pid(pcb);
+    log_info(kernelLogger, "PID: <%d> - Escribir Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Escribir Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
     return;   
 }
 
