@@ -58,6 +58,7 @@ t_bitarray *abrir_bitmap (char* pathBitmap, uint32_t blockCount)
     uint32_t tamanioBitmap = (blockCount / 8);
     if (ftruncate(fileDescriptor,tamanioBitmap) == -1) {
         // error al truncar el archivo
+        //ponele unos logs xfis<3
     }
 
     char* bitmap = mmap(NULL, tamanioBitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor,0);
