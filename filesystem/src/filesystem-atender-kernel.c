@@ -9,12 +9,14 @@ void verificar_existencia_archivo(char *nombreArchivo) // para abrir archivo
     //Si no existe informar que no existe --> no se si hace falta un HEADER_archivo_inexistente o solo con mandar un error basta
 }
 
-void crear_archivo(char *nombreArchivo)
+t_fcb *crear_archivo(char *nombreArchivo)
 {   
-    //  crear un archivo FCB correspondiente al nuevo archivo, con tamaño 0 y sin bloques asociados.
+    // Crear un archivo FCB correspondiente al nuevo archivo, con tamaño 0 y sin bloques asociados.
     // Siempre será posible crear un archivo y por lo tanto esta operación deberá devolver OK.
+    t_fcb* nuevoFcb = crear_fcb(nombreArchivo);
     enviar_confirmacion_archivo_creado();
     log_crear_archivo(nombreArchivo);
+    return nuevoFcb;
 }
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
@@ -51,55 +53,60 @@ void escribir_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionF
 }
 
 void atender_peticiones_kernel()
-{
-    uint8_t headerPeticionRecibida = recibir_header_peticion_de_kernel();
-    // Ejecuto el pedido que hizo kernel
-    switch(headerPeticionRecibida)
+{   
+    // Loop infinito para que este atento a los pedidos de kernel
+    for (;;)
     {
-        case HEADER_solicitud_creacion_archivo:
-        {      
-            char* nombreArchivo = recibir_buffer_nombre_archivo();
-            //crear_archivo(nombreArchivo);
-            free(nombreArchivo);
-            break;
-        }
-        case HEADER_solicitud_escribir_archivo:
-        {   
-            char *nombreArchivo = NULL;
-            uint32_t direccionFisica;
-            uint32_t cantidadBytes;
-            uint32_t puntero;
-            recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
-            //escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
-            free(nombreArchivo);
-            break;
-        }
-        case HEADER_solicitud_leer_archivo:
+        uint8_t headerPeticionRecibida = recibir_header_peticion_de_kernel();
+        // Ejecuto el pedido que hizo kernel
+        switch(headerPeticionRecibida)
         {
-            char *nombreArchivo = NULL;
-            uint32_t direccionFisica;
-            uint32_t cantidadBytes;
-            uint32_t puntero;
-            recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
-            //leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
-            free(nombreArchivo);
-            break;
+            case HEADER_solicitud_creacion_archivo:
+            {      
+                char* nombreArchivo = recibir_buffer_nombre_archivo();
+                crear_archivo(nombreArchivo);
+                free(nombreArchivo);
+                break;
+            }
+            case HEADER_solicitud_escribir_archivo:
+            {   
+                char *nombreArchivo = NULL;
+                uint32_t direccionFisica;
+                uint32_t cantidadBytes;
+                uint32_t puntero;
+                recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
+                //escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+                free(nombreArchivo);
+                break;
+            }
+            case HEADER_solicitud_leer_archivo:
+            {
+                char *nombreArchivo = NULL;
+                uint32_t direccionFisica;
+                uint32_t cantidadBytes;
+                uint32_t puntero;
+                recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
+                //leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+                free(nombreArchivo);
+                break;
+            }
+            case HEADER_solicitud_modificar_tamanio_archivo:
+            {   
+                char *nombreArchivo = NULL;
+                uint32_t tamanioNuevo;
+                recibir_buffer_truncate_archivo(&nombreArchivo, &tamanioNuevo);
+                //truncar_archivo(nombreArchivo, tamanioNuevo);
+                free(nombreArchivo);
+                break;
+            }
+            case HEADER_consulta_existencia_archivo:
+            {   
+                char* nombreArchivo = recibir_buffer_nombre_archivo();
+                //verificar_existencia_archivo(nombreArchivo);
+                free(nombreArchivo);
+                break;
+            }
         }
-        case HEADER_solicitud_modificar_tamanio_archivo:
-        {   
-            char *nombreArchivo = NULL;
-            uint32_t tamanioNuevo;
-            recibir_buffer_truncate_archivo(&nombreArchivo, &tamanioNuevo);
-            //truncar_archivo(nombreArchivo, tamanioNuevo);
-            free(nombreArchivo);
-            break;
-        }
-        case HEADER_consulta_existencia_archivo:
-        {   
-            char* nombreArchivo = recibir_buffer_nombre_archivo();
-            //verificar_existencia_archivo(nombreArchivo);
-            free(nombreArchivo);
-            break;
-        }
+
     }
 }

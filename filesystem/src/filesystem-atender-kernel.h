@@ -19,6 +19,7 @@
 #include <filesystem-config.h>
 #include <filesystem-adapter-kernel.h>
 #include <filesystem-utils.h>
+#include <filesystem-fcb.h>
 
 void atender_peticiones_kernel(void);
 
