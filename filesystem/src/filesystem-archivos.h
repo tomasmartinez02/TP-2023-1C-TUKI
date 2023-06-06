@@ -58,8 +58,14 @@ uint32_t get_superbloque_block_size (t_superbloque *superbloque);
  */
 uint32_t get_superbloque_block_count(t_superbloque *superbloque);
 
-t_bitarray *abrir_bitmap (char* pathBitmap, uint32_t blockCount);
+void abrir_bitmap (char* pathBitmap, uint32_t blockCount);
 
 void crear_bitmap(char *pathBitmap, uint32_t blockCount);
+
+void destruir_bitmap (void);
+
+void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize);
+
+void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize);
 
 #endif

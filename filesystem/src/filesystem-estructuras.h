@@ -31,6 +31,14 @@ struct superbloque
 };
 typedef struct superbloque t_superbloque;
 
+struct bitmap
+{
+    char *direccion;
+    uint32_t tamanio;
+    t_bitarray *bitarray;
+};
+typedef struct bitmap t_bitmap;
+
 struct fcb
 {
     char *NOMBRE_ARCHIVO;
@@ -45,6 +53,6 @@ extern t_log *filesystemLogger;
 extern t_log *filesystemDebuggingLogger;
 extern t_filesystem_config *filesystemConfig;
 extern t_superbloque *superbloque;
-extern t_bitarray *bitmap;
+extern t_bitmap *bitmap;
 
 #endif
