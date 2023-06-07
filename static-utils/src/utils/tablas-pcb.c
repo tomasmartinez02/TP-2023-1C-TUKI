@@ -69,9 +69,8 @@ t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos,
     return tablaSegmentos;
 }
 
-void destruir_tabla_segmentos(t_info_segmentos **tablaSegmentos)
+void destruir_tabla_segmentos(t_info_segmentos **tablaSegmentos, uint32_t tamanioTablaSegmentos)
 {
-    uint32_t tamanioTablaSegmentos = tamanio_tabla_segmentos(tablaSegmentos);
 
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
         t_info_segmentos *infoSegmento = tablaSegmentos[i];
