@@ -65,6 +65,12 @@ void atender_peticiones_kernel()
             {      
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
                 crear_archivo(nombreArchivo);
+
+                // PARA PROBAR //
+                log_info(filesystemDebuggingLogger, "fs recive la solicitud de crear archivo %s", nombreArchivo);
+                log_info(filesystemLogger,"fs recive la solicitud de crear archivo %s", nombreArchivo);
+                enviar_confirmacion_archivo_creado();
+
                 free(nombreArchivo);
                 break;
             }
@@ -75,6 +81,12 @@ void atender_peticiones_kernel()
                 uint32_t cantidadBytes;
                 uint32_t puntero;
                 recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
+
+                // PARA PROBAR //
+                log_info(filesystemDebuggingLogger, "fs recive la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "fs recive la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                enviar_confirmacion_escritura_finalizada();
+                
                 //escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
                 free(nombreArchivo);
                 break;
@@ -87,6 +99,12 @@ void atender_peticiones_kernel()
                 uint32_t puntero;
                 recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
                 //leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+
+                // PARA PROBAR //
+                log_info(filesystemDebuggingLogger, "fs recive la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "fs recive la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                enviar_confirmacion_lectura_finalizada();
+
                 free(nombreArchivo);
                 break;
             }
@@ -96,6 +114,12 @@ void atender_peticiones_kernel()
                 uint32_t tamanioNuevo;
                 recibir_buffer_truncate_archivo(&nombreArchivo, &tamanioNuevo);
                 //truncar_archivo(nombreArchivo, tamanioNuevo);
+
+                // PARA PROBAR //
+                log_info(filesystemDebuggingLogger, "fs recive la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
+                log_info(filesystemLogger, "fs recive la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
+                enviar_confirmacion_tamanio_archivo_modificado();
+
                 free(nombreArchivo);
                 break;
             }
@@ -103,6 +127,11 @@ void atender_peticiones_kernel()
             {   
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
                 //verificar_existencia_archivo(nombreArchivo);
+
+                // PARA PROBAR //
+                log_info(filesystemDebuggingLogger, "fs recive la consulta de existencia del archivo %s", nombreArchivo );
+                enviar_confirmacion_existencia_archivo();
+
                 free(nombreArchivo);
                 break;
             }
