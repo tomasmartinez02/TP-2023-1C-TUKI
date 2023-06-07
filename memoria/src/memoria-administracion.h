@@ -13,5 +13,6 @@
 // Prototipos
 
 void inicializar_memoria(void);
+void actualizar_lista_huecos_libres (t_info_segmentos *segmento);
 
 #endif

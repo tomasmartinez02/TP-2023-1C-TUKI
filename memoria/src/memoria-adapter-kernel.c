@@ -1,0 +1,1 @@
+#include <memoria-adapter-kernel.h>
