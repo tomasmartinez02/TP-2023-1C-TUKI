@@ -121,12 +121,6 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 
 void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 {   
-    if(!pcb_puede_ejecutar_instruccion_filesystem(pcbEnEjecucion, nombreArchivo, "fclose"))
-    {
-        pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
-        sem_post(&dispatchPermitido);
-        return;
-    }
     t_semaforo_recurso *semaforoArchivo = diccionario_semaforos_recursos_get_semaforo_recurso(tablaArchivosAbiertos, nombreArchivo);
     cerrar_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo);
     semaforo_recurso_post(semaforoArchivo);
@@ -149,12 +143,6 @@ void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 
 void ejecutar_instruccion_fseek(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t ubicacionNueva)
 {   
-    if (!pcb_puede_ejecutar_instruccion_filesystem(pcbEnEjecucion, nombreArchivo, "fseek"))
-    {
-        pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
-        sem_post(&dispatchPermitido);
-        return;
-    }
     actualizar_puntero_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo, ubicacionNueva);
     log_ejecucion_fseek(pcbEnEjecucion, nombreArchivo, ubicacionNueva);
     seguir_ejecutando(pcbEnEjecucion);
@@ -163,12 +151,6 @@ void ejecutar_instruccion_fseek(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint
 
 void ejecutar_instruccion_ftruncate(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t tamanio)
 {   
-    if (!pcb_puede_ejecutar_instruccion_filesystem(pcbEnEjecucion, nombreArchivo, "ftruncate"))
-    {
-        pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
-        sem_post(&dispatchPermitido);
-        return;
-    }
     // El PCB se bloquea hasta que FS avisa que ya termino de truncar el archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
     adapter_filesystem_pedir_truncar_archivo(pcbEnEjecucion, nombreArchivo, tamanio);
@@ -184,12 +166,6 @@ F_READ: Para esta función se solicita al módulo File System que lea desde el p
 
 void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
-    if (!pcb_puede_ejecutar_instruccion_filesystem(pcbEnEjecucion, nombreArchivo, "fread"))
-    {
-        pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
-        sem_post(&dispatchPermitido);
-        return;
-    }
     t_dictionary *archivosAbiertos = pcb_get_archivos_abiertos(pcbEnEjecucion);
     int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
     // El PCB se bloquea hasta que FS avisa que ya termino de leer del archivo
@@ -201,11 +177,6 @@ void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint
 
 void ejecutar_instruccion_fwrite(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
-    if (!pcb_puede_ejecutar_instruccion_filesystem(pcbEnEjecucion, nombreArchivo, "fwrite"))
-    {
-        pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
-        sem_post(&dispatchPermitido);
-    }
     t_dictionary *archivosAbiertos = pcb_get_archivos_abiertos(pcbEnEjecucion);
     int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
       // El PCB se bloquea hasta que FS avisa que ya termino de escribir el archivo

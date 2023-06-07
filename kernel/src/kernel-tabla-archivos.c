@@ -79,12 +79,6 @@ void cerrar_archivo_globalmente(char *nombreArchivo)
 
 bool pcb_puede_ejecutar_instruccion_filesystem(t_pcb *pcbEnEjecucion, char *nombreArchivo, char *nombreFuncion)
 {
-    if (!adapter_filesystem_existe_archivo(nombreArchivo))
-    {
-        log_error(kernelLogger, "No se puede ejecutar %s, el archivo no existe.", nombreFuncion);
-        log_error(kernelDebuggingLogger, "No se puede ejecutar %s, el archivo no existe.", nombreFuncion);
-        return false;
-    }
     if (!archivo_esta_abierto(nombreArchivo))
     {
         log_error(kernelLogger, "No se puede ejecutar %s, el archivo no esta abierto en la tabla global de archivos.", nombreFuncion);

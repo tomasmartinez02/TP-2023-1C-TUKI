@@ -59,9 +59,13 @@ bool adapter_filesystem_existe_archivo(char *nombreArchivo)
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     if (respuestaFilesystem == HEADER_archivo_existe_en_filesystem)
     {
+        log_info(kernelLogger, "El archivo '%s' existe", nombreArchivo);
+        log_info(kernelDebuggingLogger, "El archivo '%s' existe", nombreArchivo);
         return true;
     }
     // El archivo no existe
+    log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
+    log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
     return false;
 }
 
