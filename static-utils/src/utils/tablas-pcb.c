@@ -4,10 +4,11 @@
 
 // Funciones publicas
 
-t_info_segmentos *crear_info_segmentos(uint32_t base, uint32_t tamanio)
+t_info_segmentos *crear_info_segmentos(uint32_t idSegmento, uint32_t base, uint32_t tamanio)
 {
     t_info_segmentos *infoSegmentos = malloc(sizeof(*infoSegmentos));
 
+    infoSegmentos->idSegmento = idSegmento;
     infoSegmentos->direccionBase = base;
     infoSegmentos->tamanio = tamanio;
 
@@ -19,16 +20,18 @@ void destruir_info_segmentos(t_info_segmentos *infoSegmentos)
     free(infoSegmentos);
 }
 
-t_buffer *empaquetar_tabla_segmentos(t_info_segmentos **tablaSegmentos)
+t_buffer *empaquetar_tabla_segmentos(t_info_segmentos **tablaSegmentos, uint32_t tamanioTablaSegmentos)
 {
     t_buffer *bufferTablaSegmentos = buffer_create();
     
-    uint32_t tamanioTablaSegmentos = tamanio_tabla_segmentos(tablaSegmentos);
     buffer_pack(bufferTablaSegmentos, &tamanioTablaSegmentos, sizeof(tamanioTablaSegmentos));
 
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
         t_info_segmentos *infoSegmento = tablaSegmentos[i];
         
+        uint32_t idSegmento = infoSegmento->idSegmento;
+        buffer_pack(bufferTablaSegmentos, &idSegmento, sizeof(idSegmento));
+
         uint32_t direccionBase = infoSegmento->direccionBase;
         buffer_pack(bufferTablaSegmentos, &direccionBase, sizeof(direccionBase));
 
@@ -45,7 +48,11 @@ t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos,
     memset(tablaSegmentos, '\0', tamanioTablaSegmentos + 1);
 
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
-        t_info_segmentos *infoSegmento = crear_info_segmentos(0,0);
+        t_info_segmentos *infoSegmento = crear_info_segmentos(0,0,0);
+
+        uint32_t idSegmento;
+        buffer_unpack(bufferTablaSegmentos, &idSegmento, sizeof(idSegmento));
+        infoSegmento->idSegmento = idSegmento;
 
         uint32_t direccionBase;
         buffer_unpack(bufferTablaSegmentos, &direccionBase, sizeof(direccionBase));
@@ -73,7 +80,7 @@ void destruir_tabla_segmentos(t_info_segmentos **tablaSegmentos)
     free(tablaSegmentos);
 }
 
-uint32_t tamanio_tabla_segmentos(t_info_segmentos **tablaSegmentos)
+/* uint32_t tamanio_tabla_segmentos(t_info_segmentos **tablaSegmentos)
 {
     uint32_t tamanioTablaSegmentos;
     for (int i = 0; tablaSegmentos[i] != NULL; i++) {
@@ -81,6 +88,18 @@ uint32_t tamanio_tabla_segmentos(t_info_segmentos **tablaSegmentos)
     }
 
     return tamanioTablaSegmentos;
+} */
+
+// Set y Get Id Segmento info_segmentos
+
+uint32_t info_segmentos_get_idSegmento(t_info_segmentos *infoSegmentos)
+{
+    return infoSegmentos->idSegmento;
+}
+
+void info_segmentos_set_idSegmento(uint32_t idSegmento, t_info_segmentos *infoSegmentos)
+{
+    infoSegmentos->idSegmento = idSegmento;
 }
 
 // Set y Get Direccion Base info_segmentos
