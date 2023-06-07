@@ -5,6 +5,7 @@
 // Bibliotecas commons
 #include <commons/log.h>
 #include <utils/tablas-pcb.h>
+#include <commons/bitarray.h>
 
 // Estructuras
 struct memoria_config 
@@ -23,11 +24,19 @@ struct memoria_config
 };
 typedef struct memoria_config t_memoria_config;
 
+struct huecos_libres
+{
+    t_info_segmentos hueco;
+    t_huecos_libres* siguiente;
+};
+typedef struct huecos_libres t_huecos_libres; 
+
 // Variables globales
 extern t_log *memoriaDebuggingLogger;
 extern t_log *memoriaLogger;
 extern t_memoria_config *memoriaConfig;
 extern void *memoriaPrincipal;
-extern t_info_segmentos *tablaSegmentos;
+extern t_info_segmentos *segmentoCero;
+extern t_huecos_libres *listaHuecosLibres; 
 
 #endif

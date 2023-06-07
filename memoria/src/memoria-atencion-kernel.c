@@ -8,7 +8,7 @@ void atender_peticiones_kernel(void)
 {
 
     for (;;) {
-        int socketKernel = memoria_config_get_socket_kernel(memoria_config);
+        int socketKernel = memoria_config_get_socket_kernel(memoriaConfig);
         t_header headerRecibido = stream_recv_header(socketKernel);
         t_buffer* bufferRecibido = buffer_create();
         
@@ -17,14 +17,14 @@ void atender_peticiones_kernel(void)
             {
                 break;
             }
-            case HEADER_eliminar_segmento: // Este header hay q agregarlo
+            /* case HEADER_eliminar_segmento: // Este header hay q agregarlo
             {
 
             }
             case HEADER_compactar: // Este header hay q agregarlo
             {
 
-            }
+            } */
             default:
             {   
                 // ERROR
