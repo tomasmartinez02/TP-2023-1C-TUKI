@@ -11,11 +11,11 @@
 // Bibliotecas internas modulo memoria
 #include <memoria-config.h>
 #include <memoria-manejo-tablas.h>
+#include <memoria-adapter-kernel.h>
 
 
 // Prototipos
 
 void atender_peticiones_kernel(void);
-void adapter_kernel_enviar_tabla(t_info_segmentos* tablaCreada);
 
 #endif

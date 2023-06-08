@@ -34,6 +34,14 @@ struct t_huecos_libres
     t_huecos_libres* siguiente;
 };
 
+typedef struct lista_tablas lista_tablas;
+struct lista_tablas
+{
+    uint32_t pidProceso;
+    t_info_segmentos* tablaSegmentos;
+    lista_tablas* siguiente; 
+};
+
 // Variables globales
 extern t_log *memoriaDebuggingLogger;
 extern t_log *memoriaLogger;
@@ -41,5 +49,6 @@ extern t_memoria_config *memoriaConfig;
 extern void *memoriaPrincipal;
 extern t_info_segmentos *segmentoCero;
 extern t_huecos_libres *listaHuecosLibres; 
+extern lista_tablas *tablasDeSegmentos;
 
 #endif

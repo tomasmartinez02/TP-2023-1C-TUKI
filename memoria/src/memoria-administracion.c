@@ -7,7 +7,7 @@ t_info_segmentos* tablaSegmentos;
 // Variables globales
 t_huecos_libres *listaHuecosLibres; 
 t_info_segmentos *segmentoCero;
-
+lista_tablas *tablasDeSegmentos;
 // Funciones privadas
 
 // Funciones inicializacion estructuras de la memoria
@@ -26,9 +26,12 @@ static void __inicializar_memoria_principal(void)
 
 static t_huecos_libres* __crear_hueco (uint32_t direccionBase, uint32_t tamanio) // lo crea pero no lo agrega a la lista
 {   
-    t_huecos_libres* nuevoHueco;
+    t_huecos_libres* nuevoHueco = malloc(sizeof(t_huecos_libres));
+    nuevoHueco->hueco = malloc(sizeof(t_info_segmentos));
+    nuevoHueco->siguiente = NULL;
+    
     nuevoHueco->hueco->direccionBase = direccionBase;
-    nuevoHueco->hueco->tamanio = tamanio; 
+    nuevoHueco->hueco->tamanio = tamanio;    
 
     return nuevoHueco;
 }
@@ -91,18 +94,48 @@ void __crear_segmentos_cero(void)
     segmentoCero = crear_info_segmentos(0,0, tamanioSegmentoCero); // despues ver esto
     actualizar_lista_huecos_libres(segmentoCero);
 
-    return;
+    tablasDeSegmentos = NULL;
 
+    return;
 }
 
 // Funciones publicas
 
-void inicializar_memoria(void){
+void inicializar_memoria (void) 
+{
 
     __crear_estructura_espacios_libres();
     __crear_segmentos_cero();
     __inicializar_memoria_principal();
 
     return;
+}
+
+bool verificar_memoria_suficiente (uint32_t tamanioSolicitado)
+{
+    uint32_t capacidad = 0;
+    t_huecos_libres* aux = listaHuecosLibres;
+
+    if (aux == NULL) {
+    } else {
+        capacidad = capacidad + aux->hueco->tamanio;
+        while(aux->siguiente != NULL) {
+            capacidad = capacidad + aux->hueco->tamanio;
+            aux = aux->siguiente;
+        }
+    } 
+    
+    return capacidad >= tamanioSolicitado;
+}
+
+bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
+{
+    t_huecos_libres* aux = listaHuecosLibres;
+
+    while (aux->siguiente != NULL && tamanioSolicitado < aux->hueco->tamanio) {
+        aux = aux->siguiente;
+    }
+    
+    return tamanioSolicitado <= aux->hueco->tamanio;
 
 }
