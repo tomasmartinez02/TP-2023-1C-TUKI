@@ -25,4 +25,7 @@ int main(int argc, char* argv[])
     // Levantar servidor del Kernel
     const int socketEscucha = inicializar_servidor_filesystem();
     aceptar_conexion_kernel(socketEscucha);
+    atender_peticiones_kernel();
+
+    filesystem_destroy(filesystemConfig, filesystemLogger, filesystemDebuggingLogger);
 }

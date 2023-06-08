@@ -25,6 +25,9 @@
 #include <filesystem-config.h>
 #include <filesystem-conexiones.h>
 #include <filesystem-archivos.h>
+#include <filesystem-adapter-kernel.h>
+#include <filesystem-atender-kernel.h>
+#include <filesystem-fcb.h>
 
 // Funciones publicas   
 void inicializar_estructuras(void);
