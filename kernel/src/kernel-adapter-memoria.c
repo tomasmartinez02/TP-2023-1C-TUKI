@@ -34,9 +34,10 @@ static t_buffer *__recibir_tabla_segmentos(t_pcb *pcbInicializado, int socketMem
 // Recibe la base y tamanio de un segmento y los agrega a la tabla de segmentos en su posicion correspondiente segun su id
 static void __agregarSegmentoATabla(uint32_t base, uint32_t tamanio, uint32_t idSegmento, t_info_segmentos **tablaSegmentos)
 {   
-    t_info_segmentos *segmento = tablaSegmentos[idSegmento];
+    t_info_segmentos *segmento = tablaSegmentos[idSegmento]; // Esto no queda asi!!!
     info_segmentos_set_direccion_base(segmento, base);
     info_segmentos_set_tamanio(segmento, tamanio);
+    info_segmentos_set_idSegmento(idSegmento,segmento);
 
     return; 
 }
@@ -133,7 +134,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             
             __agregarSegmentoATabla(baseNuevoSegmento, tamanio, idSegmento, &tablaSegmentos); 
 
-            t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(&tablaSegmentos);
+            t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(&tablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb));
             pcb_set_tabla_segmentos(pcb, bufferTablaSegmentosActualizada);
 
             log_creacion_nuevo_segmento(pcb, idSegmento, tamanio);
