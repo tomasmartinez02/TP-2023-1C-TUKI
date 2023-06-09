@@ -48,7 +48,7 @@ void enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
 // Recibe un pcb del cpu, actualizando su pc y registros
 static void __recibir_pcb_de_cpu(t_pcb *pcbRecibido) 
 {  
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     // Recibimos header proceso y checkeamos que sea correcto
     t_header headerProceso = stream_recv_header(socketCpu);
@@ -94,7 +94,7 @@ static void __recibir_pcb_de_cpu(t_pcb *pcbRecibido)
 
 static t_header __recibir_header_instruccion_de_cpu()
 {
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
    
     t_header headerInstruccion = stream_recv_header(socketCpu);
 
@@ -122,14 +122,14 @@ t_header recibir_motivo_desalojo(void)
 
 void recibir_buffer_vacio_instruccion(void)
 {
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
     stream_recv_empty_buffer(socketCpu);
     return;
 }
 
 uint32_t recibir_buffer_instruccion_io(void)
 {
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     uint32_t tiempoDeEjecucion;
     t_buffer *bufferInstruccionIo = buffer_create();
@@ -142,7 +142,7 @@ uint32_t recibir_buffer_instruccion_io(void)
 
 char *recibir_buffer_instruccion_con_recurso(void)
 {
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     t_buffer *bufferRecurso = buffer_create();
     stream_recv_buffer(socketCpu, bufferRecurso);
@@ -166,7 +166,7 @@ char *recibir_buffer_instruccion_fclose(void)
 
 void recibir_buffer_instruccion_fseek(char **nombreArchivo, uint32_t *ubicacionNueva)
 {
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     t_buffer *bufferFseek = buffer_create();
     stream_recv_buffer(socketCpu, bufferFseek);
@@ -186,7 +186,7 @@ void recibir_buffer_instruccion_fseek(char **nombreArchivo, uint32_t *ubicacionN
 
 void recibir_buffer_instruccion_ftruncate(char **nombreArchivo, uint32_t *tamanioNuevo)
 {
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     t_buffer *bufferFtruncate = buffer_create();
     stream_recv_buffer(socketCpu, bufferFtruncate);
@@ -206,7 +206,7 @@ void recibir_buffer_instruccion_ftruncate(char **nombreArchivo, uint32_t *tamani
 
 void recibir_buffer_instruccion_fread(char **nombreArchivo, uint32_t *direccionLogica, uint32_t *cantidadBytes)
 {
-   uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+   int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     t_buffer *bufferFread = buffer_create();
     stream_recv_buffer(socketCpu, bufferFread);
@@ -231,7 +231,7 @@ void recibir_buffer_instruccion_fwrite(char **nombreArchivo, uint32_t *direccion
 {
     //recibir_buffer_instruccion_fread(&nombreArchivo, &direccionLogica, &cantidadBytes);
     // se q estoy repitiendo codigo pero no se si la linea de arriba funciona bien
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     t_buffer *bufferFread = buffer_create();
     stream_recv_buffer(socketCpu, bufferFread);
@@ -255,7 +255,7 @@ void recibir_buffer_instruccion_fwrite(char **nombreArchivo, uint32_t *direccion
 
 void recibir_buffer_instruccion_create_segment(uint32_t *idSegmento, uint32_t *tamanio)
 {   
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     t_buffer *bufferCreateSegment = buffer_create();
     stream_recv_buffer(socketCpu, bufferCreateSegment);
@@ -275,7 +275,7 @@ void recibir_buffer_instruccion_create_segment(uint32_t *idSegmento, uint32_t *t
 
 uint32_t recibir_buffer_instruccion_delete_segment()
 {   
-    uint32_t socketCpu = kernel_config_get_socket_cpu(kernelConfig);
+    int socketCpu = kernel_config_get_socket_cpu(kernelConfig);
 
     t_buffer *bufferDeleteSegment = buffer_create();
     stream_recv_buffer(socketCpu, bufferDeleteSegment);
