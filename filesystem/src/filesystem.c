@@ -27,5 +27,5 @@ int main(int argc, char* argv[])
     aceptar_conexion_kernel(socketEscucha);
     atender_peticiones_kernel();
 
-    filesystem_destroy(filesystemConfig, filesystemLogger, filesystemDebuggingLogger);
+    //filesystem_destroy(filesystemConfig, filesystemLogger, filesystemDebuggingLogger);
 }
