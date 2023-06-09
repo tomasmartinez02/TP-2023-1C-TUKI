@@ -63,10 +63,19 @@ bool adapter_filesystem_existe_archivo(char *nombreArchivo)
         log_info(kernelDebuggingLogger, "El archivo '%s' existe", nombreArchivo);
         return true;
     }
-    // El archivo no existe
-    log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
-    log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
-    return false;
+    else if (respuestaFilesystem == HEADER_archivo_existe_en_filesystem)
+    {   
+        log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
+        log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
+        return false;
+    }
+    else
+    {
+        log_error(kernelLogger, "Error al verificar si existe el archivo");
+        log_error(kernelDebuggingLogger, "Error al verificar si existe el archivo");
+        return false;
+    }
+    
 }
 
 void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo)
