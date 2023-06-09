@@ -136,6 +136,6 @@ void atender_peticiones_kernel()
                 break;
             }
         }
-
     }
+    return;
 }
