@@ -2,9 +2,13 @@
 #ifndef MEMORIA_ESTRUCTURAS_H_
 #define MEMORIA_ESTRUCTURAS_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+
 // Bibliotecas commons
 #include <commons/log.h>
 #include <utils/tablas-pcb.h>
+#include <commons/bitarray.h>
 
 // Estructuras
 struct memoria_config 
@@ -23,11 +27,28 @@ struct memoria_config
 };
 typedef struct memoria_config t_memoria_config;
 
+typedef struct t_huecos_libres t_huecos_libres; 
+struct t_huecos_libres
+{
+    t_info_segmentos* hueco;
+    t_huecos_libres* siguiente;
+};
+
+typedef struct lista_tablas lista_tablas;
+struct lista_tablas
+{
+    uint32_t pidProceso;
+    t_info_segmentos* tablaSegmentos;
+    lista_tablas* siguiente; 
+};
+
 // Variables globales
 extern t_log *memoriaDebuggingLogger;
 extern t_log *memoriaLogger;
 extern t_memoria_config *memoriaConfig;
 extern void *memoriaPrincipal;
-extern t_info_segmentos *tablaSegmentos;
+extern t_info_segmentos *segmentoCero;
+extern t_huecos_libres *listaHuecosLibres; 
+extern lista_tablas *tablasDeSegmentos;
 
 #endif
