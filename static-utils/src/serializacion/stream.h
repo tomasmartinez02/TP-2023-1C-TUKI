@@ -17,6 +17,7 @@ enum header
 {   
     HEADER_archivo_creado,
     HEADER_archivo_existe_en_filesystem,
+    HEADER_archivo_no_existe_en_filesystem,
     HEADER_consulta_existencia_archivo,
     HEADER_crear_segmento,
     HEADER_error,
