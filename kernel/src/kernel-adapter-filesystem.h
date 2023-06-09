@@ -14,5 +14,11 @@
 
 bool adapter_filesystem_existe_archivo(char *nombreArchivo);
 void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo);
+void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t tamanio);
+void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes);
+void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes);
+void *hiloTruncate(void* arg);
+void *hiloFwrite(void* arg);
+void *hiloRead(void* arg);
 
 #endif

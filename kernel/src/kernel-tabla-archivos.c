@@ -29,6 +29,12 @@ bool archivo_esta_abierto(char *nombreArchivo)
     return diccionario_semaforos_recursos_existe_recurso(tablaArchivosAbiertos, nombreArchivo);
 }
 
+bool archivo_esta_abierto_en_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo)
+{
+    t_dictionary *archivosAbiertosEnPcb = pcb_get_archivos_abiertos(pcbEnEjecucion);
+    return dictionary_has_key(archivosAbiertosEnPcb, nombreArchivo);
+}
+
 void abrir_archivo_en_tabla_de_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 {
     t_dictionary *archivosAbiertosEnPcb = pcb_get_archivos_abiertos(pcbEnEjecucion);
@@ -39,10 +45,6 @@ void abrir_archivo_en_tabla_de_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 void cerrar_archivo_en_tabla_de_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 {   
     t_dictionary *archivosAbiertosEnPcb = pcb_get_archivos_abiertos(pcbEnEjecucion);
-    if (!dictionary_has_key(archivosAbiertosEnPcb, nombreArchivo))
-    {
-        // error
-    }
     dictionary_remove(archivosAbiertosEnPcb, nombreArchivo);
 
     t_semaforo_recurso *semaforoArchivo = (t_semaforo_recurso*)dictionary_get(tablaArchivosAbiertos, nombreArchivo);
@@ -55,10 +57,6 @@ void actualizar_puntero_archivo_en_tabla_de_pcb(t_pcb *pcbEnEjecucion, char *nom
     t_dictionary *archivosAbiertosEnPcb = pcb_get_archivos_abiertos(pcbEnEjecucion);
     //Esto es por un warning que me tira la funcion dictionary put de conversion de datos de uint32_t a void* así que este es un paso intermedio
     uintptr_t ubicacion = (uintptr_t)ubicacionNueva;
-    if (!dictionary_has_key(archivosAbiertosEnPcb, nombreArchivo))
-    {
-        // error
-    }
     dictionary_remove(archivosAbiertosEnPcb, nombreArchivo);
     dictionary_put(archivosAbiertosEnPcb, nombreArchivo,(void*)ubicacion);
     return;
@@ -77,6 +75,23 @@ void cerrar_archivo_globalmente(char *nombreArchivo)
     // Acá no se si deberia liberar alguna memoria antes de sacar la entrada de la tabla
     dictionary_remove(tablaArchivosAbiertos, nombreArchivo);
     return;
+}
+
+bool pcb_puede_ejecutar_instruccion_filesystem(t_pcb *pcbEnEjecucion, char *nombreArchivo, char *nombreFuncion)
+{
+    if (!archivo_esta_abierto(nombreArchivo))
+    {
+        log_error(kernelLogger, "No se puede ejecutar %s, el archivo no esta abierto en la tabla global de archivos.", nombreFuncion);
+        log_error(kernelDebuggingLogger, "No se puede ejecutar %s, el archivo no esta abierto en la tabla global de archivos.",nombreFuncion);
+        return false;
+    }
+    if (!archivo_esta_abierto_en_pcb(pcbEnEjecucion, nombreArchivo))
+    {
+        log_error(kernelLogger, "No se puede ejecutar %s, el pcb no tiene al archivo abierto.", nombreFuncion);
+        log_error(kernelDebuggingLogger, "No se puede ejecutar %s, el pcb no tiene al archivo abierto.", nombreFuncion);
+        return false;
+    }
+    return true;
 }
 
 

@@ -21,5 +21,7 @@ bool archivo_esta_abierto(char *archivo);
 void abrir_archivo_en_tabla_de_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo);
 void cerrar_archivo_en_tabla_de_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo);
 void actualizar_puntero_archivo_en_tabla_de_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t ubicacionNueva);
+bool archivo_esta_abierto_en_pcb(t_pcb *pcbEnEjecucion, char *nombreArchivo);
+bool pcb_puede_ejecutar_instruccion_filesystem(t_pcb *pcbEnEjecucion, char *nombreArchivo, char *nombreFuncion);
 
 #endif

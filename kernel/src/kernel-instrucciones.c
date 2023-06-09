@@ -30,6 +30,7 @@ void ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempo)
 
     pthread_create(&ejecutarTiempoIO, NULL, sleepHilo, (void*) parametrosHilo);
     pthread_detach(ejecutarTiempoIO);
+    log_ejecucion_io(pcbEnEjecucion, tiempo);
     return;
 }
 
@@ -53,7 +54,6 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         log_info(kernelLogger, "Bool bloqueo proceso: %d", semaforo_recurso_debe_bloquear_proceso(semaforoRecurso));
         if (semaforo_recurso_debe_bloquear_proceso(semaforoRecurso))
         {   
-            log_info(kernelLogger, "Entra en el if que no deberia");
             semaforo_recurso_bloquear_proceso(semaforoRecurso, pcbEnEjecucion); // Acá faltaria loguear la transicion de estados
             pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
             sem_post(&dispatchPermitido);
@@ -83,7 +83,6 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         int32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
 
         semaforo_recurso_post(semaforoRecurso);
-        log_ejecucion_signal(pcbEnEjecucion, nombreRecurso, instanciasRecurso);
 
         if(semaforo_recurso_debe_desbloquear_recurso(semaforoRecurso))
         {   
@@ -92,6 +91,7 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
             pcb_pasar_de_blocked_a_ready_public(pcbAEjecutar);
         }
         seguir_ejecutando(pcbEnEjecucion);
+        log_ejecucion_signal(pcbEnEjecucion, nombreRecurso, instanciasRecurso);
     }
 
      // Seguir la ejecucion del proceso que peticiono el SIGNAL
@@ -105,8 +105,8 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
         t_semaforo_recurso *semaforoArchivo = diccionario_semaforos_recursos_get_semaforo_recurso(tablaArchivosAbiertos, nombreArchivo);
         semaforo_recurso_bloquear_proceso(semaforoArchivo, pcbEnEjecucion);
         semaforo_recurso_wait(semaforoArchivo);
+        return;
     }
-    // NO SE SI HACE FALTA hacer un ELSE O SI YA CUANDO EL RECURSO SE BLOQUEA YA DEJA DE EJECUTAR LA FUNCION X ENDE NO EJECUTARIA LO SIGUIENTE
     if (!adapter_filesystem_existe_archivo(nombreArchivo))
     {
         adapter_filesystem_pedir_creacion_archivo(nombreArchivo);
@@ -115,6 +115,7 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
     abrir_archivo_globalmente(nombreArchivo);
     // Agrego archivo a la tabla de archivos abiertos del proceso con el puntero en la posición 0. 
     abrir_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo);
+    log_ejecucion_fopen(pcbEnEjecucion, nombreArchivo);
     return;
 }
 
@@ -136,26 +137,51 @@ void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)
         cerrar_archivo_globalmente(nombreArchivo);
     }
     
+    log_ejecucion_fclose(pcbEnEjecucion, nombreArchivo);
     return;
 }
 
 void ejecutar_instruccion_fseek(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t ubicacionNueva)
-{
+{   
     actualizar_puntero_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo, ubicacionNueva);
+    log_ejecucion_fseek(pcbEnEjecucion, nombreArchivo, ubicacionNueva);
+    seguir_ejecutando(pcbEnEjecucion);
     return;
 }
 
 void ejecutar_instruccion_ftruncate(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t tamanio)
-{
+{   
+    // El PCB se bloquea hasta que FS avisa que ya termino de truncar el archivo
+    pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
+    adapter_filesystem_pedir_truncar_archivo(pcbEnEjecucion, nombreArchivo, tamanio);
+
+    log_ejecucion_ftruncate(pcbEnEjecucion, nombreArchivo, tamanio);
+    return;
+}
+/*
+F_READ: Para esta función se solicita al módulo File System que lea desde el puntero del archivo pasado
+ por parámetro la cantidad de bytes indicada y lo grabe en la dirección física de memoria recibida por 
+ parámetro. El proceso que llamó a F_READ, deberá permanecer en estado bloqueado hasta que el módulo 
+ File System informe de la finalización de la operación.*/
+
+void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
+{   
+    t_dictionary *archivosAbiertos = pcb_get_archivos_abiertos(pcbEnEjecucion);
+    int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
+    // El PCB se bloquea hasta que FS avisa que ya termino de leer del archivo
+    pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
+    adapter_filesystem_pedir_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
+    log_ejecucion_fread(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     return;
 }
 
-void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionLogica, uint32_t cantidadBytes)
-{
-    return;
-}
-
-void ejecutar_instruccion_fwrite(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionLogica, uint32_t cantidadBytes)
-{
+void ejecutar_instruccion_fwrite(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
+{   
+    t_dictionary *archivosAbiertos = pcb_get_archivos_abiertos(pcbEnEjecucion);
+    int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
+      // El PCB se bloquea hasta que FS avisa que ya termino de escribir el archivo
+    pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
+    adapter_filesystem_pedir_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
+    log_ejecucion_fwrite(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     return;
 }
