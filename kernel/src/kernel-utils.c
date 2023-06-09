@@ -174,8 +174,8 @@ void log_ejecucion_fseek(t_pcb* pcb, char *nombreArchivo, uint32_t puntero)
 void log_ejecucion_ftruncate(t_pcb* pcb, char *nombreArchivo, uint32_t tamanio)
 {   
     uint32_t pid = pcb_get_pid(pcb);
-    log_info(kernelLogger, "PID: <%d> - Abrir Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Abrir Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
+    log_info(kernelLogger, "PID: <%d> - Truncar Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
+    log_info(kernelDebuggingLogger, "PID: <%d> - Truncar Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
     return;   
 }
 
