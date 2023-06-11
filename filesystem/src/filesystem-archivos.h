@@ -16,6 +16,7 @@
 //Bibliotecas internas modulo filesystem
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
+#include <filesystem-fcb.h>
 
 // Prototipos
 

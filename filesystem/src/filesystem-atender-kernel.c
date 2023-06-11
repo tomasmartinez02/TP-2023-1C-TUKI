@@ -13,7 +13,8 @@ t_fcb *crear_archivo(char *nombreArchivo)
 {   
     // Crear un archivo FCB correspondiente al nuevo archivo, con tamaño 0 y sin bloques asociados.
     // Siempre será posible crear un archivo y por lo tanto esta operación deberá devolver OK.
-    t_fcb* nuevoFcb = crear_fcb(nombreArchivo);
+    t_fcb* nuevoFcb = crear_nuevo_fcb(nombreArchivo);
+    crear_archivo_nuevo_fcb(nuevoFcb);
     enviar_confirmacion_archivo_creado();
     log_crear_archivo(nombreArchivo);
     return nuevoFcb;

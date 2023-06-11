@@ -12,7 +12,7 @@ static void __filesystem_config_initializer(void *moduleConfig, t_config *tempCf
     filesystemConfig->PATH_SUPERBLOQUE = strdup(config_get_string_value(tempCfg, "PATH_SUPERBLOQUE"));
     filesystemConfig->PATH_BITMAP = strdup(config_get_string_value(tempCfg, "PATH_BITMAP"));
     filesystemConfig->PATH_BLOQUES = strdup(config_get_string_value(tempCfg, "PATH_BLOQUES"));
-    filesystemConfig->PATH_FCB = strdup(config_get_string_value(tempCfg, "PATH_FCB"));
+    filesystemConfig->PATH_FCB = strdup(config_get_string_value(tempCfg, "PATH_DIRECTORIO_FCBS"));
     filesystemConfig->RETARDO_ACCESO_BLOQUE = (uint32_t) config_get_int_value(tempCfg, "RETARDO_ACCESO_BLOQUE");
     filesystemConfig->SOCKET_MEMORIA = -1;
     filesystemConfig->SOCKET_KERNEL = -1;

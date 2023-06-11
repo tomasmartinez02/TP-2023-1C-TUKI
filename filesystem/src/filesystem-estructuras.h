@@ -5,6 +5,7 @@
 // Bibliotecas commons
 #include <commons/log.h>
 #include <commons/bitarray.h>
+#include <commons/collections/dictionary.h>
 #include <stdint.h>
 
 // Estructuras
@@ -54,5 +55,7 @@ extern t_log *filesystemDebuggingLogger;
 extern t_filesystem_config *filesystemConfig;
 extern t_superbloque *superbloque;
 extern t_bitmap *bitmap;
+extern t_fcb *fcb;
+extern t_dictionary *listaFcbs;
 
 #endif

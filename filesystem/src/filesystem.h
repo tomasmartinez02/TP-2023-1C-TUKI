@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 // Bibliotecas commons
+#include <commons/collections/dictionary.h>
 #include <commons/string.h>
 // Bibliotecas static utils
 #include <utils/logging.h>
