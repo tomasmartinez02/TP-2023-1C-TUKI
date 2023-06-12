@@ -97,13 +97,14 @@ t_fcb* levantar_fcb(char *pathFcb)
     return fcb;
 }
 
-void crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
+bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
 {
     FILE *archivo;
 
     archivo = fopen(nuevoFcb->NOMBRE_ARCHIVO,"w");
     if (archivo == NULL) {
         //error
+        return false;
     }
 
     fprintf(archivo,"NOMBRE_ARCHIVO=%s\n",nuevoFcb->NOMBRE_ARCHIVO);
@@ -112,6 +113,8 @@ void crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
     fprintf(archivo,"PUNTERO_INDIRECTO=%d\n",nuevoFcb->PUNTERO_INDIRECTO);
 
     fclose(archivo);
+    // Si se pudo crear el archivo satisfactoriamente
+    return true;
 }
 
 

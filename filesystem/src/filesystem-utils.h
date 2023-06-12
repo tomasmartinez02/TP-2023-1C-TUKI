@@ -21,6 +21,7 @@
 void filesystem_destroy(t_filesystem_config *filesystemConfig, t_log *filesystemLogger, t_log *filesystemDebuggingLogger);
 
 void log_existe_archivo(char *nombreArchivo);
+void log_no_existe_archivo(char *nombreArchivo);
 void log_crear_archivo(char *nombreArchivo);
 void log_abrir_archivo(char *nombreArchivo);
 void log_truncar_archivo(char *nombreArchivo, uint32_t tamanio);

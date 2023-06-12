@@ -102,6 +102,14 @@ void enviar_confirmacion_existencia_archivo()
     return;
 }
 
+void enviar_confirmacion_no_existencia_archivo()
+{
+    int socketKernel = filesystem_config_get_socket_kernel(filesystemConfig);
+    stream_send_empty_buffer(socketKernel, HEADER_archivo_no_existe_en_filesystem);
+    return;
+}
+
+
 void enviar_confirmacion_archivo_creado()
 {
     int socketKernel = filesystem_config_get_socket_kernel(filesystemConfig);

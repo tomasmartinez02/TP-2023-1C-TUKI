@@ -31,7 +31,7 @@ void fcb_set_puntero_indirecto(t_fcb *fcb, uint32_t nuevoPunteroIndirecto);
 
 // CREACIÓN DE ARCHIVOS DE MANEJO DE FCB
 t_fcb* levantar_fcb(char *pathFcb);
-void crear_archivo_nuevo_fcb(t_fcb *nuevoFcb);
+bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb);
 void recorrer_directorio_fcbs(char *directorioFcbs);
 
 #endif

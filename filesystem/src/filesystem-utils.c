@@ -25,6 +25,13 @@ void log_existe_archivo(char *nombreArchivo)
     return;   
 }
 
+void log_no_existe_archivo(char *nombreArchivo)
+{   
+    log_info(filesystemLogger, "El Archivo con nombre <%s> no existe", nombreArchivo);
+    log_info(filesystemDebuggingLogger, "El Archivo con nombre <%s> no existe", nombreArchivo);
+    return;   
+}
+
 void log_crear_archivo(char *nombreArchivo)
 {   
     log_info(filesystemLogger, "Crear Archivo: <%s>", nombreArchivo);

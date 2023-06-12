@@ -24,6 +24,7 @@ void recibir_buffer_truncate_archivo(char **nombreArchivo, uint32_t *tamanioNuev
 void recibir_buffer_lectura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes);
 void recibir_buffer_escritura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes);
 void enviar_confirmacion_existencia_archivo(void);
+void enviar_confirmacion_no_existencia_archivo(void);
 void enviar_confirmacion_archivo_creado(void);
 void enviar_confirmacion_escritura_finalizada(void);
 void enviar_confirmacion_lectura_finalizada(void);

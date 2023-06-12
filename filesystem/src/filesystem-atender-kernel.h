@@ -9,13 +9,15 @@
 #include <fcntl.h>
 #include <unistd.h>*/
 //Bibliotecas commons
-//#include <commons/log.h>
+#include <commons/log.h>
 //#include <commons/bitarray.h>
+#include <commons/collections/dictionary.h>
 //Bibliotecas static-utils
 #include <serializacion/buffer.h>
 #include <serializacion/stream.h>
 //Bibliotecas internas modulo filesystem
 #include <filesystem-estructuras.h>
+#include <filesystem.h>
 #include <filesystem-config.h>
 #include <filesystem-adapter-kernel.h>
 #include <filesystem-utils.h>
