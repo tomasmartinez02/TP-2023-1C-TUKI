@@ -92,7 +92,7 @@ static void __enviar_pedido_eliminar_segmento(int socketMemoria)
 
 // Funciones publicas
 
-t_buffer *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) // REVISAR ESTA FUNCION!!!!
+t_info_segmentos **adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) // REVISAR ESTA FUNCION!!!!
 {
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
@@ -139,7 +139,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             buffer_unpack(bufferBaseNuevoSegmento, &baseNuevoSegmento, sizeof(baseNuevoSegmento));
             buffer_destroy(bufferBaseNuevoSegmento);     
 
-            uint32_t tamanioTablaSegmentos = pcb_get_tamanio_tabla_segmentos(pcb);
+            //uint32_t tamanioTablaSegmentos = pcb_get_tamanio_tabla_segmentos(pcb);
 
             t_info_segmentos **tablaSegmentos = pcb_get_tabla_segmentos(pcb);
             
@@ -196,9 +196,14 @@ void adapter_memoria_pedir_compactacion()
         t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
 
-        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estado_get_list(estadoReady));
-        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estado_get_list(estadoBlocked));
-        actualizar_tabla_segmentos(bufferTablaDeSegmentosActualizada, estado_get_list(estadoExecute));
+        uint32_t tamanioTablaDeSegmentosActualizada; // FINJO DEMENCIA Y SIGO PERO LO VAMOS A CAMBIAR
+        buffer_unpack(bufferTablaDeSegmentosActualizada, &tamanioTablaDeSegmentosActualizada, sizeof(tamanioTablaDeSegmentosActualizada));
+
+        t_info_segmentos **tablaNueva = desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, tamanioTablaDeSegmentosActualizada);
+
+        actualizar_tabla_segmentos(tablaNueva, estado_get_list(estadoReady));
+        actualizar_tabla_segmentos(tablaNueva, estado_get_list(estadoBlocked));
+        actualizar_tabla_segmentos(tablaNueva, estado_get_list(estadoExecute));
     } else {
         // error
     }
@@ -220,7 +225,9 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
         t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
 
-        pcb_set_tabla_segmentos(pcb, bufferTablaDeSegmentosActualizada);
+        t_info_segmentos ** nuevaTabla = desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, pcb_get_tamanio_tabla_segmentos(pcb));
+
+        pcb_set_tabla_segmentos(pcb, nuevaTabla); // Ver, porque hay que liberar algo de memoria si o si
         
     } else {
         // error
@@ -229,11 +236,11 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
     return ;   
 }
 
-void actualizar_tabla_segmentos(t_buffer *bufferTablaDeSegmentosActualizada, t_list *listaProcesos)
+void actualizar_tabla_segmentos(t_info_segmentos **tablaDeSegmentosActualizada, t_list *listaProcesos)
 {
     void __cambiar_tabla_segmentos(void* pcb)
     {
-        pcb_set_tabla_segmentos(pcb, bufferTablaDeSegmentosActualizada);
+        pcb_set_tabla_segmentos(pcb, tablaDeSegmentosActualizada);
         return ;
     }
 

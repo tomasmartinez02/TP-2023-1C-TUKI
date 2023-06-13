@@ -34,7 +34,7 @@ double pcb_get_estimado_prox_rafaga(t_pcb *pcb);
 void pcb_set_estimado_prox_rafaga (t_pcb *pcb, double estimadoProxRafaga);
 pthread_mutex_t* pcb_get_mutex(t_pcb* pcb);
 t_dictionary *pcb_get_archivos_abiertos(t_pcb *pcb);
-t_info_segmentos **pcb_get_tabla_segmentos(t_pcb *pcb)
+t_info_segmentos **pcb_get_tabla_segmentos(t_pcb *pcb);
 timestamp *pcb_get_tiempo_llegada_ready(t_pcb *pcb);
 void pcb_set_tiempo_llegada_ready(t_pcb *pcb);
 uint32_t pcb_get_socket(t_pcb *pcb);

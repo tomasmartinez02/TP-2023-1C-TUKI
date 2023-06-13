@@ -62,9 +62,9 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
         registros_cpu_destroy(registrosCpu);
     }
 
-    t_buffer *tablaSegmentos = pcb->tablaSegmentos;
+    t_info_segmentos **tablaSegmentos = pcb->tablaSegmentos;
     if (tablaSegmentos != NULL) {
-        buffer_destroy(tablaSegmentos);
+        destruir_tabla_segmentos(tablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb));
     }
 
     t_dictionary *archivosAbiertos = pcb->archivosAbiertos;
