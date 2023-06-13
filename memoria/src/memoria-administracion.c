@@ -12,6 +12,25 @@ lista_tablas *tablasDeSegmentos;
 
 // Funciones inicializacion estructuras de la memoria
 
+static t_algoritmo __algoritmo_seleccionado(void)
+{
+    t_algoritmo algoritmo;
+
+    if (strcmp(memoria_config_get_algoritmo_asignacion(memoriaConfig), "FIRST") == 0) {
+        algoritmo = FIRST_FIT;
+    }
+
+    if (strcmp(memoria_config_get_algoritmo_asignacion(memoriaConfig), "BEST") == 0) {
+        algoritmo = BEST_FIT;
+    }
+
+    if (strcmp(memoria_config_get_algoritmo_asignacion(memoriaConfig), "WORST") == 0) {
+        algoritmo = WORST_FIT;
+    }
+
+    return algoritmo;
+}
+
 static void __inicializar_memoria_principal(void)
 {
     uint32_t tamanioMemoria;
@@ -66,12 +85,13 @@ void actualizar_lista_huecos_libres (t_info_segmentos *segmento) // el nombre de
     uint32_t tamanioSegmento = segmento->tamanio;
     uint32_t direccionBaseHueco = auxiliarLista->hueco->direccionBase;
     uint32_t tamanioHueco = auxiliarLista->hueco->tamanio;
-
-    while(direccionBaseHueco == posicionSegmento) {
+    
+    while(direccionBaseHueco != posicionSegmento) {
         auxiliarLista = auxiliarLista->siguiente;
         direccionBaseHueco = auxiliarLista->hueco->direccionBase;
-        tamanioHueco = auxiliarLista->hueco->tamanio;
     } // aca busca que hueco habria que modificar 
+
+    tamanioHueco = auxiliarLista->hueco->tamanio;
 
     if (tamanioHueco == tamanioSegmento){
         __eliminar_hueco(auxiliarLista); // ver bien despues esta funcion
@@ -99,7 +119,51 @@ void __crear_segmentos_cero(void)
     return;
 }
 
+static uint32_t __obtener_base_segmento_segun_algoritmo(t_algoritmo algoritmo)
+{
+    //TODO
+    return 1;
+}
+
+static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid, uint32_t baseSegmento){
+    //TODO
+    lista_tablas *aux = tablasDeSegmentos;
+    t_info_segmentos** tablaSeleccionada;
+    uint32_t indice = 0;
+    
+    while (aux->pidProceso != pid) {
+        aux = aux->siguiente;
+    }
+
+    tablaSeleccionada = aux->tablaSegmentos;
+
+    // si es necesario, habria que chequear que la tabla no este llena
+
+    while (tablaSeleccionada[indice]->idSegmento != -1) {
+        indice = indice + 1;
+    }
+
+    tablaSeleccionada[indice]->direccionBase = baseSegmento;
+    tablaSeleccionada[indice]->idSegmento = segmento->idSegmento;
+    tablaSeleccionada[indice]->tamanio = segmento->tamanio;
+
+    free(segmento);   
+    
+    return;
+}
+
 // Funciones publicas
+
+uint32_t crear_segmento(t_info_segmentos* segmento, uint32_t pid)
+{
+    t_algoritmo algoritmoActual;
+    algoritmoActual = __algoritmo_seleccionado();
+    uint32_t baseSegmento = __obtener_base_segmento_segun_algoritmo(algoritmoActual);
+
+    __agregar_segmento_a_tabla(segmento, pid, baseSegmento);
+
+    return baseSegmento; 
+}
 
 void inicializar_memoria (void) 
 {
@@ -137,5 +201,4 @@ bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
     }
     
     return tamanioSolicitado <= aux->hueco->tamanio;
-
 }

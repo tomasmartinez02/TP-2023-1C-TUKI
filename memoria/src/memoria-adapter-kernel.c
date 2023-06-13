@@ -1,28 +1,12 @@
 #include <memoria-adapter-kernel.h>
 
-static t_buffer* __serializar_tabla_para_ejecucion(t_info_segmentos* tablaASerializar)
-{
-    t_buffer* bufferAEnviar = buffer_create();
-    uint32_t cantidadSegmentos = memoria_config_get_cantidad_segmentos(memoriaConfig);
-    uint32_t idSegmento, direccionBase, tamanio;
-    
-    for (int i = 1; i < cantidadSegmentos; i++) {
-        idSegmento = tablaASerializar[i].idSegmento; 
-        direccionBase = tablaASerializar[i].direccionBase;
-        tamanio = tablaASerializar[i].tamanio;
-        buffer_pack(bufferAEnviar, &idSegmento, sizeof(idSegmento));
-        buffer_pack(bufferAEnviar, &direccionBase, sizeof(direccionBase));
-        buffer_pack(bufferAEnviar, &tamanio, sizeof(tamanio));
-    }
-
-    return bufferAEnviar;
-}
-
-void adapter_kernel_enviar_tabla(t_info_segmentos* tablaCreada, t_header headerAEnviar) 
+void adapter_kernel_enviar_tabla(t_info_segmentos** tablaCreada, t_header headerAEnviar) 
 {
     int socketKernel = memoria_config_get_socket_kernel(memoriaConfig);
+
+    uint32_t cantidadSegmentos = memoria_config_get_cantidad_segmentos(memoriaConfig);
     
-    t_buffer *bufferTabla = __serializar_tabla_para_ejecucion(tablaCreada);
+    t_buffer *bufferTabla = empaquetar_tabla_segmentos(tablaCreada, cantidadSegmentos);
     stream_send_buffer(socketKernel, headerAEnviar, bufferTabla);
     buffer_destroy(bufferTabla);
 

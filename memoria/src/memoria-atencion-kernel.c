@@ -16,7 +16,7 @@ void atender_peticiones_kernel(void)
             case HEADER_solicitud_inicializacion_proceso:
             {
                 uint32_t pid = adapter_kernel_recibir_pid(socketKernel, bufferRecibido);
-                t_info_segmentos* tablaCreada = crear_tabla_nuevo_proceso(pid);
+                t_info_segmentos** tablaCreada = crear_tabla_nuevo_proceso(pid);
                 adapter_kernel_enviar_tabla(tablaCreada, HEADER_tabla_segmentos);
                 log_info(memoriaLogger,  "Creacion de Proceso PID: <%d>", pid);
                 break;
@@ -28,6 +28,8 @@ void atender_peticiones_kernel(void)
                 
                 if (verificar_memoria_suficiente(segmento->tamanio)){
                     if (verificar_memoria_contigua(segmento->tamanio)) {
+                        uint32_t baseSegmento = crear_segmento(segmento, pid);
+                        // adapter_kernel_enviar_direccion_base();
                         // habria que darle memoria al segmento
                     } else {
                         // necesita compactaciones (eliminar segmento)

@@ -38,9 +38,17 @@ typedef struct lista_tablas lista_tablas;
 struct lista_tablas
 {
     uint32_t pidProceso;
-    t_info_segmentos* tablaSegmentos;
+    t_info_segmentos** tablaSegmentos;
     lista_tablas* siguiente; 
 };
+
+enum algoritmo
+{   
+    FIRST_FIT,
+    BEST_FIT,
+    WORST_FIT
+};
+typedef enum algoritmo t_algoritmo;
 
 // Variables globales
 extern t_log *memoriaDebuggingLogger;
