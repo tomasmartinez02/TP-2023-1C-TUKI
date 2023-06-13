@@ -142,10 +142,6 @@ void atender_peticiones_kernel()
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
                 verificar_existencia_archivo(nombreArchivo);
 
-                // PARA PROBAR //
-                log_info(filesystemDebuggingLogger, "fs recive la consulta de existencia del archivo %s", nombreArchivo );
-                enviar_confirmacion_existencia_archivo();
-
                 free(nombreArchivo);
                 break;
             }
