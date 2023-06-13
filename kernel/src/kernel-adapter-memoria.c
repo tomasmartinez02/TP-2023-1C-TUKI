@@ -21,23 +21,38 @@ void __enviar_pid_proceso_a_inicializar(t_pcb *pcbAInicializar, int socketMemori
 }
 
 // Recibe y desempaqueta la tabla de segmentos enviada por la memoria
-static t_buffer *__recibir_tabla_segmentos(t_pcb *pcbInicializado, int socketMemoria)
+static t_info_segmentos **__recibir_tabla_segmentos(t_pcb *pcbInicializado, int socketMemoria)
 {
     t_buffer *bufferTablaSegmentos = buffer_create();
     stream_recv_buffer(socketMemoria, bufferTablaSegmentos);
 
+    uint32_t tamanioTablaSegmentos;
+    buffer_unpack(bufferTablaSegmentos, &tamanioTablaSegmentos, sizeof(tamanioTablaSegmentos));
+
+    pcb_set_tamanio_tabla_segmentos(pcbInicializado, tamanioTablaSegmentos);
+
+    t_info_segmentos **tablaSegmentos;
+    tablaSegmentos = desempaquetar_tabla_segmentos(bufferTablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcbInicializado));
+
     log_info(kernelDebuggingLogger, "Proceso: %d - Se recibe el array con la tabla de los segmentos", pcb_get_pid(pcbInicializado));
 
-    return bufferTablaSegmentos;
+    buffer_destroy(bufferTablaSegmentos);
+
+    return tablaSegmentos;
 }
 
 // Recibe la base y tamanio de un segmento y los agrega a la tabla de segmentos en su posicion correspondiente segun su id
-static void __agregarSegmentoATabla(uint32_t base, uint32_t tamanio, uint32_t idSegmento, t_info_segmentos **tablaSegmentos)
+static void __agregarSegmentoATabla(uint32_t baseSegmentoCreado, uint32_t tamanioSegmentoCreado, uint32_t idSegmentoCreado, t_info_segmentos **tablaSegmentos)
 {   
-    t_info_segmentos *segmento = tablaSegmentos[idSegmento]; // Esto no queda asi!!!
-    info_segmentos_set_direccion_base(segmento, base);
-    info_segmentos_set_tamanio(segmento, tamanio);
-    info_segmentos_set_idSegmento(idSegmento,segmento);
+    uint32_t indice = 0;
+
+    while (tablaSegmentos[indice]->idSegmento != -1) {
+        indice = indice + 1;
+    }
+
+    tablaSegmentos[indice]->direccionBase = baseSegmentoCreado;
+    tablaSegmentos[indice]->idSegmento = idSegmentoCreado;
+    tablaSegmentos[indice]->tamanio = tamanioSegmentoCreado;
 
     return; 
 }
@@ -98,11 +113,7 @@ t_buffer *adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) /
         }
     }
 
-    t_buffer *tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
-
-    uint32_t tamanio_tabla_segmentos;
-    buffer_unpack(tablaSegmentos, &tamanio_tabla_segmentos, sizeof(tamanio_tabla_segmentos));
-    pcb_set_tamanio_tabla_segmentos(pcbAInicializar, tamanio_tabla_segmentos);
+    t_info_segmentos **tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
 
     pthread_mutex_unlock(&mutexSocketMemoria);
 
@@ -128,14 +139,11 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             buffer_unpack(bufferBaseNuevoSegmento, &baseNuevoSegmento, sizeof(baseNuevoSegmento));
             buffer_destroy(bufferBaseNuevoSegmento);     
 
-            t_buffer *bufferTablaSegmentos = pcb_get_tabla_segmentos(pcb);       
-            t_info_segmentos *tablaSegmentos = *desempaquetar_tabla_segmentos(bufferTablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb));
-            buffer_destroy(bufferTablaSegmentos);
-            
-            __agregarSegmentoATabla(baseNuevoSegmento, tamanio, idSegmento, &tablaSegmentos); 
+            uint32_t tamanioTablaSegmentos = pcb_get_tamanio_tabla_segmentos(pcb);
 
-            t_buffer *bufferTablaSegmentosActualizada = empaquetar_tabla_segmentos(&tablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb));
-            pcb_set_tabla_segmentos(pcb, bufferTablaSegmentosActualizada);
+            t_info_segmentos **tablaSegmentos = pcb_get_tabla_segmentos(pcb);
+            
+            __agregarSegmentoATabla(baseNuevoSegmento, tamanio, idSegmento, tablaSegmentos); 
 
             log_creacion_nuevo_segmento(pcb, idSegmento, tamanio);
 

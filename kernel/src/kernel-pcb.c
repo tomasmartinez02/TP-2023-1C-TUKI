@@ -140,18 +140,13 @@ t_dictionary *pcb_get_archivos_abiertos(t_pcb *pcb)
 
 // Get y Set tabla segmentos
 
-t_buffer *pcb_get_tabla_segmentos(t_pcb *pcb)
+t_info_segmentos **pcb_get_tabla_segmentos(t_pcb *pcb)
 {
     return pcb->tablaSegmentos;
 }
 
-void pcb_set_tabla_segmentos(t_pcb *pcb, t_buffer *tablaSegmentos)
+void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos **tablaSegmentos)
 {
-    t_buffer *tablaSegmentosActual = pcb->tablaSegmentos;
-    if (tablaSegmentosActual != NULL) {
-        buffer_destroy(tablaSegmentos);
-    }
-
     pcb->tablaSegmentos = tablaSegmentos;
 
     return;
