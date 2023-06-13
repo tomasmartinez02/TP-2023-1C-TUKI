@@ -54,10 +54,11 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         log_info(kernelLogger, "Bool bloqueo proceso: %d", semaforo_recurso_debe_bloquear_proceso(semaforoRecurso));
         if (semaforo_recurso_debe_bloquear_proceso(semaforoRecurso))
         {   
-            semaforo_recurso_bloquear_proceso(semaforoRecurso, pcbEnEjecucion); // Acá faltaria loguear la transicion de estados
+            semaforo_recurso_bloquear_proceso(semaforoRecurso, pcbEnEjecucion);
             pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
             sem_post(&dispatchPermitido);
         } else {
+            // Si el proceso no se bloquea porque no hay ningún otro proceso usando este recurso
             seguir_ejecutando(pcbEnEjecucion);
         }
 
@@ -111,10 +112,10 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
     {
         adapter_filesystem_pedir_creacion_archivo(nombreArchivo);
     }
-    
     abrir_archivo_globalmente(nombreArchivo);
     // Agrego archivo a la tabla de archivos abiertos del proceso con el puntero en la posición 0. 
     abrir_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo);
+    seguir_ejecutando(pcbEnEjecucion);
     log_ejecucion_fopen(pcbEnEjecucion, nombreArchivo);
     return;
 }
@@ -136,7 +137,7 @@ void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)
         // Si no queda ningún proceso que tenga abierto el archivo, se elimina la entrada de la tabla global de archivos abiertos.
         cerrar_archivo_globalmente(nombreArchivo);
     }
-    
+    seguir_ejecutando(pcbEnEjecucion);
     log_ejecucion_fclose(pcbEnEjecucion, nombreArchivo);
     return;
 }
@@ -154,7 +155,6 @@ void ejecutar_instruccion_ftruncate(t_pcb *pcbEnEjecucion, char *nombreArchivo, 
     // El PCB se bloquea hasta que FS avisa que ya termino de truncar el archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
     adapter_filesystem_pedir_truncar_archivo(pcbEnEjecucion, nombreArchivo, tamanio);
-
     log_ejecucion_ftruncate(pcbEnEjecucion, nombreArchivo, tamanio);
     return;
 }
