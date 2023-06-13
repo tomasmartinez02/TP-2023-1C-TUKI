@@ -155,6 +155,7 @@ void ejecutar_instruccion_ftruncate(t_pcb *pcbEnEjecucion, char *nombreArchivo, 
     // El PCB se bloquea hasta que FS avisa que ya termino de truncar el archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
     adapter_filesystem_pedir_truncar_archivo(pcbEnEjecucion, nombreArchivo, tamanio);
+    seguir_ejecutando(pcbEnEjecucion);
     log_ejecucion_ftruncate(pcbEnEjecucion, nombreArchivo, tamanio);
     return;
 }
