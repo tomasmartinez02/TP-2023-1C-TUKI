@@ -3,6 +3,7 @@
 // Variables globales
 t_bitmap *bitmap;
 t_superbloque *superbloque;
+t_fcb *fcb;
 
 // SUPERBLOQUE
 
@@ -128,4 +129,8 @@ void inicializar_estructuras(void)
     uint32_t blockSize = get_superbloque_block_size(superbloque);
     crear_archivo_de_bloques(pathArchivoDeBloques,blockCount,blockSize);
     free(pathArchivoDeBloques);
+
+    char *directorioFcbs = filesystem_config_get_path_fcb(filesystemConfig);
+    recorrer_directorio_fcbs(directorioFcbs);
+    free(directorioFcbs);
 }

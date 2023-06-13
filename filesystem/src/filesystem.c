@@ -4,6 +4,8 @@
 t_log *filesystemDebuggingLogger;
 t_log *filesystemLogger;
 t_filesystem_config *filesystemConfig;
+t_dictionary *listaFcbs;
+
 
 int main(int argc, char* argv[]) 
 {
@@ -17,8 +19,9 @@ int main(int argc, char* argv[])
     filesystemConfig = filesystem_config_create(pathArchivoConfiguracion, filesystemDebuggingLogger);
     free(pathArchivoConfiguracion);
 
+    listaFcbs = dictionary_create();
     // Conexion con Memoria
-    conectar_a_memoria();
+    //conectar_a_memoria();
 
     inicializar_estructuras();
 
@@ -27,5 +30,6 @@ int main(int argc, char* argv[])
     aceptar_conexion_kernel(socketEscucha);
     atender_peticiones_kernel();
 
+    dictionary_destroy(listaFcbs);
     //filesystem_destroy(filesystemConfig, filesystemLogger, filesystemDebuggingLogger);
 }

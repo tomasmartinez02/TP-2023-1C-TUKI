@@ -1,21 +1,35 @@
 #include <filesystem-atender-kernel.h>
 
+//Verificar que exista el FCB correspondiente al archivo
 void verificar_existencia_archivo(char *nombreArchivo) // para abrir archivo
 {   
-    //Verificar que exista el FCB correspondiente al archivo
     //Si existe devolver OK
-    enviar_confirmacion_existencia_archivo();
-    log_existe_archivo(nombreArchivo);
-    //Si no existe informar que no existe --> no se si hace falta un HEADER_archivo_inexistente o solo con mandar un error basta
+    if (dictionary_has_key(listaFcbs, nombreArchivo))
+    {
+        enviar_confirmacion_existencia_archivo();
+        log_existe_archivo(nombreArchivo);
+    }
+    // Si no existe
+    else
+    {
+        enviar_confirmacion_no_existencia_archivo();
+        log_no_existe_archivo(nombreArchivo);
+    }
+    return;
 }
 
 t_fcb *crear_archivo(char *nombreArchivo)
 {   
+    bool archivoCreado;
     // Crear un archivo FCB correspondiente al nuevo archivo, con tamaño 0 y sin bloques asociados.
     // Siempre será posible crear un archivo y por lo tanto esta operación deberá devolver OK.
-    t_fcb* nuevoFcb = crear_fcb(nombreArchivo);
-    enviar_confirmacion_archivo_creado();
-    log_crear_archivo(nombreArchivo);
+    t_fcb* nuevoFcb = crear_nuevo_fcb(nombreArchivo);
+    archivoCreado = crear_archivo_nuevo_fcb(nuevoFcb);
+    if (archivoCreado)
+    {   
+        enviar_confirmacion_archivo_creado();
+        log_crear_archivo(nombreArchivo);
+    }
     return nuevoFcb;
 }
 
@@ -126,11 +140,7 @@ void atender_peticiones_kernel()
             case HEADER_consulta_existencia_archivo:
             {   
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
-                //verificar_existencia_archivo(nombreArchivo);
-
-                // PARA PROBAR //
-                log_info(filesystemDebuggingLogger, "fs recive la consulta de existencia del archivo %s", nombreArchivo );
-                enviar_confirmacion_existencia_archivo();
+                verificar_existencia_archivo(nombreArchivo);
 
                 free(nombreArchivo);
                 break;
