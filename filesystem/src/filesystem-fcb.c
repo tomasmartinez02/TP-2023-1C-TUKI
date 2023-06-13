@@ -100,10 +100,14 @@ t_fcb* levantar_fcb(char *pathFcb)
 bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
 {
     FILE *archivo;
+    char *rutaArchivo;
 
-    archivo = fopen(nuevoFcb->NOMBRE_ARCHIVO,"w");
+    // Ruta completa del archivo
+    sprintf(rutaArchivo, "./fcbs/%s", nuevoFcb->NOMBRE_ARCHIVO);
+
+    archivo = fopen(rutaArchivo,"w");
     if (archivo == NULL) {
-        //error
+        // error al crear el archivo
         return false;
     }
 

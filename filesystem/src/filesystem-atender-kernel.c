@@ -79,12 +79,6 @@ void atender_peticiones_kernel()
             {      
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
                 crear_archivo(nombreArchivo);
-
-                // PARA PROBAR //
-                log_info(filesystemDebuggingLogger, "fs recive la solicitud de crear archivo %s", nombreArchivo);
-                log_info(filesystemLogger,"fs recive la solicitud de crear archivo %s", nombreArchivo);
-                enviar_confirmacion_archivo_creado();
-
                 free(nombreArchivo);
                 break;
             }
