@@ -40,3 +40,9 @@ t_info_segmentos* adapter_kernel_recibir_segmento_a_crear(uint32_t socketKernel,
 
     return segmentoRecibido;
 }
+
+void adapter_kernel_enviar_direccion_base(uint32_t socketKernel, uint32_t baseSegmento)
+{
+    //TODO
+    return;
+}

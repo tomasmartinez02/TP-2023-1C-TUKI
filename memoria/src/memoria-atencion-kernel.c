@@ -29,8 +29,7 @@ void atender_peticiones_kernel(void)
                 if (verificar_memoria_suficiente(segmento->tamanio)){
                     if (verificar_memoria_contigua(segmento->tamanio)) {
                         uint32_t baseSegmento = crear_segmento(segmento, pid);
-                        // adapter_kernel_enviar_direccion_base();
-                        // habria que darle memoria al segmento
+                        adapter_kernel_enviar_direccion_base(socketKernel, baseSegmento); // Hacer esta funcion y listo
                     } else {
                         // necesita compactaciones (eliminar segmento)
                     }

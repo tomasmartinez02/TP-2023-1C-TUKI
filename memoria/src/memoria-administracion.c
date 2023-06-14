@@ -119,10 +119,82 @@ void __crear_segmentos_cero(void)
     return;
 }
 
-static uint32_t __obtener_base_segmento_segun_algoritmo(t_algoritmo algoritmo)
+static uint32_t __obtener_base_segmento_first_fit(t_info_segmentos* segmento)
 {
-    //TODO
-    return 1;
+    t_huecos_libres* auxiliarLista = listaHuecosLibres;
+    uint32_t baseSegmento;
+
+    while (auxiliarLista->hueco->tamanio < segmento->tamanio)
+    {
+        auxiliarLista = auxiliarLista->siguiente;
+    }
+
+    baseSegmento = auxiliarLista->hueco->direccionBase;
+
+    return baseSegmento;
+}
+
+static uint32_t __obtener_base_segmento_best_fit(t_info_segmentos* segmento)
+{
+    t_huecos_libres* auxiliarLista = listaHuecosLibres;
+    uint32_t baseSegmento = auxiliarLista->hueco->direccionBase;
+    uint32_t tamanioHueco = auxiliarLista->hueco->tamanio;
+
+    while (auxiliarLista->siguiente != NULL)
+    {
+        if (auxiliarLista->hueco->tamanio < tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio)
+        {
+            tamanioHueco = auxiliarLista->hueco->tamanio;
+            baseSegmento = auxiliarLista->hueco->direccionBase;
+        }
+        auxiliarLista = auxiliarLista->siguiente;
+    }
+
+    return baseSegmento;
+}
+
+static uint32_t __obtener_base_segmento_worst_fit(t_info_segmentos* segmento)
+{
+    t_huecos_libres* auxiliarLista = listaHuecosLibres;
+    uint32_t baseSegmento = auxiliarLista->hueco->direccionBase;
+    uint32_t tamanioHueco = auxiliarLista->hueco->tamanio;
+
+    while (auxiliarLista->siguiente != NULL)
+    {
+        if (auxiliarLista->hueco->tamanio > tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio)
+        {
+            tamanioHueco = auxiliarLista->hueco->tamanio;
+            baseSegmento = auxiliarLista->hueco->direccionBase;
+        }
+        auxiliarLista = auxiliarLista->siguiente;
+    }
+
+    return baseSegmento;
+}
+
+static uint32_t __obtener_base_segmento_segun_algoritmo(t_algoritmo algoritmo, t_info_segmentos* segmento)
+{
+    uint32_t baseSegmento;
+
+    switch (algoritmo)
+    {
+    case BEST_FIT:
+        baseSegmento = __obtener_base_segmento_best_fit(segmento);
+        break;
+
+    case WORST_FIT:
+        baseSegmento = __obtener_base_segmento_worst_fit(segmento);
+        break;
+
+    case FIRST_FIT:
+        baseSegmento = __obtener_base_segmento_first_fit(segmento);
+        break;
+
+    default:
+        break;
+    }
+
+    return baseSegmento;
 }
 
 static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid, uint32_t baseSegmento){
@@ -147,6 +219,8 @@ static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid,
     tablaSeleccionada[indice]->idSegmento = segmento->idSegmento;
     tablaSeleccionada[indice]->tamanio = segmento->tamanio;
 
+    actualizar_lista_huecos_libres(tablaSeleccionada[indice]);
+
     free(segmento);   
     
     return;
@@ -158,7 +232,7 @@ uint32_t crear_segmento(t_info_segmentos* segmento, uint32_t pid)
 {
     t_algoritmo algoritmoActual;
     algoritmoActual = __algoritmo_seleccionado();
-    uint32_t baseSegmento = __obtener_base_segmento_segun_algoritmo(algoritmoActual);
+    uint32_t baseSegmento = __obtener_base_segmento_segun_algoritmo(algoritmoActual, segmento);
 
     __agregar_segmento_a_tabla(segmento, pid, baseSegmento);
 
