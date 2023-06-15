@@ -43,7 +43,7 @@ static void __inicializar_memoria_principal(void)
     return;
 }
 
-static t_huecos_libres* __crear_hueco (uint32_t direccionBase, uint32_t tamanio) // lo crea pero no lo agrega a la lista
+static t_huecos_libres* __crear_lista_huecos_libres (uint32_t direccionBase, uint32_t tamanio) // lo crea pero no lo agrega a la lista
 {   
     t_huecos_libres* nuevoHueco = malloc(sizeof(t_huecos_libres));
     nuevoHueco->hueco = malloc(sizeof(t_info_segmentos));
@@ -51,6 +51,15 @@ static t_huecos_libres* __crear_hueco (uint32_t direccionBase, uint32_t tamanio)
     
     nuevoHueco->hueco->direccionBase = direccionBase;
     nuevoHueco->hueco->tamanio = tamanio;    
+
+    return nuevoHueco;
+}
+
+static t_info_segmentos* __crear_hueco (uint32_t base, uint32_t tamanio)
+{
+    t_info_segmentos* nuevoHueco = malloc(sizeof(t_info_segmentos));
+    nuevoHueco->direccionBase = base;
+    nuevoHueco->tamanio = tamanio;
 
     return nuevoHueco;
 }
@@ -104,7 +113,7 @@ void actualizar_lista_huecos_libres (t_info_segmentos *segmento) // el nombre de
 
 void __crear_estructura_espacios_libres (void) 
 {   
-    listaHuecosLibres = __crear_hueco(0, memoria_config_get_tamanio_memoria(memoriaConfig));
+    listaHuecosLibres = __crear_lista_huecos_libres(0, memoria_config_get_tamanio_memoria(memoriaConfig));
     return ;
 }
 
@@ -226,6 +235,129 @@ static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid,
     return;
 }
 
+t_info_segmentos **__buscar_tabla_segun_pid(uint32_t pid)
+{
+    lista_tablas *aux = tablasDeSegmentos;
+    t_info_segmentos** tablaSeleccionada;
+    
+    while (aux->pidProceso != pid) {
+        aux = aux->siguiente;
+    }
+    
+    tablaSeleccionada = aux->tablaSegmentos;
+
+    return tablaSeleccionada;
+}
+
+static t_info_segmentos *__eliminar_segmento_de_tabla (t_info_segmentos** tablaDeSegmentos, uint32_t idSegmento)
+{
+    uint32_t indice = 0;
+    t_info_segmentos* huecoLiberado;
+
+    while (tablaDeSegmentos[indice]->idSegmento != idSegmento) {
+        indice = indice + 1;
+    }
+
+    huecoLiberado = __crear_hueco(tablaDeSegmentos[indice]->direccionBase, tablaDeSegmentos[indice]->tamanio);
+
+    tablaDeSegmentos[indice]->direccionBase = 0;
+    tablaDeSegmentos[indice]->idSegmento = -1;
+    tablaDeSegmentos[indice]->tamanio = 0;
+
+    return huecoLiberado;
+}
+
+static void __unir_3_huecos (t_huecos_libres* huecoAnterior, t_huecos_libres* huecoSiguiente, t_info_segmentos* huecoAInsertar) 
+{
+    uint32_t nuevoTamanio = huecoAnterior->hueco->tamanio + huecoAInsertar->tamanio + huecoSiguiente->hueco->tamanio;
+    
+    huecoAnterior->hueco->tamanio = nuevoTamanio;
+    huecoAnterior->siguiente = huecoSiguiente->siguiente;
+    
+    free(huecoSiguiente->hueco);
+    free(huecoSiguiente);
+    free(huecoAInsertar);
+
+    return;
+}
+
+static void __unir_2_huecos_inferior (t_huecos_libres* huecoAnterior, t_info_segmentos* huecoAInsertar)
+{
+    uint32_t nuevoTamanio = huecoAnterior->hueco->tamanio + huecoAInsertar->tamanio;
+
+    huecoAnterior->hueco->tamanio = nuevoTamanio;
+
+    free(huecoAInsertar);
+
+    return;
+}
+
+static void __unir_2_huecos_superior (t_info_segmentos* huecoAInsertar, t_huecos_libres* huecoSiguiente)
+{
+    uint32_t nuevaBase = huecoAInsertar->direccionBase;
+    uint32_t nuevoTamanio = huecoAInsertar->tamanio + huecoSiguiente->hueco->tamanio;
+
+    huecoSiguiente->hueco->direccionBase = nuevaBase;
+    huecoSiguiente->hueco->tamanio = nuevoTamanio;
+
+    free(huecoAInsertar);
+
+    return;
+}
+
+static void __insertar_hueco (t_huecos_libres* huecoAnterior, t_huecos_libres* huecoSiguiente, t_info_segmentos* huecoAInsertar) 
+{
+    t_huecos_libres* nuevoHueco = __crear_lista_huecos_libres(huecoAInsertar->direccionBase, huecoAInsertar->tamanio);
+
+    nuevoHueco->siguiente = huecoSiguiente;
+    huecoAnterior->siguiente = nuevoHueco;
+
+    return;
+}
+
+void __insertar_hueco_en_posicion (t_info_segmentos* huecoAInsertar, t_huecos_libres* huecoSiguiente)
+{
+    t_huecos_libres* huecoAnterior = listaHuecosLibres;
+    while (huecoAnterior->siguiente->hueco->direccionBase != huecoSiguiente->hueco->direccionBase) {
+        huecoAnterior = huecoAnterior->siguiente;
+    }
+
+    uint32_t limiteHuecoAnterior = huecoAnterior->hueco->direccionBase + huecoAnterior->hueco->tamanio;
+    uint32_t baseHuecoAInsertar = huecoAInsertar->direccionBase;
+    uint32_t limiteHuecoAInsertar = huecoAInsertar->direccionBase + huecoAInsertar->tamanio;
+    uint32_t baseHuecoSiguiente = huecoSiguiente->hueco->direccionBase;
+
+    if (limiteHuecoAnterior == baseHuecoAInsertar && limiteHuecoAInsertar == baseHuecoSiguiente) {
+        __unir_3_huecos(huecoAnterior, huecoSiguiente, huecoAInsertar);
+        
+    } else if (limiteHuecoAnterior == baseHuecoAInsertar) {
+        __unir_2_huecos_inferior(huecoAnterior, huecoAInsertar); 
+
+    } else if (limiteHuecoAInsertar == baseHuecoSiguiente) {
+        __unir_2_huecos_superior(huecoAInsertar, huecoSiguiente); 
+    } else {
+        __insertar_hueco(huecoAnterior, huecoSiguiente, huecoAInsertar);
+    }
+
+    return;
+}
+
+static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
+{
+    t_huecos_libres* aux = listaHuecosLibres;
+
+    if (aux == NULL) {
+        listaHuecosLibres = __crear_lista_huecos_libres(huecoLiberado -> direccionBase, huecoLiberado -> tamanio);
+    } else {
+        while ((aux->hueco->direccionBase + aux->hueco->tamanio) <= huecoLiberado->direccionBase) {
+            aux = aux->siguiente;
+        }
+        __insertar_hueco_en_posicion(huecoLiberado, aux);
+    }
+    
+    return;
+}
+
 // Funciones publicas
 
 uint32_t crear_segmento(t_info_segmentos* segmento, uint32_t pid)
@@ -275,4 +407,14 @@ bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
     }
     
     return tamanioSolicitado <= aux->hueco->tamanio;
+}
+
+void eliminar_segmento(uint32_t idSegmento, uint32_t pid) 
+{
+    t_info_segmentos** tablaDeSegmentos = __buscar_tabla_segun_pid(pid);
+    t_info_segmentos* huecoLiberado = __eliminar_segmento_de_tabla(tablaDeSegmentos, idSegmento);
+
+    __insertar_nuevo_hueco(huecoLiberado);     
+
+    return;
 }

@@ -29,23 +29,29 @@ void atender_peticiones_kernel(void)
                 if (verificar_memoria_suficiente(segmento->tamanio)){
                     if (verificar_memoria_contigua(segmento->tamanio)) {
                         uint32_t baseSegmento = crear_segmento(segmento, pid);
-                        adapter_kernel_enviar_direccion_base(socketKernel, baseSegmento); // Hacer esta funcion y listo
+                        adapter_kernel_enviar_direccion_base(socketKernel, baseSegmento); 
                     } else {
-                        // necesita compactaciones (eliminar segmento)
+                        adapter_kernel_solicitar_compactacion(socketKernel);
+                        free(segmento);
                     }
                 } else {
-                    // error (eliminar segmento)
+                    adapter_kernel_error_out_of_memory(socketKernel);
+                    free(segmento);
                 }
                 break;
             }
-            /* case HEADER_eliminar_segmento: // Este header hay q agregarlo
+            case HEADER_eliminar_segmento: // Este header hay q agregarlo
             {
-            
+                uint32_t idSegmento = adapter_kernel_recibir_id_segmento_a_eliminar(socketKernel, bufferRecibido);
+                uint32_t pid = adapter_kernel_recibir_pid(socketKernel, bufferRecibido);
+
+                eliminar_segmento(idSegmento, pid);
+                adapter_kernel_enviar_eliminacion_segmento(socketKernel, pid);
             }
             case HEADER_compactar: // Este header hay q agregarlo
             {
 
-            } */
+            } 
             // tambien deberíamos agregar para cuando se finaliza un proceso
             default:
             {   
