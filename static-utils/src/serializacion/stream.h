@@ -57,7 +57,9 @@ enum header
     HEADER_solicitud_leer_archivo,
     HEADER_solicitud_modificar_tamanio_archivo,
     HEADER_tabla_segmentos,
-    HEADER_tamanio_archivo_modificado
+    HEADER_tamanio_archivo_modificado,
+    HEADER_eliminar_segmento,
+    HEADER_compactar
 };
 typedef enum header t_header;
 
