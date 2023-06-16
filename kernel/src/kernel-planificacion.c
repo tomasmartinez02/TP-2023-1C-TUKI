@@ -464,6 +464,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 uint32_t tamanio; 
                 recibir_buffer_instruccion_create_segment(&idSegmento, &tamanio);
                 adapter_memoria_pedir_creacion_segmento(idSegmento, tamanio, pcbEnEjecucion);
+                log_info(kernelDebuggingLogger, "PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>",pcbEnEjecucion->pid, idSegmento, tamanio);
                 break;
             }
             case HEADER_instruccion_delete_segment:
@@ -471,6 +472,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 uint32_t idSegmento;
                 idSegmento = recibir_buffer_instruccion_delete_segment();
                 adapter_memoria_pedir_eliminar_segmento(idSegmento, pcbEnEjecucion);
+                log_info(kernelDebuggingLogger, "PID: <%d> - Eliminar Segmento - Id Segmento: <%d>",pcbEnEjecucion->pid, idSegmento);
                 break;
             }
         } 
