@@ -249,7 +249,7 @@ t_info_segmentos **__buscar_tabla_segun_pid(uint32_t pid)
     return tablaSeleccionada;
 }
 
-static t_info_segmentos *__eliminar_segmento_de_tabla (t_info_segmentos** tablaDeSegmentos, uint32_t idSegmento)
+static t_info_segmentos *__eliminar_segmento_de_tabla (t_info_segmentos** tablaDeSegmentos, uint32_t idSegmento, uint32_t pid)
 {
     uint32_t indice = 0;
     t_info_segmentos* huecoLiberado;
@@ -257,6 +257,8 @@ static t_info_segmentos *__eliminar_segmento_de_tabla (t_info_segmentos** tablaD
     while (tablaDeSegmentos[indice]->idSegmento != idSegmento) {
         indice = indice + 1;
     }
+
+    log_info(memoriaLogger,  "PID: <%d> - Eliminar Segmento: <%d> - Base: <%d> - TAMAÑO: <%d>", pid, idSegmento, tablaDeSegmentos[indice]->direccionBase, tablaDeSegmentos[indice]->tamanio);
 
     huecoLiberado = __crear_hueco(tablaDeSegmentos[indice]->direccionBase, tablaDeSegmentos[indice]->tamanio);
 
@@ -412,7 +414,7 @@ bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
 void eliminar_segmento(uint32_t idSegmento, uint32_t pid) 
 {
     t_info_segmentos** tablaDeSegmentos = __buscar_tabla_segun_pid(pid);
-    t_info_segmentos* huecoLiberado = __eliminar_segmento_de_tabla(tablaDeSegmentos, idSegmento);
+    t_info_segmentos* huecoLiberado = __eliminar_segmento_de_tabla(tablaDeSegmentos, idSegmento, pid);
 
     __insertar_nuevo_hueco(huecoLiberado);     
 

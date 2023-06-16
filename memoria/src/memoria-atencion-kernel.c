@@ -29,26 +29,30 @@ void atender_peticiones_kernel(void)
                 if (verificar_memoria_suficiente(segmento->tamanio)){
                     if (verificar_memoria_contigua(segmento->tamanio)) {
                         uint32_t baseSegmento = crear_segmento(segmento, pid);
-                        adapter_kernel_enviar_direccion_base(socketKernel, baseSegmento); 
+                        adapter_kernel_enviar_direccion_base(socketKernel, baseSegmento);
+                        log_info(memoriaLogger,  "PID: <%d> - Crear Segmento: <%d> - Base: <%d> - TAMAÑO: <%d>", pid, segmento->idSegmento, baseSegmento, segmento->tamanio); 
+                        // No hay que hacer free del puntero?
                     } else {
                         adapter_kernel_solicitar_compactacion(socketKernel);
+                        log_info(memoriaLogger,  "Se solicita la compactacion");
                         free(segmento);
                     }
                 } else {
+                    log_error(memoriaLogger,  "PID: <%d> - Crear Segmento: <%d> - ERROR: No hay memoria suficiente", pid, segmento->idSegmento);
                     adapter_kernel_error_out_of_memory(socketKernel);
                     free(segmento);
                 }
                 break;
             }
-            case HEADER_eliminar_segmento: // Este header hay q agregarlo
+            case HEADER_eliminar_segmento: 
             {
                 uint32_t idSegmento = adapter_kernel_recibir_id_segmento_a_eliminar(socketKernel, bufferRecibido);
                 uint32_t pid = adapter_kernel_recibir_pid(socketKernel, bufferRecibido);
 
-                eliminar_segmento(idSegmento, pid);
+                eliminar_segmento(idSegmento, pid); // El log esta adentro
                 adapter_kernel_enviar_eliminacion_segmento(socketKernel, pid);
             }
-            case HEADER_compactar: // Este header hay q agregarlo
+            case HEADER_compactar:
             {
 
             } 
