@@ -32,19 +32,75 @@ t_fcb *crear_archivo(char *nombreArchivo)
     }
     return nuevoFcb;
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// F_TRUNCATE //
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void asignarBloque(t_fcb* fcbArchivo)
+{   
+    int32_t bloqueLibre = bitmap_encontrar_bloque_libre();
+    // asignar el bloque!!
+    if (bloqueLibre != 1)
+    {   
+        log_info(filesystemLogger, "No hay bloques disponibles para asignar.");
+        log_info(filesystemDebuggingLogger, "No hay bloques disponibles para asignar.");
+    }
+    bitmap_marcar_bloque_ocupado(bloqueLibre);
+}
+
+void desasignarBloque(t_fcb* fcbArchivo)
+{   
+    // desasignar el bloque!!
+    //bitmap_marcar_bloque_libre(x);
+}
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
-    // AMPLIAR TAMAÑO
-    //Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
-    //poder direccionar el nuevo tamaño.
+    uint32_t tamanioBloquesFS,tamanioNuevoEnBloques, cantidadBloquesAsignadosActual;
+    uint32_t cantidadBloquesAsignar, cantidadBloquesDesasignar, bloqueTemp;
+    // Busco el fcb relacionado al archivo que quiero truncar
+    t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
+    if (fcbArchivo == NULL)
+    {
+        log_info(filesystemLogger, "No se encontró el fcb en la lista de fcbs.");
+        log_info(filesystemDebuggingLogger, "No se encontró el fcb en la lista de fcbs.");
+        return;
+    }
+    cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    tamanioBloquesFS = get_superbloque_block_size(superbloque);
+    // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
+    tamanioNuevoEnBloques = tamanioNuevo / tamanioBloquesFS;
 
-    // REDUCIR TAMAÑO
-    //Asignar el nuevo tamaño del archivo en el FCB y se deberán marcar como libres todos los bloques que ya
-    // no sean necesarios para direccionar el tamaño del archivo (descartando desde el final del archivo hacia el principio).
+    // duda? habria que ver si la cantidad de bloques asignada actual es 0 para asignarle x primera vez un bloque de punteros??
+    if (cantidadBloquesAsignadosActual < tamanioNuevoEnBloques)
+    {    
+        // AMPLIAR TAMAÑO
+        //Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
+        //poder direccionar el nuevo tamaño.
+        cantidadBloquesAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual;
+        for (uint32_t i = 0; i<cantidadBloquesAsignar; i++)
+        {
+             asignarBloque(fcbArchivo);
+        }
+    }
+    else
+    {   
+         // REDUCIR TAMAÑO
+        //Asignar el nuevo tamaño del archivo en el FCB y se deberán marcar como libres todos los bloques que ya
+        // no sean necesarios para direccionar el tamaño del archivo (descartando desde el final del archivo hacia el principio).
+        cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
+        for (uint32_t i = 0; i<cantidadBloquesDesasignar; i++)
+        {
+            desasignarBloque(fcbArchivo);
+        }
+    }
+    fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
+    // persistir cambios en el fcb (puntero directo, indirecto)
     enviar_confirmacion_tamanio_archivo_modificado();
     log_truncar_archivo(nombreArchivo, tamanioNuevo);
+    return;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void leer_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   

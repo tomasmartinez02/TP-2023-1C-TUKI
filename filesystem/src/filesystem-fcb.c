@@ -8,6 +8,7 @@ t_fcb *crear_nuevo_fcb(char *nombreArchivo)
     fcb->TAMANIO_ARCHIVO = 0;
     fcb->PUNTERO_DIRECTO = 0;
     fcb->PUNTERO_INDIRECTO = 0;
+    fcb->cantidad_bloques_asignados = 0;
 
     return fcb;
 }
@@ -68,6 +69,17 @@ uint32_t fcb_get_puntero_indirecto(t_fcb *fcb)
 void fcb_set_puntero_indirecto(t_fcb *fcb, uint32_t nuevoPunteroIndirecto)
 {
     fcb->PUNTERO_DIRECTO = nuevoPunteroIndirecto;
+    return;
+}
+
+uint32_t fcb_get_cantidad_bloques_asignados(t_fcb *fcb)
+{
+    return fcb->cantidad_bloques_asignados;
+}
+
+void fcb_set_cantidad_bloques_asignados(t_fcb *fcb, uint32_t nuevaCantidadBloques)
+{
+    fcb->cantidad_bloques_asignados = nuevaCantidadBloques;
     return;
 }
 

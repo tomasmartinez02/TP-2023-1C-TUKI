@@ -79,11 +79,43 @@ void crear_bitmap(char *pathBitmap, uint32_t blockCount)
     abrir_bitmap(pathBitmap, blockCount);
 }
 
-void destruir_bitmap (void)
+void destruir_bitmap()
 {
     munmap(bitmap->direccion, bitmap->tamanio);
     bitarray_destroy(bitmap->bitarray);
 }
+
+int32_t bitmap_encontrar_bloque_libre()
+{   
+    // false = 0 --> libre
+    // true = 1 --> ocupado
+    uint32_t i;
+    bool bloqueOcupado;
+    for (i=0; i < bitmap->tamanio ; i++)
+    {
+        bloqueOcupado  = bitarray_test_bit(bitmap->bitarray, i);
+        // Si encuentra un bloque que esté en 0 devuelve la posición de ese bloque
+        if(!bloqueOcupado)
+        {
+            return i;
+        }
+    }
+     // Si no encuentra un bloque libre, retorna -1
+    return -1;
+}
+
+void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
+{
+     bitarray_clean_bit(bitmap->bitarray, numeroBloque);
+     return;
+}
+
+void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque) // 1 --> ocupado
+{
+     bitarray_set_bit(bitmap->bitarray, numeroBloque);
+     return;
+}
+
 
 // ARCHIVO DE BLOQUES --- falta terminar ---
 
@@ -113,6 +145,14 @@ void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, u
 {
     abrir_archivo_de_bloques(pathArchivoDeBloques, blockCount, blockSize);
 }
+
+/*
+archivo_de_bloques_buscar_bloque(uint32_t bloqueBuscado)
+{
+ // TODO
+}
+
+*/
 
 void inicializar_estructuras(void)
 {

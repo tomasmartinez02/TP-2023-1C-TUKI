@@ -46,6 +46,7 @@ struct fcb
     uint32_t TAMANIO_ARCHIVO;
     uint32_t PUNTERO_DIRECTO;
     uint32_t PUNTERO_INDIRECTO;
+    uint32_t cantidad_bloques_asignados;
 };
 typedef struct fcb t_fcb;
 

@@ -65,6 +65,10 @@ void crear_bitmap(char *pathBitmap, uint32_t blockCount);
 
 void destruir_bitmap (void);
 
+int32_t bitmap_encontrar_bloque_libre(void);
+void bitmap_marcar_bloque_libre(uint32_t numeroBloque);
+void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque);
+
 void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize);
 
 void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize);

@@ -28,6 +28,8 @@ uint32_t fcb_get_puntero_directo(t_fcb *fcb);
 void fcb_set_puntero_directo(t_fcb *fcb, uint32_t nuevoPunteroDirecto);
 uint32_t fcb_get_puntero_indirecto(t_fcb *fcb);
 void fcb_set_puntero_indirecto(t_fcb *fcb, uint32_t nuevoPunteroIndirecto);
+uint32_t fcb_get_cantidad_bloques_asignados(t_fcb *fcb);
+void fcb_set_cantidad_bloques_asignados(t_fcb *fcb, uint32_t nuevaCantidadBloques);
 
 // CREACIÓN DE ARCHIVOS DE MANEJO DE FCB
 t_fcb* levantar_fcb(char *pathFcb);
