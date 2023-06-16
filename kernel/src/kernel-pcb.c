@@ -147,6 +147,8 @@ t_info_segmentos **pcb_get_tabla_segmentos(t_pcb *pcb)
 
 void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos **tablaSegmentos)
 {
+    destruir_tabla_segmentos(pcb->tablaSegmentos, pcb->tamanioTablaSegmentos);
+
     pcb->tablaSegmentos = tablaSegmentos;
 
     return;

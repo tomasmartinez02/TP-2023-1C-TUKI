@@ -158,10 +158,11 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
         {
             __pcb_pasar_a_exit(pcb, FINALIZACION_OUTOFMEMORY);
             pthread_mutex_unlock(&mutexSocketMemoria);
+            log_error(kernelDebuggingLogger, "No hay memoria suficiente");
             // Acá habria que terminar el proceso
             break;
         }
-
+        
         case HEADER_necesita_compactacion:
         {
             adapter_memoria_pedir_compactacion(socketMemoria);
@@ -224,7 +225,7 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
     { 
         t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
-
+        
         t_info_segmentos ** nuevaTabla = desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, pcb_get_tamanio_tabla_segmentos(pcb));
 
         pcb_set_tabla_segmentos(pcb, nuevaTabla); // Ver, porque hay que liberar algo de memoria si o si
