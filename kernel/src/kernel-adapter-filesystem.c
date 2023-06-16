@@ -68,7 +68,7 @@ bool adapter_filesystem_existe_archivo(char *nombreArchivo)
         log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
         log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
         return false;
-    }
+    }.
     else
     {
         log_error(kernelLogger, "Error al verificar si existe el archivo");
