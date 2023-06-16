@@ -55,13 +55,12 @@ void abrir_bitmap (char* pathBitmap, uint32_t blockCount)
 
     uint32_t fileDescriptor = open(pathBitmap, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fileDescriptor == -1) {
-        // error al abrir el archivo
+        log_error(filesystemLogger,"Error al abrir el archivo Bitmap");
     }
 
     bitmap->tamanio = (blockCount / 8);
     if (ftruncate(fileDescriptor, bitmap->tamanio) == -1) {
-        // error al truncar el archivo
-        //ponele unos logs xfis<3
+        log_error(filesystemLogger,"Error al truncar el archivo Bitmap");
     }
 
     bitmap->direccion = mmap(NULL, bitmap->tamanio, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor,0);
@@ -98,6 +97,7 @@ int32_t bitmap_encontrar_bloque_libre()
         if(!bloqueOcupado)
         {
             return i;
+            break;
         }
     }
      // Si no encuentra un bloque libre, retorna -1
@@ -106,44 +106,65 @@ int32_t bitmap_encontrar_bloque_libre()
 
 void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
 {
-     bitarray_clean_bit(bitmap->bitarray, numeroBloque);
-     return;
+    bitarray_clean_bit(bitmap->bitarray, numeroBloque);
+    // Sincronizar los cambios en el archivo y verificar que se haga de forma correcta
+    if (msync(bitmap->direccion, bitmap->tamanio, MS_SYNC) == -1) {
+        log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
+    }
+    return;
 }
 
 void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque) // 1 --> ocupado
 {
-     bitarray_set_bit(bitmap->bitarray, numeroBloque);
-     return;
+    bitarray_set_bit(bitmap->bitarray, numeroBloque);
+    // Sincronizar los cambios en el archivo y verificar que se haga de forma correcta
+    if (msync(bitmap->direccion, bitmap->tamanio, MS_SYNC) == -1) {
+        log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
+    }
+    return;
 }
 
-
-// ARCHIVO DE BLOQUES --- falta terminar ---
+// ARCHIVO DE BLOQUES
 
 void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize)
 {
     uint32_t fileDescriptor = open(pathArchivoDeBloques, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fileDescriptor == -1) {
-        // error al abrir el archivo
+        log_error(filesystemLogger,"Error al abrir el Archivo de Bloques");
     }
 
     uint32_t tamanioArchivoDeBloques = (blockCount * blockSize);
     if (ftruncate(fileDescriptor, tamanioArchivoDeBloques) == -1) {
-        // error al truncar el archivo
+        log_error(filesystemLogger,"Error al truncar el Archivo de Bloques");
     }
 
-    // no se si vamos a usar mmap o fseek, fread y fwrite
     char* direccion = mmap(NULL, tamanioArchivoDeBloques, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor,0);
     if (direccion == MAP_FAILED) {
         // error
     }
 
     close (fileDescriptor);
-    //munmap(direccion, tamanioArchivoDeBloques);
 }
 
 void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize)
 {
     abrir_archivo_de_bloques(pathArchivoDeBloques, blockCount, blockSize);
+}
+
+// esta implementacion funcionaria (por ahora) solo para archivos nuevos o archivos con tamaño 0 y sin punteros
+void asignar_bloques(uint32_t tamanioNuevo)
+{
+    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
+
+    // Si el tamanio del bloque alcanza, se le asigna solo el puntero directo
+    if (tamanioNuevo <= tamanioBloques) {
+        uint32_t bloque = bitmap_encontrar_bloque_libre();
+        fcb->PUNTERO_DIRECTO = bloque; // mapear el fcb y hacer un msync aca
+        bitmap_marcar_bloque_ocupado(bloque);
+    }
+    /*else {
+
+    }*/
 }
 
 /*

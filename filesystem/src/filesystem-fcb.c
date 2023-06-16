@@ -129,6 +129,7 @@ bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
     fprintf(archivo,"PUNTERO_INDIRECTO=%d\n",nuevoFcb->PUNTERO_INDIRECTO);
 
     fclose(archivo);
+    free(rutaArchivo);
     // Si se pudo crear el archivo satisfactoriamente
     return true;
 }
