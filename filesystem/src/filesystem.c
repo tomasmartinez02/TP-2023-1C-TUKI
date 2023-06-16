@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 
     listaFcbs = dictionary_create();
     // Conexion con Memoria
-    //conectar_a_memoria();
+    conectar_a_memoria();
 
     inicializar_estructuras();
 

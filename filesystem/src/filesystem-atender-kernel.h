@@ -17,6 +17,7 @@
 #include <serializacion/stream.h>
 //Bibliotecas internas modulo filesystem
 #include <filesystem-estructuras.h>
+#include <filesystem-archivos.h>
 #include <filesystem.h>
 #include <filesystem-config.h>
 #include <filesystem-adapter-kernel.h>

@@ -8,6 +8,7 @@ t_fcb *crear_nuevo_fcb(char *nombreArchivo)
     fcb->TAMANIO_ARCHIVO = 0;
     fcb->PUNTERO_DIRECTO = 0;
     fcb->PUNTERO_INDIRECTO = 0;
+    fcb->cantidad_bloques_asignados = 0;
 
     return fcb;
 }
@@ -71,6 +72,17 @@ void fcb_set_puntero_indirecto(t_fcb *fcb, uint32_t nuevoPunteroIndirecto)
     return;
 }
 
+uint32_t fcb_get_cantidad_bloques_asignados(t_fcb *fcb)
+{
+    return fcb->cantidad_bloques_asignados;
+}
+
+void fcb_set_cantidad_bloques_asignados(t_fcb *fcb, uint32_t nuevaCantidadBloques)
+{
+    fcb->cantidad_bloques_asignados = nuevaCantidadBloques;
+    return;
+}
+
 // ARCHIVOS DE FCBS
 static void __inicializar_fcb(void *module, t_config *tempFcb)
 {
@@ -100,10 +112,14 @@ t_fcb* levantar_fcb(char *pathFcb)
 bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
 {
     FILE *archivo;
+    char *rutaArchivo;
 
-    archivo = fopen(nuevoFcb->NOMBRE_ARCHIVO,"w");
+    // Ruta completa del archivo
+    sprintf(rutaArchivo, "./fcbs/%s", nuevoFcb->NOMBRE_ARCHIVO);
+
+    archivo = fopen(rutaArchivo,"w");
     if (archivo == NULL) {
-        //error
+        // error al crear el archivo
         return false;
     }
 
@@ -113,6 +129,7 @@ bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
     fprintf(archivo,"PUNTERO_INDIRECTO=%d\n",nuevoFcb->PUNTERO_INDIRECTO);
 
     fclose(archivo);
+    free(rutaArchivo);
     // Si se pudo crear el archivo satisfactoriamente
     return true;
 }
