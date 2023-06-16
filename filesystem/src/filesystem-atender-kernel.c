@@ -3,6 +3,7 @@
 //Verificar que exista el FCB correspondiente al archivo
 void verificar_existencia_archivo(char *nombreArchivo) // para abrir archivo
 {   
+    log_abrir_archivo(nombreArchivo);
     //Si existe devolver OK
     if (dictionary_has_key(listaFcbs, nombreArchivo))
     {
@@ -32,26 +33,8 @@ t_fcb *crear_archivo(char *nombreArchivo)
     }
     return nuevoFcb;
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// F_TRUNCATE //
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void asignarBloque(t_fcb* fcbArchivo)
-{   
-    int32_t bloqueLibre = bitmap_encontrar_bloque_libre();
-    // asignar el bloque!!
-    if (bloqueLibre != 1)
-    {   
-        log_info(filesystemLogger, "No hay bloques disponibles para asignar.");
-        log_info(filesystemDebuggingLogger, "No hay bloques disponibles para asignar.");
-    }
-    bitmap_marcar_bloque_ocupado(bloqueLibre);
-}
 
-void desasignarBloque(t_fcb* fcbArchivo)
-{   
-    // desasignar el bloque!!
-    //bitmap_marcar_bloque_libre(x);
-}
+// FTRUNCATE
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
@@ -70,17 +53,26 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
     tamanioNuevoEnBloques = tamanioNuevo / tamanioBloquesFS;
 
-    // duda? habria que ver si la cantidad de bloques asignada actual es 0 para asignarle x primera vez un bloque de punteros??
     if (cantidadBloquesAsignadosActual < tamanioNuevoEnBloques)
     {    
         // AMPLIAR TAMAÑO
-        //Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
-        //poder direccionar el nuevo tamaño.
-        cantidadBloquesAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual;
+        /*Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
+        poder direccionar el nuevo tamaño.*/
+
+        if(cantidadBloquesAsignadosActual == 0) {
+            asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
+        }
+        else {
+            //asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo);  // muy creativo el nombre :D
+            /* en este caso ya tendria bloques, asi que entiendo que el puntero directo no habria que tocarlo.
+            solo habria que asignar mas punteros indirectos*/
+        }
+
+        /*cantidadBloquesAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual;
         for (uint32_t i = 0; i<cantidadBloquesAsignar; i++)
         {
-             asignarBloque(fcbArchivo);
-        }
+            asignarBloque(fcbArchivo);
+        }*/
     }
     else
     {   
@@ -100,7 +92,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     return;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FREAD
 
 void leer_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
@@ -111,6 +103,8 @@ void leer_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionFisic
     log_lectura_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
     
 }
+
+// FWRITE
 
 void escribir_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionFisica, uint32_t cantidadBytes)
 {

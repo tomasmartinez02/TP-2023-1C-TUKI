@@ -84,46 +84,6 @@ void destruir_bitmap()
     bitarray_destroy(bitmap->bitarray);
 }
 
-int32_t bitmap_encontrar_bloque_libre()
-{   
-    // false = 0 --> libre
-    // true = 1 --> ocupado
-    uint32_t i;
-    bool bloqueOcupado;
-    for (i=0; i < bitmap->tamanio ; i++)
-    {
-        bloqueOcupado  = bitarray_test_bit(bitmap->bitarray, i);
-        // Si encuentra un bloque que esté en 0 devuelve la posición de ese bloque
-        if(!bloqueOcupado)
-        {
-            return i;
-            break;
-        }
-    }
-     // Si no encuentra un bloque libre, retorna -1
-    return -1;
-}
-
-void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
-{
-    bitarray_clean_bit(bitmap->bitarray, numeroBloque);
-    // Sincronizar los cambios en el archivo y verificar que se haga de forma correcta
-    if (msync(bitmap->direccion, bitmap->tamanio, MS_SYNC) == -1) {
-        log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
-    }
-    return;
-}
-
-void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque) // 1 --> ocupado
-{
-    bitarray_set_bit(bitmap->bitarray, numeroBloque);
-    // Sincronizar los cambios en el archivo y verificar que se haga de forma correcta
-    if (msync(bitmap->direccion, bitmap->tamanio, MS_SYNC) == -1) {
-        log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
-    }
-    return;
-}
-
 // ARCHIVO DE BLOQUES
 
 void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize)
@@ -138,10 +98,10 @@ void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, 
         log_error(filesystemLogger,"Error al truncar el Archivo de Bloques");
     }
 
-    char* direccion = mmap(NULL, tamanioArchivoDeBloques, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor,0);
+    /*char* direccion = mmap(NULL, tamanioArchivoDeBloques, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor,0);
     if (direccion == MAP_FAILED) {
         // error
-    }
+    }*/
 
     close (fileDescriptor);
 }
@@ -150,30 +110,6 @@ void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, u
 {
     abrir_archivo_de_bloques(pathArchivoDeBloques, blockCount, blockSize);
 }
-
-// esta implementacion funcionaria (por ahora) solo para archivos nuevos o archivos con tamaño 0 y sin punteros
-void asignar_bloques(uint32_t tamanioNuevo)
-{
-    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-
-    // Si el tamanio del bloque alcanza, se le asigna solo el puntero directo
-    if (tamanioNuevo <= tamanioBloques) {
-        uint32_t bloque = bitmap_encontrar_bloque_libre();
-        fcb->PUNTERO_DIRECTO = bloque; // mapear el fcb y hacer un msync aca
-        bitmap_marcar_bloque_ocupado(bloque);
-    }
-    /*else {
-
-    }*/
-}
-
-/*
-archivo_de_bloques_buscar_bloque(uint32_t bloqueBuscado)
-{
- // TODO
-}
-
-*/
 
 void inicializar_estructuras(void)
 {

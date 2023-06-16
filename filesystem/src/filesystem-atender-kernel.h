@@ -23,6 +23,7 @@
 #include <filesystem-adapter-kernel.h>
 #include <filesystem-utils.h>
 #include <filesystem-fcb.h>
+#include <filesystem-manejo-bloques.h>
 
 void atender_peticiones_kernel(void);
 
