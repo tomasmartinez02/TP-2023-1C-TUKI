@@ -1,4 +1,27 @@
 #include <memoria-adapter-kernel.h>
+// funciones privadas
+
+t_buffer *__empaquetar_tabla_segmentos_eliminacion(t_info_segmentos **tablaSegmentos, uint32_t tamanioTablaSegmentos)
+{
+    t_buffer *bufferTablaSegmentos = buffer_create();
+
+    for (int i = 0; i < tamanioTablaSegmentos; i++) {
+        t_info_segmentos *infoSegmento = tablaSegmentos[i];
+        
+        uint32_t idSegmento = infoSegmento->idSegmento;
+        buffer_pack(bufferTablaSegmentos, &idSegmento, sizeof(idSegmento));
+
+        uint32_t direccionBase = infoSegmento->direccionBase;
+        buffer_pack(bufferTablaSegmentos, &direccionBase, sizeof(direccionBase));
+
+        uint32_t tamanio = infoSegmento->tamanio;
+        buffer_pack(bufferTablaSegmentos, &tamanio, sizeof(tamanio));
+    }
+
+    return bufferTablaSegmentos;
+}
+
+// Funciones publicas
 
 void adapter_kernel_enviar_tabla(t_info_segmentos** tablaCreada, t_header headerAEnviar) 
 {
@@ -82,14 +105,12 @@ void adapter_kernel_enviar_eliminacion_segmento(uint32_t socketKernel, uint32_t 
 {
     t_buffer *bufferTabla = buffer_create();
     lista_tablas *aux = tablasDeSegmentos;
-    uint32_t tamanioTabla = memoria_config_get_cantidad_segmentos(memoriaConfig);
-    
+    uint32_t tamanioTabla = memoria_config_get_cantidad_segmentos(memoriaConfig); 
     while (aux->pidProceso != pid) {
         aux = aux->siguiente;
     }
     
-    buffer_pack(bufferTabla, &tamanioTabla, sizeof(tamanioTabla));
-    bufferTabla = empaquetar_tabla_segmentos(aux->tablaSegmentos, tamanioTabla);
+    bufferTabla = __empaquetar_tabla_segmentos_eliminacion(aux->tablaSegmentos, tamanioTabla);
 
     stream_send_buffer(socketKernel, HEADER_segmento_destruido, bufferTabla);
 
