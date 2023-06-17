@@ -19,7 +19,9 @@ enum header
     HEADER_archivo_existe_en_filesystem,
     HEADER_archivo_no_existe_en_filesystem,
     HEADER_consulta_existencia_archivo,
+    HEADER_compactar,
     HEADER_crear_segmento,
+    HEADER_eliminar_segmento,
     HEADER_error,
     HEADER_escritura_finalizada,
     HEADER_instruccion_movin,
@@ -58,8 +60,11 @@ enum header
     HEADER_solicitud_modificar_tamanio_archivo,
     HEADER_tabla_segmentos,
     HEADER_tamanio_archivo_modificado,
-    HEADER_eliminar_segmento,
-    HEADER_compactar
+   
+    HEADER_fs_solicitud_memoria_lectura,
+    HEADER_memoria_confirmacion_fs_lectura,
+    HEADER_fs_solicitud_memoria_escritura,
+    HEADER_memoria_confirmacion_fs_escritura
 };
 typedef enum header t_header;
 
