@@ -44,8 +44,8 @@ t_buffer *empaquetar_tabla_segmentos(t_info_segmentos **tablaSegmentos, uint32_t
 
 t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos, uint32_t tamanioTablaSegmentos)
 {
-    t_info_segmentos **tablaSegmentos = malloc(tamanioTablaSegmentos + 1);
-    memset(tablaSegmentos, '\0', tamanioTablaSegmentos + 1);
+    t_info_segmentos **tablaSegmentos = malloc(tamanioTablaSegmentos * sizeof(t_info_segmentos));
+    //memset(tablaSegmentos, '\0', tamanioTablaSegmentos + 1);
 
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
         t_info_segmentos *infoSegmento = crear_info_segmentos(0,0,0);
@@ -64,7 +64,7 @@ t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos,
 
         tablaSegmentos[i] = infoSegmento;
     }
-    tablaSegmentos[tamanioTablaSegmentos] = NULL;
+    tablaSegmentos[tamanioTablaSegmentos] = NULL; // Esta bien???
 
     return tablaSegmentos;
 }
