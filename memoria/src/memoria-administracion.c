@@ -8,7 +8,7 @@ t_info_segmentos* tablaSegmentos;
 t_huecos_libres *listaHuecosLibres; 
 t_info_segmentos *segmentoCero;
 lista_tablas *tablasDeSegmentos;
-pthread_mutex_t *mutexSocketKernel;
+pthread_mutex_t mutexSocketKernel;
 // Funciones privadas
 
 // Funciones inicializacion estructuras de la memoria
@@ -363,7 +363,7 @@ static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
 
 static void __inicializar_mutex_socket()
 {
-    pthread_mutex_init(mutexSocketKernel, NULL);
+    pthread_mutex_init(&mutexSocketKernel, NULL);
     return;
 }
 

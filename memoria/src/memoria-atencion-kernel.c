@@ -9,7 +9,7 @@ void *atender_peticiones_kernel(void* args)
 
     for (;;) {
         int socketKernel = memoria_config_get_socket_kernel(memoriaConfig);
-        pthread_mutex_lock(mutexSocketKernel);
+        pthread_mutex_lock(&mutexSocketKernel);
         t_header headerRecibido = stream_recv_header(socketKernel);
         t_buffer* bufferRecibido = buffer_create();
         
@@ -64,7 +64,7 @@ void *atender_peticiones_kernel(void* args)
                 break;
             }
         }
-        pthread_mutex_unlock(mutexSocketKernel);
+        pthread_mutex_unlock(&mutexSocketKernel);
         buffer_destroy(bufferRecibido);
     }
 
