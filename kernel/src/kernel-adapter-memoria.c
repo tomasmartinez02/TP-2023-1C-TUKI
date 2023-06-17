@@ -2,8 +2,6 @@
 
 //Variables locales
 
-static pthread_mutex_t mutexSocketMemoria;
-
 // Funciones privadas
 
 // Envia el pid del proceso que se quiere inicializar en memoria
