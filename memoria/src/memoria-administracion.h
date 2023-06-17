@@ -2,6 +2,9 @@
 #ifndef MEMORIA_ADMINISTRACION_H_
 #define MEMORIA_ADMINISTRACION_H_
 
+// Bibliotecas estandar
+#include <pthread.h>
+
 // Bibliotecas commons
 #include <commons/log.h>
 
@@ -9,6 +12,7 @@
 #include <memoria-utils.h>
 #include <memoria-estructuras.h>
 #include <utils/tablas-pcb.h>
+#include <memoria-atencion-kernel.h>
 
 // Prototipos
 

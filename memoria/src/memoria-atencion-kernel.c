@@ -4,11 +4,12 @@
 
 // Funciones publicas
 
-void atender_peticiones_kernel(void)
+void *atender_peticiones_kernel(void* args)
 {
 
     for (;;) {
         int socketKernel = memoria_config_get_socket_kernel(memoriaConfig);
+        pthread_mutex_lock(mutexSocketKernel);
         t_header headerRecibido = stream_recv_header(socketKernel);
         t_buffer* bufferRecibido = buffer_create();
         
@@ -54,7 +55,7 @@ void atender_peticiones_kernel(void)
             }
             case HEADER_compactar:
             {
-
+            
             } 
             // tambien deberíamos agregar para cuando se finaliza un proceso
             default:
@@ -63,8 +64,9 @@ void atender_peticiones_kernel(void)
                 break;
             }
         }
+        pthread_mutex_unlock(mutexSocketKernel);
         buffer_destroy(bufferRecibido);
     }
 
-    return;
+    return NULL;
 }

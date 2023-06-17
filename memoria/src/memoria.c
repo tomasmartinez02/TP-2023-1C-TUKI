@@ -21,6 +21,7 @@ int main(int argc, char* argv[])
     const int socketEscucha = inicializar_servidor_memoria();
 
     aceptar_conexiones(socketEscucha);
+    inicializar_memoria();
 
     memoria_destroy(memoriaConfig, memoriaLogger, memoriaDebuggingLogger);
 }

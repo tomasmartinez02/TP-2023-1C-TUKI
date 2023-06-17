@@ -22,6 +22,7 @@
 #include <memoria-config.h>
 #include <memoria-conexiones.h>
 #include <memoria-utils.h>
+#include <memoria-administracion.h>
 // Bibliotecas static utils
 #include <utils/logging.h>
 #include <utils/common-utils.h>

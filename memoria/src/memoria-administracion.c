@@ -8,6 +8,7 @@ t_info_segmentos* tablaSegmentos;
 t_huecos_libres *listaHuecosLibres; 
 t_info_segmentos *segmentoCero;
 lista_tablas *tablasDeSegmentos;
+pthread_mutex_t *mutexSocketKernel;
 // Funciones privadas
 
 // Funciones inicializacion estructuras de la memoria
@@ -360,6 +361,21 @@ static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
     return;
 }
 
+static void __inicializar_mutex_socket()
+{
+    pthread_mutex_init(mutexSocketKernel, NULL);
+    return;
+}
+
+static void __inicializar_hilos(){
+
+    pthread_t atencionKernelth;
+    pthread_create(&atencionKernelth, NULL, atender_peticiones_kernel, NULL);
+    pthread_detach(atencionKernelth);
+
+    return;
+}
+
 // Funciones publicas
 
 uint32_t crear_segmento(t_info_segmentos* segmento, uint32_t pid)
@@ -379,6 +395,8 @@ void inicializar_memoria (void)
     __crear_estructura_espacios_libres();
     __crear_segmentos_cero();
     __inicializar_memoria_principal();
+    __inicializar_mutex_socket(); // ojo capaz hay que hacer un mutex para la tabla de segmentos
+    __inicializar_hilos();
 
     return;
 }
