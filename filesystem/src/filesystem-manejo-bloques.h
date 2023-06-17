@@ -34,8 +34,10 @@ void desasignar_ultimo_bloque(t_fcb *fcbArchivo);
 
 char* archivo_de_bloques_leer_bloque(uint32_t bloque);
 
-int32_t archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(uint32_t bloque);
+int32_t archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(uint32_t bloque, uint32_t punteroN);
 
-int32_t archivo_de_bloques_leer_ultimo_puntero_de_bloque_de_punteros(uint32_t bloque);
+int32_t archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(t_fcb* fcb);
+
+int32_t leer_ultimo_puntero_de_bloque_de_punteros(t_fcb* fcb);
 
 #endif
