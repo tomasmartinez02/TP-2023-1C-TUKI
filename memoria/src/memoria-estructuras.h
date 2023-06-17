@@ -59,6 +59,6 @@ extern void *memoriaPrincipal;
 extern t_info_segmentos *segmentoCero;
 extern t_huecos_libres *listaHuecosLibres; 
 extern lista_tablas *tablasDeSegmentos;
-extern pthread_mutex_t *mutexSocketKernel;
+extern pthread_mutex_t mutexSocketKernel;
 
 #endif
