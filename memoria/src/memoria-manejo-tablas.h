@@ -4,8 +4,7 @@
 //bibliotecas
 #include <memoria-config.h>
 
-t_info_segmentos* crear_tabla_nuevo_proceso();
-
+t_info_segmentos** crear_tabla_nuevo_proceso(uint32_t pidProceso);
 
 
 

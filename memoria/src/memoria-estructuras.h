@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 // Bibliotecas commons
 #include <commons/log.h>
@@ -38,9 +39,17 @@ typedef struct lista_tablas lista_tablas;
 struct lista_tablas
 {
     uint32_t pidProceso;
-    t_info_segmentos* tablaSegmentos;
+    t_info_segmentos** tablaSegmentos;
     lista_tablas* siguiente; 
 };
+
+enum algoritmo
+{   
+    FIRST_FIT,
+    BEST_FIT,
+    WORST_FIT
+};
+typedef enum algoritmo t_algoritmo;
 
 // Variables globales
 extern t_log *memoriaDebuggingLogger;
@@ -50,5 +59,6 @@ extern void *memoriaPrincipal;
 extern t_info_segmentos *segmentoCero;
 extern t_huecos_libres *listaHuecosLibres; 
 extern lista_tablas *tablasDeSegmentos;
+extern pthread_mutex_t *mutexSocketKernel;
 
 #endif
