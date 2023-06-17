@@ -72,8 +72,8 @@ struct pcb
     timestamp *tiempoLlegadaReady;
     t_dictionary *archivosAbiertos;
     uint32_t tamanioTablaSegmentos; 
-    t_buffer *tablaSegmentos;
-    t_nombre_estado estadoActual; 
+    t_info_segmentos **tablaSegmentos;
+    t_nombre_estado estadoActual;   
     t_nombre_estado estadoDeFinalizacion;
     t_nombre_estado estadoAnterior;
     bool procesoBloqueadoOTerminado;
@@ -100,6 +100,7 @@ extern t_log *kernelLogger;
 extern t_kernel_config *kernelConfig;
 extern t_dictionary *tablaArchivosAbiertos;
 extern sem_t dispatchPermitido;
+extern pthread_mutex_t mutexSocketMemoria;
 // Estados
 extern t_estado *estadoNew;
 extern t_estado *estadoReady;

@@ -63,7 +63,7 @@ bool adapter_filesystem_existe_archivo(char *nombreArchivo)
         log_info(kernelDebuggingLogger, "El archivo '%s' existe", nombreArchivo);
         return true;
     }
-    else if (respuestaFilesystem == HEADER_archivo_existe_en_filesystem)
+    else if (respuestaFilesystem == HEADER_archivo_no_existe_en_filesystem)
     {   
         log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
         log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
@@ -89,7 +89,8 @@ void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo)
         log_error(kernelLogger, "Error en la creación del archivo");
         log_error(kernelDebuggingLogger, "Error en la creación del archivo");
     }
-    log_info(kernelDebuggingLogger, "Se creo el archivo satisfactoriamente");
+    log_info(kernelLogger, "Se creo el archivo <%s>", nombreArchivo);
+    log_info(kernelDebuggingLogger, "Se creo el archivo <%s>", nombreArchivo);
     return ;
 }
 
@@ -149,7 +150,7 @@ void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombr
  void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
  {  
     pthread_t esperarFinalizacionLectura;
-    log_info(kernelDebuggingLogger, "PID <%d> solitica leer de un archivo", pcb_get_pid(pcbEnEjecucion));
+    log_info(kernelDebuggingLogger, "PID <%d> solicita leer de un archivo", pcb_get_pid(pcbEnEjecucion));
     pthread_create(&esperarFinalizacionLectura, NULL, hiloFread, (void*)pcbEnEjecucion);
     pthread_detach(esperarFinalizacionLectura);
     __solicitar_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);

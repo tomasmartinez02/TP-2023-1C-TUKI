@@ -62,9 +62,9 @@ void destruir_pcb(t_pcb* pcb) // Ir viendo que agregar o sacar a medida que term
         registros_cpu_destroy(registrosCpu);
     }
 
-    t_buffer *tablaSegmentos = pcb->tablaSegmentos;
+    t_info_segmentos **tablaSegmentos = pcb->tablaSegmentos;
     if (tablaSegmentos != NULL) {
-        buffer_destroy(tablaSegmentos);
+        destruir_tabla_segmentos(tablaSegmentos, pcb_get_tamanio_tabla_segmentos(pcb));
     }
 
     t_dictionary *archivosAbiertos = pcb->archivosAbiertos;
@@ -140,17 +140,14 @@ t_dictionary *pcb_get_archivos_abiertos(t_pcb *pcb)
 
 // Get y Set tabla segmentos
 
-t_buffer *pcb_get_tabla_segmentos(t_pcb *pcb)
+t_info_segmentos **pcb_get_tabla_segmentos(t_pcb *pcb)
 {
     return pcb->tablaSegmentos;
 }
 
-void pcb_set_tabla_segmentos(t_pcb *pcb, t_buffer *tablaSegmentos)
+void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos **tablaSegmentos)
 {
-    t_buffer *tablaSegmentosActual = pcb->tablaSegmentos;
-    if (tablaSegmentosActual != NULL) {
-        buffer_destroy(tablaSegmentos);
-    }
+    destruir_tabla_segmentos(pcb->tablaSegmentos, pcb->tamanioTablaSegmentos);
 
     pcb->tablaSegmentos = tablaSegmentos;
 
