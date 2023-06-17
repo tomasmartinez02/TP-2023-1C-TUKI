@@ -1,5 +1,6 @@
 #include <filesystem-manejo-bloques.h>
 
+
 void asignar_puntero_directo(t_fcb *fcbArchivo)
 {
     uint32_t bloque = bitmap_encontrar_bloque_libre();
@@ -40,16 +41,97 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     asignar_puntero_indirecto(t_fcb *fcbArchivo);
 }*/
 
-void desasignarBloque(t_fcb* fcbArchivo)
+
+void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
 {   
-    // desasignar el bloque!!
-    //bitmap_marcar_bloque_libre(x);
+    uint32_t cero = 0;
+    uint32_t bloqueADesasignar;
+    uint32_t punteroIndirecto = fcb_get_puntero_indirecto(fcbArchivo);
+    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
+
+    // ABRIR EL ARCHIVO DE BLOQUES
+    FILE *archivoBloques = abrir_archivo_de_bloques();
+    if (archivoBloques == NULL)
+    {
+        log_error(filesystemDebuggingLogger, "Error al desasignar el último bloque");
+        return;
+    }
+
+    // CALCULAR DESPLAZAMIENTO
+    // Para saber la cantidad de punteros que hay en el bloque indirecto, tomo la cantidad total de bloques asignados y le
+    // resto 1 por el puntero directo (el primer bloque) y le resto 1 por el puntero indirecto (bloque de punteros)
+    uint32_t cantidadPunterosEnBloqueIndirecto = fcb_get_cantidad_bloques_asignados(fcbArchivo) - 1 - 1;
+
+    // Me muevo en el archivo de bloques al inicio del bloque indirecto del fcb;
+    //fseek(archivoBloques,punteroIndirecto*tamanioBloques,SEEK_SET);
+    // Ahora me quiero mover al último puntero del bloque de punteros
+    // Multiplico el tamaño de los punteros por el puntero anterior al que quiero acceder para quedar en posicion para leerlo
+    //fseek(archivoBloques, sizeof(uint32_t)*(cantidadPunterosEnBloqueIndirecto-1), SEEK_CUR);
+
+    // DESPLAZARSE HASTA EL ÚLTIMO PUNTERO EN EL BLOQUE DE PUNTEROS
+    uint32_t desplazamiento = punteroIndirecto*tamanioBloques + sizeof(uint32_t)*(cantidadPunterosEnBloqueIndirecto-1);
+    fseek(archivoBloques, desplazamiento, SEEK_SET);
+    
+    // LEO CUAL ES EL ÚLTIMO PUNTERO
+    fread(&bloqueADesasignar, sizeof(uint32_t), 1, archivoBloques);
+    // ESCRIBO CERO SOBRE EL ÚLTIMO PUNTERO PARA MARCAR QUE ESTÁ DESOCUPADI
+    fseek(archivoBloques, -sizeof(uint32_t), SEEK_CUR);
+    fwrite(&cero, sizeof(uint32_t), 1, archivoBloques);
+
+    bitmap_marcar_bloque_libre(bloqueADesasignar);
+    uint32_t nuevaCantidadDeBloques = fcb_get_cantidad_bloques_asignados(fcbArchivo) - 1;
+    uint32_t nuevoTamanio = fcb_get_tamanio_archivo(fcbArchivo) - tamanioBloques;
+    // TODO --> PERSISTIR FCB
+    fcb_set_cantidad_bloques_asignados(fcbArchivo, nuevaCantidadDeBloques);
+    fcb_set_tamanio_archivo(fcbArchivo, nuevoTamanio);
+
+    fclose(archivoBloques);
 }
 
-/*
-archivo_de_bloques_buscar_bloque(uint32_t bloqueBuscado)
+void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar)
 {
- // TODO
+    for (uint32_t i = 0; i<cantidadBloquesDesasignar; i++)
+    {
+        desasignar_ultimo_bloque(fcbArchivo);
+    }
 }
 
-*/
+
+char* archivo_de_bloques_leer_bloque(uint32_t bloque)
+{
+    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
+    uint32_t desplazamiento = bloque * tamanioBloques;
+    char *contenido = malloc(tamanioBloques);
+    // ABRIR EL ARCHIVO DE BLOQUES
+    FILE *archivoBloques = abrir_archivo_de_bloques();
+    if (archivoBloques == NULL)
+    {
+        log_error(filesystemLogger, "Error al abrir el archivo de bloques");
+        free(contenido);
+        return NULL;
+    }
+    
+    fseek(archivoBloques, desplazamiento, SEEK_SET);
+    fread(contenido, sizeof(char), tamanioBloques, archivoBloques);
+    fclose(archivoBloques);
+    return contenido;
+}
+
+int32_t archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(uint32_t bloque)
+{
+    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
+    uint32_t desplazamiento = bloque * tamanioBloques;
+    int32_t punteroLeido;
+    // ABRIR EL ARCHIVO DE BLOQUES
+    FILE *archivoBloques = abrir_archivo_de_bloques();
+    if (archivoBloques == NULL)
+    {
+        log_error(filesystemLogger, "Error al abrir el archivo de bloques");
+        return -1; 
+    }
+    
+    fseek(archivoBloques, desplazamiento, SEEK_SET);
+    fread(&punteroLeido, sizeof(uint32_t), 1, archivoBloques);
+    fclose(archivoBloques);
+    return punteroLeido;
+}

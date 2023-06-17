@@ -86,7 +86,18 @@ void destruir_bitmap()
 
 // ARCHIVO DE BLOQUES
 
-void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize)
+FILE *abrir_archivo_de_bloques()
+{
+    char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
+    FILE* archivoDeBloques = fopen(pathArchivoDeBloques, "r+"); 
+
+    if (archivoDeBloques == NULL) {
+        log_error(filesystemLogger, "No se pudo abrir el archivo.");
+    }
+    return archivoDeBloques;
+}
+
+void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize)
 {
     uint32_t fileDescriptor = open(pathArchivoDeBloques, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fileDescriptor == -1) {
@@ -104,11 +115,6 @@ void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, 
     }*/
 
     close (fileDescriptor);
-}
-
-void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize)
-{
-    abrir_archivo_de_bloques(pathArchivoDeBloques, blockCount, blockSize);
 }
 
 void inicializar_estructuras(void)

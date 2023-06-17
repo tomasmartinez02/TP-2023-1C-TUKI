@@ -80,10 +80,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
         //Asignar el nuevo tamaño del archivo en el FCB y se deberán marcar como libres todos los bloques que ya
         // no sean necesarios para direccionar el tamaño del archivo (descartando desde el final del archivo hacia el principio).
         cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
-        for (uint32_t i = 0; i<cantidadBloquesDesasignar; i++)
-        {
-            desasignarBloque(fcbArchivo);
-        }
+        desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
     }
     fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
     // persistir cambios en el fcb (puntero directo, indirecto)

@@ -26,4 +26,6 @@ void bitmap_marcar_bloque_libre(uint32_t numeroBloque);
 
 void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque);
 
+
+
 #endif
