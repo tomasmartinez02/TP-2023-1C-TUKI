@@ -81,7 +81,6 @@ void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
     bitmap_marcar_bloque_libre(bloqueADesasignar);
     uint32_t nuevaCantidadDeBloques = fcb_get_cantidad_bloques_asignados(fcbArchivo) - 1;
     uint32_t nuevoTamanio = fcb_get_tamanio_archivo(fcbArchivo) - tamanioBloques;
-    // TODO --> PERSISTIR FCB
     fcb_set_cantidad_bloques_asignados(fcbArchivo, nuevaCantidadDeBloques);
     fcb_set_tamanio_archivo(fcbArchivo, nuevoTamanio);
 
@@ -94,6 +93,7 @@ void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar)
     {
         desasignar_ultimo_bloque(fcbArchivo);
     }
+    persistir_fcb(fcbArchivo);
 }
 
 
@@ -106,7 +106,7 @@ char* archivo_de_bloques_leer_bloque(uint32_t bloque)
     FILE *archivoBloques = abrir_archivo_de_bloques();
     if (archivoBloques == NULL)
     {
-        log_error(filesystemLogger, "Error al abrir el archivo de bloques");
+        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques");
         free(contenido);
         return NULL;
     }
@@ -126,7 +126,7 @@ int32_t archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(uint32_t bl
     FILE *archivoBloques = abrir_archivo_de_bloques();
     if (archivoBloques == NULL)
     {
-        log_error(filesystemLogger, "Error al abrir el archivo de bloques");
+        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques");
         return -1; 
     }
     
@@ -134,4 +134,10 @@ int32_t archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(uint32_t bl
     fread(&punteroLeido, sizeof(uint32_t), 1, archivoBloques);
     fclose(archivoBloques);
     return punteroLeido;
+}
+
+int32_t archivo_de_bloques_leer_ultimo_puntero_de_bloque_de_punteros(uint32_t bloque)
+{
+    // TODO
+    return 0;
 }

@@ -33,6 +33,7 @@ void fcb_set_cantidad_bloques_asignados(t_fcb *fcb, uint32_t nuevaCantidadBloque
 
 // CREACIÓN DE ARCHIVOS DE MANEJO DE FCB
 t_fcb* levantar_fcb(char *pathFcb);
+bool persistir_fcb(t_fcb* fcb);
 bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb);
 void recorrer_directorio_fcbs(char *directorioFcbs);
 

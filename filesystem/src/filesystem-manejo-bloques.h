@@ -32,4 +32,10 @@ void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar);
 
 void desasignar_ultimo_bloque(t_fcb *fcbArchivo);
 
+char* archivo_de_bloques_leer_bloque(uint32_t bloque);
+
+int32_t archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(uint32_t bloque);
+
+int32_t archivo_de_bloques_leer_ultimo_puntero_de_bloque_de_punteros(uint32_t bloque);
+
 #endif
