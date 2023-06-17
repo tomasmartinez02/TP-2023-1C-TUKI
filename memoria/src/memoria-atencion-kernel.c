@@ -52,6 +52,7 @@ void *atender_peticiones_kernel(void* args)
 
                 eliminar_segmento(idSegmento, pid); // El log esta adentro
                 adapter_kernel_enviar_eliminacion_segmento(socketKernel, pid);
+                break;
             }
             case HEADER_compactar:
             {
