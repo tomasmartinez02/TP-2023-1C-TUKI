@@ -24,7 +24,7 @@
 // Prototipos
 void asignar_puntero_directo(t_fcb *fcbArchivo);
 
-void asignar_puntero_indirecto(t_fcb *fcbArchivo, uint32_t cantidadPunteros);
+void asignar_puntero_indirecto(t_fcb *fcbArchivo);
 
 void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo);
 

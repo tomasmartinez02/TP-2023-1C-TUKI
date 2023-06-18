@@ -4,17 +4,21 @@
 void asignar_puntero_directo(t_fcb *fcbArchivo)
 {
     uint32_t bloque = bitmap_encontrar_bloque_libre();
-    fcbArchivo->PUNTERO_DIRECTO = bloque; // mapear el fcb y hacer un msync aca
+    fcbArchivo->PUNTERO_DIRECTO = bloque;
     bitmap_marcar_bloque_ocupado(bloque);
+    fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+    persistir_fcb(fcbArchivo);
+    return;
 }
 
-void asignar_puntero_indirecto(t_fcb *fcbArchivo,uint32_t cantidadPunteros)
+void asignar_puntero_indirecto(t_fcb *fcbArchivo)
 {
     uint32_t bloque = bitmap_encontrar_bloque_libre();
-    fcbArchivo->PUNTERO_INDIRECTO = bloque; // mapear el fcb y hacer un msync aca
+    fcbArchivo->PUNTERO_INDIRECTO = bloque; 
     bitmap_marcar_bloque_ocupado(bloque);
-
-    // asignar los punteros al bloque de punteros segun la cantidad pasada por parametro
+    fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+    persistir_fcb(fcbArchivo);
+    return;
 }
 
 // esta implementacion es solo para archivos nuevos o archivos con tamaño 0 y sin punteros
@@ -31,7 +35,7 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
         uint32_t cantidadPunteros = tamanioNuevo / tamanioBloques - 1;
 
         asignar_puntero_directo(fcbArchivo);
-        asignar_puntero_indirecto(fcbArchivo,cantidadPunteros);
+        asignar_puntero_indirecto(fcbArchivo);
     }
 }
 
@@ -127,20 +131,13 @@ void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
     
     ultimoBloque = leer_ultimo_puntero_de_bloque_de_punteros(fcbArchivo);
 
-    /* LLENO AL BLOQUE VACIO CON 0 --> no se si hace falta
-    uint32_t desplazamiento = ultimoBloque * tamanioBloques;
-    fseek(archivoBloques, desplazamiento, SEEK_SET);
-    fwrite(&cero, sizeof(uint32_t), tamanioBloques/sizeof(uint32_t), archivoBloques);
-    */
     bitmap_marcar_bloque_libre(ultimoBloque);
 
     //ACTUALIZAR FCB 
     // El archivo tiene un bloque asignado menos.
-    uint32_t nuevaCantidadDeBloques = fcb_get_cantidad_bloques_asignados(fcbArchivo) - 1;
-    fcb_set_cantidad_bloques_asignados(fcbArchivo, nuevaCantidadDeBloques);
+    fcb_decrementar_cantidad_bloques_asignados(fcbArchivo);
     uint32_t nuevoTamanio = fcb_get_tamanio_archivo(fcbArchivo) - tamanioBloques;
     fcb_set_tamanio_archivo(fcbArchivo, nuevoTamanio);
-
     fclose(archivoBloques);
 }
 
@@ -150,5 +147,4 @@ void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar)
     {
         desasignar_ultimo_bloque(fcbArchivo);
     }
-    persistir_fcb(fcbArchivo);
 }

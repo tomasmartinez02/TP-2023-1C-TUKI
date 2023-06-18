@@ -83,6 +83,20 @@ void fcb_set_cantidad_bloques_asignados(t_fcb *fcb, uint32_t nuevaCantidadBloque
     return;
 }
 
+void fcb_incrementar_cantidad_bloques_asignados(t_fcb *fcb)
+{
+    uint32_t cantidadActual = fcb_get_cantidad_bloques_asignados(fcb);
+    fcb_set_cantidad_bloques_asignados(fcb, cantidadActual+1);
+    return;
+}
+
+void fcb_decrementar_cantidad_bloques_asignados(t_fcb *fcb)
+{
+    uint32_t cantidadActual = fcb_get_cantidad_bloques_asignados(fcb);
+    fcb_set_cantidad_bloques_asignados(fcb, cantidadActual-1);
+    return;
+}
+
 // ARCHIVOS DE FCBS
 static void __inicializar_fcb(void *module, t_config *tempFcb)
 {

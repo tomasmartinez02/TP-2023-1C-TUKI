@@ -24,6 +24,7 @@
 #include <filesystem-utils.h>
 #include <filesystem-fcb.h>
 #include <filesystem-manejo-bloques.h>
+#include <filesystem-manejo-bitmap.h>
 
 void atender_peticiones_kernel(void);
 
