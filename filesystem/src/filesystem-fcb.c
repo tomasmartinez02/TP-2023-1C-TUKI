@@ -144,9 +144,9 @@ bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
     }
 
     fprintf(archivo,"NOMBRE_ARCHIVO=%s\n",nombreArchivo);
-    fprintf(archivo,"TAMANIO_ARCHIVO=%d\n",tamanioArchivo);
-    fprintf(archivo,"PUNTERO_DIRECTO=%d\n",punteroDirecto);
-    fprintf(archivo,"PUNTERO_INDIRECTO=%d\n",punteroIndirecto);
+    fprintf(archivo,"TAMANIO_ARCHIVO=%u\n",tamanioArchivo);
+    fprintf(archivo,"PUNTERO_DIRECTO=%u\n",punteroDirecto);
+    fprintf(archivo,"PUNTERO_INDIRECTO=%u\n",punteroIndirecto);
 
     fclose(archivo);
     // Si se pudo crear el archivo satisfactoriamente
@@ -202,9 +202,9 @@ bool persistir_fcb(t_fcb* fcb)
     }
 
     fprintf(archivoFcb,"NOMBRE_ARCHIVO=%s\n",nombreArchivo);
-    fprintf(archivoFcb,"TAMANIO_ARCHIVO=%d\n",tamanioArchivo);
-    fprintf(archivoFcb,"PUNTERO_DIRECTO=%d\n",punteroDirecto);
-    fprintf(archivoFcb,"PUNTERO_INDIRECTO=%d\n",punteroIndirecto);
+    fprintf(archivoFcb,"TAMANIO_ARCHIVO=%u\n",tamanioArchivo);
+    fprintf(archivoFcb,"PUNTERO_DIRECTO=%u\n",punteroDirecto);
+    fprintf(archivoFcb,"PUNTERO_INDIRECTO=%u\n",punteroIndirecto);
 
     fclose(archivoFcb);
 
