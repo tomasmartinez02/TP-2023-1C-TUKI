@@ -40,4 +40,6 @@ int32_t archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(t_fcb* fcb)
 
 int32_t leer_ultimo_puntero_de_bloque_de_punteros(t_fcb* fcb);
 
+bool archivo_de_bloques_escribir_en_bloque(uint32_t bloque, char* informacion);
+
 #endif

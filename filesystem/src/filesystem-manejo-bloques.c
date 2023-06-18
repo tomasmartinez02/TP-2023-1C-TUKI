@@ -66,6 +66,26 @@ char* archivo_de_bloques_leer_bloque(uint32_t bloque)
     return contenido;
 }
 
+bool archivo_de_bloques_escribir_en_bloque(uint32_t bloque, char* informacion)
+{       
+    // ACA LA INFORMACION PASADA DEBERIA SER DEL MISMO TAMAÑO QUE EL BLOQUE, OSEA 
+    // HABRIA QUE TENER LA INFORMACION DIVIDA EN PARTECITAS IDK HAY Q VERLO
+    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
+    uint32_t desplazamiento = bloque * tamanioBloques;
+    // ABRIR EL ARCHIVO DE BLOQUES
+    FILE *archivoBloques = abrir_archivo_de_bloques();
+    if (archivoBloques == NULL)
+    {
+        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques");
+        return false;
+    }
+    // DESPLAZAR AL BLOQUE CORRESPONDIENTE
+    fseek(archivoBloques, desplazamiento, SEEK_SET);
+    fwrite(informacion, sizeof(char), tamanioBloques, archivoBloques);
+    fclose(archivoBloques);
+    return true;
+}
+
 // Los indices arrancan en 0, osea para leer el tercer puntero hay que pasar 2 --> [0, 1, 2]
 int32_t archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(uint32_t bloque, uint32_t punteroN)
 {   
