@@ -2,6 +2,7 @@
 #define FILESYSTEM_ATENDER_KERNEL_H
 
 //Bibliotecas estandar
+#include <math.h>
 /*#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>

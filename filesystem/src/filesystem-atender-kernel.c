@@ -51,7 +51,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     tamanioBloquesFS = get_superbloque_block_size(superbloque);
     // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
-    tamanioNuevoEnBloques = tamanioNuevo / tamanioBloquesFS;
+    tamanioNuevoEnBloques = ceil(tamanioNuevo / tamanioBloquesFS);
 
     /* Se me ocurrio algo asi pero ni idea, lo explaye mejor en el drive
     if(cantidadBloquesAsignadosActual == 0 && tamanioNuevoEnBloques == 1) {
@@ -59,13 +59,29 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     }
 
     if(cantidadBloquesAsignadosActual == 0 && tamanioNuevoEnBloques > 1) {
-            // Si el tamanio nuevo en bloques es 2 --> la cantidad de bloques a asignar es 0
-            // Si el tamanio nuevo en bloques es > 2 --> la cantidad de bloques a asignar es tamanioNuevoEnBloques - 2 
-            uint32_t cantidadBloquesAAsignar = tamanioNuevoEnBloques - 2;
+            // Si el tamanio nuevo en bloques es 2 --> Hay que asignar el puntero directo, el indirecto y un bloque
+            // Si el tamanio nuevo en bloques es N > 2 --> Hay que asignar el puntero directo, el indirecto y N - 1 ya que se 
+            // Le resta el bloque que se le asigno antes en el puntero directo
+             cantidadBloquesAAsignar = tamanioNuevoEnBloques - 1
              asignar_puntero_directo(fcbArchivo);
              asignar_puntero_indirecto(fcbArchivo);
              asignar_bloques(fcbArchivo, cantidadBloquesAAsignar);
     }
+    if(cantidadBloquesAsignadosActual == 1 && tamanioNuevoEnBloques == 1) {
+            // nada? no tiene sentido q nos manden esto
+    }
+    if(cantidadBloquesAsignadosActual == 1 && tamanioNuevoEnBloques > 1) {
+            cantidadBloquesAAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual 
+            asignar_puntero_indirecto(fcbArchivo);
+            asignar_bloques(fcbArchivo, cantidadBloquesAAsignar);
+    }
+    if(cantidadBloquesAsignadosActual > 1 && tamanioNuevoEnBloques > 1) {
+            cantidadBloquesAAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual 
+            asignar_bloques(fcbArchivo, cantidadBloquesAAsignar);
+    }
+
+    esto es un choclo no mg!!!!!!!!!!
+
     */
 
     if (cantidadBloquesAsignadosActual < tamanioNuevoEnBloques)
@@ -86,7 +102,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
         /*cantidadBloquesAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual;
         for (uint32_t i = 0; i<cantidadBloquesAsignar; i++)
         {
-            asignarBloque(fcbArchivo);
+            asignar_bloque(fcbArchivo);
         }*/
     }
     // REDUCIR TAMAÑO
@@ -106,26 +122,26 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 
 // FREAD
 
-void leer_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionFisica, uint32_t cantidadBytes)
+void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
     // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
     enviar_confirmacion_lectura_finalizada();
-    log_lectura_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+    log_lectura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
     
 }
 
 // FWRITE
 
-void escribir_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionFisica, uint32_t cantidadBytes)
+void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {
     // Solicitar a la Memoria la información que se encuentra a partir de la dirección física y escribirlo en 
     //los bloques correspondientes del archivo a partir del puntero recibido.
     //El tamaño de la información a leer de la memoria y a escribir en los bloques se recibe desde el Kernel (cantidadBytes)
 
     enviar_confirmacion_escritura_finalizada();
-    log_escritura_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+    log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
 }
 
 void atender_peticiones_kernel()
