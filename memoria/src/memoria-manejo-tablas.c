@@ -13,6 +13,7 @@ void __agregar_tabla_a_lista_general(t_info_segmentos** tablaNueva, uint32_t pid
 
     if (aux == NULL) {
         aux = nuevoNodo;
+        tablasDeSegmentos = aux;
     } else {
         while (aux->siguiente != NULL) {
             aux = aux->siguiente;
