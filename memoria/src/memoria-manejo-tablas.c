@@ -29,6 +29,10 @@ t_info_segmentos** crear_tabla_nuevo_proceso(uint32_t pidProceso)
 {
     uint32_t cantidadSegmentos = memoria_config_get_cantidad_segmentos(memoriaConfig);
     t_info_segmentos** tablaNueva = malloc(cantidadSegmentos * sizeof(t_info_segmentos));
+    
+    for (int i = 0; i < cantidadSegmentos; i++) {
+    tablaNueva[i] = malloc(sizeof(t_info_segmentos));
+    }
 
     tablaNueva[0]->idSegmento = 0;
     tablaNueva[0]->direccionBase = segmentoCero->direccionBase;
