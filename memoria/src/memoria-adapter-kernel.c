@@ -36,11 +36,11 @@ void adapter_kernel_enviar_tabla(t_info_segmentos** tablaCreada, t_header header
     return ;
 }
 
-uint32_t adapter_kernel_recibir_pid(uint32_t socketKernel, t_buffer* bufferRecibido)
+uint32_t adapter_kernel_recibir_pid(t_buffer* bufferRecibido)
 {
     uint32_t pidRecibido;
 
-    stream_recv_buffer(socketKernel,bufferRecibido);
+    //stream_recv_buffer(socketKernel,bufferRecibido);
     buffer_unpack(bufferRecibido, &pidRecibido, sizeof(pidRecibido));
 
     return pidRecibido;
