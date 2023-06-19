@@ -1,8 +1,7 @@
-#ifndef FILESYSTEM_ATENDER_KERNEL_H
-#define FILESYSTEM_ATENDER_KERNEL_H
+#ifndef FILESYSTEM_ADAPTER_MEMORIA_H
+#define FILESYSTEM_ADAPTER_MEMORIA_H
 
 //Bibliotecas estandar
-#include <math.h>
 /*#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -12,21 +11,16 @@
 //Bibliotecas commons
 #include <commons/log.h>
 //#include <commons/bitarray.h>
-#include <commons/collections/dictionary.h>
 //Bibliotecas static-utils
 #include <serializacion/buffer.h>
 #include <serializacion/stream.h>
 //Bibliotecas internas modulo filesystem
 #include <filesystem-estructuras.h>
-#include <filesystem-archivos.h>
-#include <filesystem.h>
 #include <filesystem-config.h>
-#include <filesystem-adapter-kernel.h>
-#include <filesystem-utils.h>
-#include <filesystem-fcb.h>
-#include <filesystem-manejo-bloques.h>
-#include <filesystem-manejo-bitmap.h>
 
-void atender_peticiones_kernel(void);
+void solicitar_lectura_memoria(uint32_t direccionFisica);
+char* recibir_buffer_informacion_memoria();
+void solicitar_escritura_memoria(uint32_t direccionFisica, char* informacion);
+bool recibir_buffer_confirmacion_escritura_memoria();
 
 #endif

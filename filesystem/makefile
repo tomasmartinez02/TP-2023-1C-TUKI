@@ -39,6 +39,9 @@ TEST_OBJS = $(TESTS_C) $(filter-out $(TEST_EXCLUDE), $(SRCS_C))
 BIN = bin/$(call filename,$(shell cd . && pwd | xargs basename))
 TEST = bin/$(shell cd . && pwd | xargs basename)_tests.out
 
+# Set libraries to link with (-l)
+LIBS = lm
+
 .PHONY: all
 all: CFLAGS = $(CDEBUG)
 all: $(BIN) $(TEST)

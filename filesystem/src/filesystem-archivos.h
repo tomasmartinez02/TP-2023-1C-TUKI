@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -16,6 +17,8 @@
 //Bibliotecas internas modulo filesystem
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
+#include <filesystem-manejo-bitmap.h>
+#include <filesystem-manejo-bloques.h>
 #include <filesystem-fcb.h>
 
 // Prototipos
@@ -65,11 +68,7 @@ void crear_bitmap(char *pathBitmap, uint32_t blockCount);
 
 void destruir_bitmap (void);
 
-int32_t bitmap_encontrar_bloque_libre(void);
-void bitmap_marcar_bloque_libre(uint32_t numeroBloque);
-void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque);
-
-void abrir_archivo_de_bloques (char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize);
+FILE *abrir_archivo_de_bloques(void);
 
 void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize);
 
