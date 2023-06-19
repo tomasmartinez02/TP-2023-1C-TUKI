@@ -369,9 +369,11 @@ static void __inicializar_mutex_socket()
 
 static void __inicializar_hilos(){
 
-    pthread_t atencionKernelth;
+    /*pthread_t atencionKernelth;
     pthread_create(&atencionKernelth, NULL, atender_peticiones_kernel, NULL);
-    pthread_detach(atencionKernelth);
+    pthread_detach(atencionKernelth); */
+
+    atender_peticiones_kernel();
 
     return;
 }

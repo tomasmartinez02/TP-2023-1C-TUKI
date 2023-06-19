@@ -16,6 +16,6 @@
 
 // Prototipos
 
-void* atender_peticiones_kernel(void* args);
+void *atender_peticiones_kernel();
 
 #endif
