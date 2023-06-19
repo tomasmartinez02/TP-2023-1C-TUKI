@@ -92,6 +92,7 @@ static void __enviar_pedido_eliminar_segmento(int socketMemoria)
 
 t_info_segmentos **adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInicializar) // REVISAR ESTA FUNCION!!!!
 {
+    t_info_segmentos **tablaSegmentos;
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
     pthread_mutex_lock(&mutexSocketMemoria);
@@ -109,9 +110,10 @@ t_info_segmentos **adapter_memoria_pedir_inicializacion_proceso(t_pcb *pcbAInici
             log_error(kernelLogger, "Error al recibir la tabla de segmentos");
             exit(EXIT_FAILURE);
         }
+        free(tablaSegmentos);
+    }else {
+        tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
     }
-
-    t_info_segmentos **tablaSegmentos = __recibir_tabla_segmentos(pcbAInicializar, socketMemoria);
 
     pthread_mutex_unlock(&mutexSocketMemoria);
 

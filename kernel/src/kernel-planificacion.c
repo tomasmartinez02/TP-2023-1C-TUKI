@@ -278,8 +278,8 @@ static void *__planificador_largo_plazo(void *args)
         t_pcb *pcbAReady = estado_desencolar_primer_pcb_atomic(estadoNew);
         sem_wait(&gradoMultiprogramacion); // Este semaforo solo va a hacer sem_post() cuando termine algun proceso, lo que significaria que uno nuevo puede entrar
 
-        // Pido a la memoria que inicialice al pcb y me devuelca la tabla de segmentos
-        /* t_buffer *tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
+        // Pido a la memoria que inicialice al pcb y me devuelva la tabla de segmentos
+        t_info_segmentos **tablaSegmentos = adapter_memoria_pedir_inicializacion_proceso(pcbAReady);
         pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
 
         if (tablaSegmentos == NULL) {
@@ -287,8 +287,7 @@ static void *__planificador_largo_plazo(void *args)
         }
         else {
            __pcb_pasar_de_new_a_ready(pcbAReady);
-        } */
-        __pcb_pasar_de_new_a_ready(pcbAReady);
+        } 
     }
 
     return NULL;
