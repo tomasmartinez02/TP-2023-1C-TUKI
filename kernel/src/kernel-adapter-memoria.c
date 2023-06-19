@@ -63,7 +63,7 @@ static void __enviar_info_segmento_a_crear (uint32_t idSegmento, uint32_t tamani
     buffer_pack(bufferAEnviar, &id, sizeof(id));
 
     uint32_t tamanioSegmento = tamanio;
-    buffer_pack(bufferAEnviar, &id, sizeof(tamanioSegmento));
+    buffer_pack(bufferAEnviar, &tamanioSegmento, sizeof(tamanioSegmento));
 
     uint32_t pidProceso = pid;
     buffer_pack(bufferAEnviar, &pidProceso, sizeof(pidProceso));
@@ -150,6 +150,8 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             enviar_pcb_a_cpu(pcb);
 
             pthread_mutex_unlock(&mutexSocketMemoria);
+
+            seguir_ejecutando(pcb);
 
             break;
         }
