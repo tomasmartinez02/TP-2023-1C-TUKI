@@ -57,25 +57,23 @@ bool adapter_filesystem_existe_archivo(char *nombreArchivo)
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     __enviar_consulta_existencia_archivo(nombreArchivo);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
+    stream_recv_empty_buffer(socketFilesystem);
+    
     if (respuestaFilesystem == HEADER_archivo_existe_en_filesystem)
     {
         log_info(kernelLogger, "El archivo '%s' existe", nombreArchivo);
         log_info(kernelDebuggingLogger, "El archivo '%s' existe", nombreArchivo);
         return true;
     }
-    else if (respuestaFilesystem == HEADER_archivo_no_existe_en_filesystem)
+    if (respuestaFilesystem == HEADER_archivo_no_existe_en_filesystem)
     {   
         log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
         log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
         return false;
     }
-    else
-    {
-        log_error(kernelLogger, "Error al verificar si existe el archivo");
-        log_error(kernelDebuggingLogger, "Error al verificar si existe el archivo");
-        return false;
-    }
-    
+    log_error(kernelLogger, "Error al verificar si existe el archivo");
+    log_error(kernelDebuggingLogger, "Error al verificar si existe el archivo");
+    return false;
 }
 
 void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo)
@@ -83,6 +81,8 @@ void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo)
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     __solicitar_creacion_archivo(nombreArchivo);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
+    stream_recv_empty_buffer(socketFilesystem);
+
     if (respuestaFilesystem != HEADER_archivo_creado)
     {   
         // SIEMPRE SE DEBERIA PODER CREAR UN ARCHIVO
@@ -99,6 +99,7 @@ void *hiloTruncate(void* arg)
     t_pcb* pcbEnEjecucion = (t_pcb*)arg;
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
+    stream_recv_empty_buffer(socketFilesystem);
 
     if (respuestaFilesystem == HEADER_tamanio_archivo_modificado)
     {
@@ -113,6 +114,7 @@ void *hiloFread(void* arg)
     t_pcb* pcbEnEjecucion = (t_pcb*)arg;
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
+    stream_recv_empty_buffer(socketFilesystem);
 
     if (respuestaFilesystem == HEADER_lectura_finalizada)
     {
@@ -127,6 +129,7 @@ void *hiloFwrite(void* arg)
     t_pcb* pcbEnEjecucion = (t_pcb*)arg;
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
+    stream_recv_empty_buffer(socketFilesystem);
 
     if (respuestaFilesystem == HEADER_escritura_finalizada)
     {
