@@ -318,24 +318,62 @@ static void __insertar_hueco (t_huecos_libres* huecoAnterior, t_huecos_libres* h
     return;
 }
 
+static void __insertar_hueco_antes (t_huecos_libres* huecoExistente, t_info_segmentos* huecoAInsertar) 
+{
+    t_huecos_libres *nuevoHueco = __crear_lista_huecos_libres(huecoAInsertar->direccionBase, huecoAInsertar->tamanio);
+
+    nuevoHueco->siguiente = huecoExistente;
+    listaHuecosLibres = nuevoHueco;
+
+    return; 
+}
+
+void __insertar_en_un_solo_hueco(t_info_segmentos* huecoAInsertar)
+{
+    t_huecos_libres* huecoExistente = listaHuecosLibres;
+
+    uint32_t baseHuecoExistente = huecoExistente->hueco->direccionBase;
+    uint32_t limiteHuecoExistente = huecoExistente->hueco->direccionBase + huecoExistente->hueco->tamanio;                                                                                                                                                                                                                                                                                                                                                                                                      
+    uint32_t baseHuecoAInsertar = huecoAInsertar->direccionBase;
+    uint32_t limiteHuecoAInsertar = huecoAInsertar->direccionBase + huecoAInsertar->tamanio;
+
+    if (limiteHuecoAInsertar == baseHuecoExistente) {
+        __unir_2_huecos_inferior(huecoExistente, huecoAInsertar); 
+        // los tiene que unir dejando la base del hueco a insertar y cambiando el tamanio
+    } else if (limiteHuecoExistente == baseHuecoAInsertar) {
+        __unir_2_huecos_superior(huecoAInsertar, huecoExistente); 
+        // los tiene que unir dejando la base del hueco existente y cambiando el tamanio
+    } else if (baseHuecoExistente < baseHuecoAInsertar) {
+        __insertar_hueco(huecoExistente, NULL, huecoAInsertar);
+        // el hueco existente tiene que apuntar al hueco a insertar en su siguiente
+    } else {
+        __insertar_hueco_antes(huecoExistente, huecoAInsertar);
+        // el hueco a insertar tiene que apuntar al hueco existente en su siguiente
+    }
+
+    return; 
+}
+
 void __insertar_hueco_en_posicion (t_info_segmentos* huecoAInsertar, t_huecos_libres* huecoSiguiente)
 {
     t_huecos_libres* huecoAnterior = listaHuecosLibres;
-    while (huecoAnterior->siguiente->hueco->direccionBase != huecoSiguiente->hueco->direccionBase) {
-        huecoAnterior = huecoAnterior->siguiente;
-    }
+    uint32_t baseHuecoSiguiente;
 
+    if (huecoSiguiente != NULL) {
+        while ((huecoAnterior->siguiente->hueco->direccionBase != huecoSiguiente->hueco->direccionBase)) {
+        huecoAnterior = huecoAnterior->siguiente;
+        }
+        baseHuecoSiguiente = huecoSiguiente->hueco->direccionBase;
+    } else {
+        baseHuecoSiguiente = 0;
+    }
     uint32_t limiteHuecoAnterior = huecoAnterior->hueco->direccionBase + huecoAnterior->hueco->tamanio;
     uint32_t baseHuecoAInsertar = huecoAInsertar->direccionBase;
     uint32_t limiteHuecoAInsertar = huecoAInsertar->direccionBase + huecoAInsertar->tamanio;
-    uint32_t baseHuecoSiguiente = huecoSiguiente->hueco->direccionBase;
-
     if (limiteHuecoAnterior == baseHuecoAInsertar && limiteHuecoAInsertar == baseHuecoSiguiente) {
         __unir_3_huecos(huecoAnterior, huecoSiguiente, huecoAInsertar);
-        
     } else if (limiteHuecoAnterior == baseHuecoAInsertar) {
         __unir_2_huecos_inferior(huecoAnterior, huecoAInsertar); 
-
     } else if (limiteHuecoAInsertar == baseHuecoSiguiente) {
         __unir_2_huecos_superior(huecoAInsertar, huecoSiguiente); 
     } else {
@@ -355,7 +393,11 @@ static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
         while ((aux->hueco->direccionBase + aux->hueco->tamanio) <= huecoLiberado->direccionBase) {
             aux = aux->siguiente;
         }
-        __insertar_hueco_en_posicion(huecoLiberado, aux);
+        if(aux->hueco->direccionBase == listaHuecosLibres->hueco->direccionBase) { // hay un solo hueco
+            __insertar_en_un_solo_hueco(huecoLiberado);
+        } else { //hay mas de un hueco
+            __insertar_hueco_en_posicion(huecoLiberado, aux);
+        }
     }
     
     return;
