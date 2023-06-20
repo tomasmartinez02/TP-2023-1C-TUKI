@@ -52,36 +52,41 @@ void __solicitar_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_
     buffer_destroy(bufferFread);
 }
 
-bool adapter_filesystem_existe_archivo(char *nombreArchivo)
+uint32_t adapter_filesystem_existe_archivo(char *nombreArchivo)
 {   
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
+    pthread_mutex_lock(&mutexSocketFilesystem);
     __enviar_consulta_existencia_archivo(nombreArchivo);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
+    pthread_mutex_unlock(&mutexSocketFilesystem);
     
     if (respuestaFilesystem == HEADER_archivo_existe_en_filesystem)
     {
         log_info(kernelLogger, "El archivo '%s' existe", nombreArchivo);
         log_info(kernelDebuggingLogger, "El archivo '%s' existe", nombreArchivo);
-        return true;
+        return 1;
     }
     if (respuestaFilesystem == HEADER_archivo_no_existe_en_filesystem)
     {   
         log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
         log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
-        return false;
+        return 0;
     }
     log_error(kernelLogger, "Error al verificar si existe el archivo");
     log_error(kernelDebuggingLogger, "Error al verificar si existe el archivo");
-    return false;
+    return 2;
 }
 
 void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo)
-{       
+{    
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
+    
+    pthread_mutex_lock(&mutexSocketFilesystem);
     __solicitar_creacion_archivo(nombreArchivo);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
+    pthread_mutex_unlock(&mutexSocketFilesystem);
 
     if (respuestaFilesystem != HEADER_archivo_creado)
     {   
@@ -100,10 +105,11 @@ void *hiloTruncate(void* arg)
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
+    pthread_mutex_unlock(&mutexSocketFilesystem);
 
     if (respuestaFilesystem == HEADER_tamanio_archivo_modificado)
     {
-        log_info(kernelDebuggingLogger, "El proceso con PID <%d> se desbloquea ya que el fs termino de truncar el archivo", pcb_get_pid(pcbEnEjecucion));
+        log_info(kernelLogger, "El proceso con PID <%d> se desbloquea ya que el fs termino de truncar el archivo", pcb_get_pid(pcbEnEjecucion));
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
     }
     return NULL;
@@ -115,6 +121,7 @@ void *hiloFread(void* arg)
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
+    pthread_mutex_unlock(&mutexSocketFilesystem);
 
     if (respuestaFilesystem == HEADER_lectura_finalizada)
     {
@@ -130,6 +137,7 @@ void *hiloFwrite(void* arg)
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
+    pthread_mutex_unlock(&mutexSocketFilesystem);
 
     if (respuestaFilesystem == HEADER_escritura_finalizada)
     {
@@ -143,6 +151,7 @@ void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombr
 {   
     pthread_t esperarFinalizacionTruncate;
     log_info(kernelDebuggingLogger, "PID <%d> solitica la modificación del tamanio de un archivo", pcb_get_pid(pcbEnEjecucion));
+    pthread_mutex_lock(&mutexSocketFilesystem);
     __solicitar_modificacion_tamanio_archivo(pcbEnEjecucion, nombreArchivo, tamanio);
     pthread_create(&esperarFinalizacionTruncate, NULL, hiloTruncate, (void*)pcbEnEjecucion);
     pthread_detach(esperarFinalizacionTruncate);
@@ -154,6 +163,7 @@ void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombr
  {  
     pthread_t esperarFinalizacionLectura;
     log_info(kernelDebuggingLogger, "PID <%d> solicita leer de un archivo", pcb_get_pid(pcbEnEjecucion));
+    pthread_mutex_lock(&mutexSocketFilesystem);
     __solicitar_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     pthread_create(&esperarFinalizacionLectura, NULL, hiloFread, (void*)pcbEnEjecucion);
     pthread_detach(esperarFinalizacionLectura);
@@ -163,6 +173,7 @@ void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nomb
 {
     pthread_t esperarFinalizacionEscritura;
     log_info(kernelDebuggingLogger, "PID <%d> solitica escribir en un archivo", pcb_get_pid(pcbEnEjecucion));
+    pthread_mutex_lock(&mutexSocketFilesystem);
     __solicitar_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     pthread_create(&esperarFinalizacionEscritura, NULL, hiloFwrite, (void*)pcbEnEjecucion);
     pthread_detach(esperarFinalizacionEscritura);

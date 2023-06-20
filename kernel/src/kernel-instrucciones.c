@@ -110,9 +110,14 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
         sem_post(&dispatchPermitido);
         return;
     }
-    if (!adapter_filesystem_existe_archivo(nombreArchivo))
-    {
+    uint32_t respuestaFilesystem = adapter_filesystem_existe_archivo(nombreArchivo);
+    if (respuestaFilesystem == 0) {
         adapter_filesystem_pedir_creacion_archivo(nombreArchivo);
+    }
+    if (respuestaFilesystem == 2) {
+        pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
+        sem_post(&dispatchPermitido);
+        return;
     }
     abrir_archivo_globalmente(nombreArchivo);
     // Agrego archivo a la tabla de archivos abiertos del proceso con el puntero en la posición 0. 
