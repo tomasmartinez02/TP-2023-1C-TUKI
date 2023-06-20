@@ -473,7 +473,7 @@ bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
     return tamanioSolicitado <= aux->hueco->tamanio;
 }
 
-void eliminar_segmento(uint32_t idSegmento, uint32_t pid) 
+void eliminar_segmento (uint32_t idSegmento, uint32_t pid) 
 {
     t_info_segmentos** tablaDeSegmentos = __buscar_tabla_segun_pid(pid);
     t_info_segmentos* huecoLiberado = __eliminar_segmento_de_tabla(tablaDeSegmentos, idSegmento, pid);
@@ -482,3 +482,30 @@ void eliminar_segmento(uint32_t idSegmento, uint32_t pid)
 
     return;
 }
+
+void eliminar_estructuras_proceso (uint32_t pid)
+{
+    lista_tablas *nodoAnterior = tablasDeSegmentos;
+    lista_tablas *nodoAEliminar = NULL;
+    
+    while (nodoAnterior->siguiente != NULL) {
+        if (nodoAnterior->siguiente->pidProceso == pid) {
+            nodoAEliminar = nodoAnterior->siguiente;
+            break;
+        }
+        nodoAnterior = nodoAnterior->siguiente;
+    }
+    
+
+    nodoAEliminar = nodoAnterior->siguiente;
+
+    if (nodoAnterior->siguiente->siguiente != NULL) {
+        nodoAnterior->siguiente = nodoAnterior->siguiente->siguiente;
+    }
+
+    destruir_tabla_segmentos(nodoAnterior->siguiente->tablaSegmentos, memoria_config_get_cantidad_segmentos(memoriaConfig));
+    free(nodoAEliminar);
+
+    return;
+}
+

@@ -118,3 +118,10 @@ void adapter_kernel_enviar_eliminacion_segmento(uint32_t socketKernel, uint32_t 
 
     return;
 }
+
+void adapter_kernel_confirmar_finalizacion_proceso(uint32_t socketKernel, uint32_t pid)
+{
+    stream_send_empty_buffer(socketKernel, HANDSHAKE_ok_continue);
+
+    return;
+}

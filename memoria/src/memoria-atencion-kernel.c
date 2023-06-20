@@ -62,12 +62,20 @@ void *atender_peticiones_kernel()
             }
             case HEADER_compactar:
             {
+                // TODO
                 break;
-            } 
-            // tambien deberíamos agregar para cuando se finaliza un proceso
+            }
+            case HEADER_solicitud_finalizacion_proceso:
+            {
+                uint32_t pid = adapter_kernel_recibir_pid(bufferRecibido);
+
+                eliminar_estructuras_proceso(pid);
+                adapter_kernel_confirmar_finalizacion_proceso(socketKernel, pid);
+                break;
+            }
             default:
             {   
-                // ERROR
+                log_error(memoriaLogger, "Se recibio un header de kernel NO valido");
                 break;
             }
         }

@@ -22,6 +22,7 @@ bool verificar_memoria_suficiente (uint32_t tamanioSolicitado);
 bool verificar_memoria_contigua (uint32_t tamanioSolicitado);
 uint32_t crear_segmento(t_info_segmentos* segmento, uint32_t pid);
 void eliminar_segmento(uint32_t idSegmento, uint32_t pid);
+void eliminar_estructuras_proceso (uint32_t pid);
 
 
 #endif
