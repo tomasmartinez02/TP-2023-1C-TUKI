@@ -154,16 +154,16 @@ void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombr
  {  
     pthread_t esperarFinalizacionLectura;
     log_info(kernelDebuggingLogger, "PID <%d> solicita leer de un archivo", pcb_get_pid(pcbEnEjecucion));
+    __solicitar_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     pthread_create(&esperarFinalizacionLectura, NULL, hiloFread, (void*)pcbEnEjecucion);
     pthread_detach(esperarFinalizacionLectura);
-    __solicitar_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
  }
 
 void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
 {
     pthread_t esperarFinalizacionEscritura;
     log_info(kernelDebuggingLogger, "PID <%d> solitica escribir en un archivo", pcb_get_pid(pcbEnEjecucion));
+    __solicitar_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     pthread_create(&esperarFinalizacionEscritura, NULL, hiloFwrite, (void*)pcbEnEjecucion);
     pthread_detach(esperarFinalizacionEscritura);
-    __solicitar_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
 }
