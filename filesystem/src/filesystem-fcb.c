@@ -119,21 +119,19 @@ bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
 {
     FILE *archivo;
     char rutaFcb[PATH_MAX];
-    char *directorioFcbs = filesystem_config_get_path_fcb(filesystemConfig);
     char *nombreArchivo = fcb_get_nombre_archivo(nuevoFcb);
     uint32_t tamanioArchivo = fcb_get_tamanio_archivo(nuevoFcb);
     uint32_t punteroDirecto = fcb_get_puntero_directo(nuevoFcb);
     uint32_t punteroIndirecto = fcb_get_puntero_indirecto(nuevoFcb);
     
-
     // Ruta completa del archivo
-    if (sprintf(rutaFcb, "%s/%s", directorioFcbs, nombreArchivo) < 0) {
+    if (sprintf(rutaFcb, "./fcbs/%s", nombreArchivo) < 0) {
         log_error(filesystemLogger, "Error al construir la ruta del archivo del FCB %s.", nombreArchivo);
         return false;
     }
 
-
     archivo = fopen(rutaFcb,"w");
+    log_error(filesystemLogger, "ruta %s.", rutaFcb);
     if (archivo == NULL) {
         log_error(filesystemLogger, "Error al crear el archivo del FCB %s.", nombreArchivo);
         return false;
@@ -147,9 +145,9 @@ bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
     fclose(archivo);
     // Si se pudo crear el archivo satisfactoriamente
     log_info(filesystemLogger, "Se creo el FCB del archivo %s satisfactoriamente.", nombreArchivo);
+    dictionary_put(listaFcbs, nombreArchivo, (void*)nuevoFcb);
     return true;
 }
-
 
 void recorrer_directorio_fcbs(char *directorioFcbs)
 {   
@@ -168,7 +166,7 @@ void recorrer_directorio_fcbs(char *directorioFcbs)
 
     while ((ent = readdir(dir)) != NULL) {
         if (ent->d_type == DT_REG) {
-            snprintf(pathFcb, sizeof(pathFcb), "%s/%s", directorioFcbs, ent->d_name);
+            snprintf(pathFcb, sizeof(pathFcb), "./fcbs/%s", ent->d_name);
             fcb_temp = levantar_fcb(pathFcb);
             nombreTemp = fcb_get_nombre_archivo(fcb_temp);
             dictionary_put(listaFcbs, nombreTemp, (void*)fcb_temp);
