@@ -81,9 +81,19 @@ static void __enviar_pedido_compactacion(int socketMemoria)
     return;
 }
 
-static void __enviar_pedido_eliminar_segmento(int socketMemoria)
+static void __enviar_pedido_eliminar_segmento(int socketMemoria, uint32_t idSegmento, uint32_t pid)
 {
-    //TODO
+    t_buffer *bufferAEnviar = buffer_create();
+
+    uint32_t id = idSegmento;
+    buffer_pack(bufferAEnviar, &id, sizeof(id));
+
+    uint32_t pidProceso = pid;
+    buffer_pack(bufferAEnviar, &pidProceso, sizeof(pidProceso));
+
+    stream_send_buffer(socketMemoria, HEADER_eliminar_segmento, bufferAEnviar); 
+    buffer_destroy(bufferAEnviar);
+
     return;
 }
 
@@ -147,7 +157,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
 
             log_creacion_nuevo_segmento(pcb, idSegmento, tamanio);
 
-            enviar_pcb_a_cpu(pcb);
+            // enviar_pcb_a_cpu(pcb);
 
             pthread_mutex_unlock(&mutexSocketMemoria);
 
@@ -219,22 +229,33 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
     pthread_mutex_lock(&mutexSocketMemoria);
-    __enviar_pedido_eliminar_segmento(socketMemoria);
+    log_info(kernelLogger, "puede usar el socket");
+    __enviar_pedido_eliminar_segmento(socketMemoria, idSegmento, pcb_get_pid(pcb));
+    log_info(kernelLogger, "pide la eliminacion del segmento");
 
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
+    log_info(kernelLogger, "recibe el header");
 
     if(respuestaMemoria == HEADER_segmento_destruido)
     { 
         t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
+        log_info(kernelLogger, "crea el buffer");
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
+        log_info(kernelLogger, "recibe el buffer case");
         
         t_info_segmentos ** nuevaTabla = desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, pcb_get_tamanio_tabla_segmentos(pcb));
+        log_info(kernelLogger, "desempaqueta la tabla de segmentos");
 
         pcb_set_tabla_segmentos(pcb, nuevaTabla); // Ver, porque hay que liberar algo de memoria si o si
+        log_info(kernelLogger, "setea la nueva tabla de segmentos");
+
+        seguir_ejecutando(pcb);
         
     } else {
         // error
     }
+
+    pthread_mutex_unlock(&mutexSocketMemoria);
 
     return ;   
 }
