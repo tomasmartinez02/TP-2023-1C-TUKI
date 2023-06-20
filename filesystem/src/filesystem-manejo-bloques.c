@@ -11,13 +11,27 @@ void asignar_puntero_directo(t_fcb *fcbArchivo)
     return;
 }
 
-void asignar_puntero_indirecto(t_fcb *fcbArchivo)
+void asignar_puntero_indirecto(t_fcb *fcbArchivo, uint32_t cantidadPunteros)
 {
-    uint32_t bloque = bitmap_encontrar_bloque_libre();
-    fcbArchivo->PUNTERO_INDIRECTO = bloque; 
-    bitmap_marcar_bloque_ocupado(bloque);
+    uint32_t bloquePunteros = bitmap_encontrar_bloque_libre();
+    fcbArchivo->PUNTERO_INDIRECTO = bloquePunteros; 
+    bitmap_marcar_bloque_ocupado(bloquePunteros);
     fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
     persistir_fcb(fcbArchivo);
+
+    // Asignar punteros dentro del bloque de punteros
+
+    char *pathArchivoBloques = filesystem_config_get_path_bloques(filesystemConfig);
+    archivoDeBloques = fopen(pathArchivoBloques, "r+b"); // Modo lectura y escritura binaria
+    fseek(archivoDeBloques, bloquePunteros*sizeof(uint32_t), SEEK_SET);
+
+    for (uint32_t i = 0; i < cantidadPunteros; i++) {
+        uint32_t bloqueDatos = bitmap_encontrar_bloque_libre();
+        bitmap_marcar_bloque_ocupado(bloqueDatos);
+        fwrite(&bloqueDatos, sizeof(uint32_t), 1, archivoDeBloques);
+    }
+
+    fclose(archivoDeBloques);
     return;
 }
 
@@ -32,18 +46,22 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     }
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
-        uint32_t cantidadPunteros = tamanioNuevo / tamanioBloques - 1;
+        uint32_t cantidadPunteros = ceil((tamanioNuevo/tamanioBloques)-1);
 
         asignar_puntero_directo(fcbArchivo);
-        asignar_puntero_indirecto(fcbArchivo);
+        asignar_puntero_indirecto(fcbArchivo, cantidadPunteros);
     }
 }
 
 // esta implementacion es para archivos que ya tienen punteros asignados
-/*void asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo)
+void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo,uint32_t cantidadBloquesAsignados)
 {
-    asignar_puntero_indirecto(t_fcb *fcbArchivo);
-}*/
+    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
+    // cantidad de punteros a asignar en el bloque de punteros
+    uint32_t cantidadPunteros = ceil((tamanioNuevo/tamanioBloques)-1);
+
+    asignar_puntero_indirecto(fcbArchivo, cantidadPunteros);
+}
 
 
 char* archivo_de_bloques_leer_bloque(uint32_t bloque)

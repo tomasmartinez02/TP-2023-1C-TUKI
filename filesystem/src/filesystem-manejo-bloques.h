@@ -9,6 +9,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <math.h>
 //Bibliotecas commons
 #include <commons/log.h>
 #include <commons/bitarray.h>
@@ -24,9 +25,9 @@
 // Prototipos
 void asignar_puntero_directo(t_fcb *fcbArchivo);
 
-void asignar_puntero_indirecto(t_fcb *fcbArchivo);
+void asignar_puntero_indirecto(t_fcb *fcbArchivo, uint32_t cantidadPunteros);
 
-void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo);
+void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo);
 
 void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar);
 

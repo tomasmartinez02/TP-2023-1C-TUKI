@@ -94,7 +94,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
             asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
         }
         else {
-            //asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo);  // muy creativo el nombre :D
+            asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo,cantidadBloquesAsignadosActual);
             /* en este caso ya tendria bloques, asi que entiendo que el puntero directo no habria que tocarlo.
             solo habria que asignar mas punteros indirectos*/
         }
