@@ -4,6 +4,7 @@
 t_bitmap *bitmap;
 t_superbloque *superbloque;
 t_fcb *fcb;
+FILE* archivoDeBloques;
 
 // SUPERBLOQUE
 
@@ -89,7 +90,7 @@ void destruir_bitmap()
 FILE *abrir_archivo_de_bloques()
 {
     char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
-    FILE* archivoDeBloques = fopen(pathArchivoDeBloques, "r+"); 
+    archivoDeBloques = fopen(pathArchivoDeBloques, "r+");
 
     if (archivoDeBloques == NULL) {
         log_error(filesystemLogger, "No se pudo abrir el archivo.");

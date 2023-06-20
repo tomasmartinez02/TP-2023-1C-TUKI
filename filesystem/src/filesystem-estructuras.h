@@ -58,5 +58,6 @@ extern t_superbloque *superbloque;
 extern t_bitmap *bitmap;
 extern t_fcb *fcb;
 extern t_dictionary *listaFcbs;
+extern FILE* archivoDeBloques;
 
 #endif
