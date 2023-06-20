@@ -275,11 +275,9 @@ void actualizar_tabla_segmentos(t_info_segmentos **tablaDeSegmentosActualizada, 
 
 void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
 {   
-    /*
     if (pcb_get_estado_finalizacion(pcbATerminar)) {
         
         pthread_mutex_lock(&mutexSocketMemoria);
-
 
         uint32_t pid = pcb_get_pid(pcbATerminar);
         uint32_t tamanioPid = sizeof(pid);
@@ -287,7 +285,7 @@ void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
 
         t_buffer *bufferPidATerminar = buffer_create();
         buffer_pack(bufferPidATerminar, (void*) &pid, tamanioPid);
-        stream_send_buffer(socketMemoria, HEADER_proceso_terminado, bufferPidATerminar); // Ojo que hay que agregar este header!
+        stream_send_buffer(socketMemoria, HEADER_solicitud_finalizacion_proceso, bufferPidATerminar); 
         buffer_destroy(bufferPidATerminar);
 
         uint32_t respuestaMemoria = stream_recv_header(kernel_config_get_socket_memoria(kernelConfig));
@@ -302,13 +300,11 @@ void adapter_memoria_finalizar_proceso(t_pcb *pcbATerminar)
             exit(EXIT_FAILURE);
         }
 
-        pthread_mutex_lock(&mutexSocketMemoria);
+        pthread_mutex_unlock(&mutexSocketMemoria);
     
     } else {
             log_error(kernelLogger, "El proceso con PID <%d> finalizado no pudo ser creado por falta de memoria", pcb_get_pid(pcbATerminar));
     }
-    
-    */
 
    return;
 }
