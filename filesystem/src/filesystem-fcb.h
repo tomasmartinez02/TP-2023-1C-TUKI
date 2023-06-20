@@ -13,6 +13,7 @@
 #include <dirent.h>
 // BIBLIOTECAS COMMONS
 #include <commons/string.h>
+#include <commons/config.h>
 
 // CREACIÓN Y DESTRUCCIÓN FCB
 t_fcb *crear_nuevo_fcb(char *nombreArchivo);

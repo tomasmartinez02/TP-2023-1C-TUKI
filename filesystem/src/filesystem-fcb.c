@@ -98,28 +98,20 @@ void fcb_decrementar_cantidad_bloques_asignados(t_fcb *fcb)
 }
 
 // ARCHIVOS DE FCBS
-static void __inicializar_fcb(void *module, t_config *tempFcb)
-{
-    fcb = (t_fcb *) module;
-
-    fcb->NOMBRE_ARCHIVO = (char*) config_get_string_value(tempFcb, "NOMBRE_ARCHIVO");
-    fcb->TAMANIO_ARCHIVO = (uint32_t) config_get_int_value(tempFcb, "TAMANIO_ARCHIVO");
-    fcb->PUNTERO_DIRECTO = (uint32_t) config_get_int_value(tempFcb, "PUNTERO_DIRECTO");
-    fcb->PUNTERO_INDIRECTO = (uint32_t) config_get_int_value(tempFcb, "PUNTERO_INDIRECTO");
-
-    return;
-}
 
 t_fcb* levantar_fcb(char *pathFcb)
 {
+    t_config *config_fcb = config_create(pathFcb);
     t_fcb *fcb = malloc(sizeof(*fcb));
 
-    // Checkear que se haya inicializado bien
-    int32_t inicializacionCorrecta = config_init(fcb, pathFcb, filesystemLogger, __inicializar_fcb);
-    if (inicializacionCorrecta == -1) {
-        exit(EXIT_FAILURE);
-    }
+    log_info(filesystemLogger , "pathFCB: %s", pathFcb);
 
+    fcb->NOMBRE_ARCHIVO = (char*) config_get_string_value(config_fcb, "NOMBRE_ARCHIVO");
+    fcb->TAMANIO_ARCHIVO = (uint32_t) config_get_int_value(config_fcb, "TAMANIO_ARCHIVO");
+    fcb->PUNTERO_DIRECTO = (uint32_t) config_get_int_value(config_fcb, "PUNTERO_DIRECTO");
+    fcb->PUNTERO_INDIRECTO = (uint32_t) config_get_int_value(config_fcb, "PUNTERO_INDIRECTO");
+
+    log_info(filesystemLogger , "nombreFCB: %s", fcb->NOMBRE_ARCHIVO);
     return fcb;
 }
 
