@@ -3,6 +3,8 @@
 
 //Bibliotecas estandar
 #include <math.h>
+#include <pthread.h>
+#include <semaphore.h>
 /*#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -26,6 +28,16 @@
 #include <filesystem-fcb.h>
 #include <filesystem-manejo-bloques.h>
 #include <filesystem-manejo-bitmap.h>
+
+void verificar_existencia_archivo(char *nombreArchivo);
+
+t_fcb *crear_archivo(char *nombreArchivo);
+
+void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo);
+
+void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes);
+
+void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes);
 
 void atender_peticiones_kernel(void);
 

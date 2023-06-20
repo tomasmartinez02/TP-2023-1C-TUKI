@@ -146,10 +146,14 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
 void atender_peticiones_kernel()
 {   
+    pthread_mutex_t mutexFilesystem;
+    pthread_mutex_init(&mutexFilesystem, NULL);
     // Loop infinito para que este atento a los pedidos de kernel
     for (;;)
-    {
+    {     
+        pthread_mutex_lock(&mutexFilesystem);
         uint8_t headerPeticionRecibida = recibir_header_peticion_de_kernel();
+        
         // Ejecuto el pedido que hizo kernel
         switch(headerPeticionRecibida)
         {
@@ -169,8 +173,7 @@ void atender_peticiones_kernel()
                 recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
 
                 // PARA PROBAR //
-                log_info(filesystemDebuggingLogger, "fs recive la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
-                log_info(filesystemLogger, "fs recive la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "fs recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 enviar_confirmacion_escritura_finalizada();
                 
                 //escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
@@ -187,10 +190,8 @@ void atender_peticiones_kernel()
                 //leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
 
                 // PARA PROBAR //
-                log_info(filesystemDebuggingLogger, "fs recive la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
-                log_info(filesystemLogger, "fs recive la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "fs recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 enviar_confirmacion_lectura_finalizada();
-
                 free(nombreArchivo);
                 break;
             }
@@ -200,10 +201,8 @@ void atender_peticiones_kernel()
                 uint32_t tamanioNuevo;
                 recibir_buffer_truncate_archivo(&nombreArchivo, &tamanioNuevo);
                 //truncar_archivo(nombreArchivo, tamanioNuevo);
-
                 // PARA PROBAR //
-                log_info(filesystemDebuggingLogger, "fs recive la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
-                log_info(filesystemLogger, "fs recive la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
+                log_info(filesystemLogger, "fs recibe la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
                 enviar_confirmacion_tamanio_archivo_modificado();
 
                 free(nombreArchivo);
@@ -218,6 +217,8 @@ void atender_peticiones_kernel()
                 break;
             }
         }
+        pthread_mutex_unlock(&mutexFilesystem);
     }
+    pthread_mutex_destroy(&mutexFilesystem);
     return;
 }
