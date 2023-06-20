@@ -40,7 +40,7 @@ BIN = bin/$(call filename,$(shell cd . && pwd | xargs basename))
 TEST = bin/$(shell cd . && pwd | xargs basename)_tests.out
 
 # Set libraries to link with (-l)
-LIBS = m
+#LIBS = m
 
 .PHONY: all
 all: CFLAGS = $(CDEBUG)

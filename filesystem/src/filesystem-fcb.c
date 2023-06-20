@@ -127,7 +127,11 @@ bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
     
 
     // Ruta completa del archivo
-    uint32_t temp = sprintf(rutaFcb, "%s/%s", directorioFcbs, nombreArchivo);
+    if (sprintf(rutaFcb, "%s/%s", directorioFcbs, nombreArchivo) < 0) {
+        log_error(filesystemLogger, "Error al construir la ruta del archivo del FCB %s.", nombreArchivo);
+        return false;
+    }
+
 
     archivo = fopen(rutaFcb,"w");
     if (archivo == NULL) {
@@ -185,7 +189,10 @@ bool persistir_fcb(t_fcb* fcb)
     char rutaFcb[PATH_MAX];
     
     // Ruta completa del archivo
-    uint32_t temp = sprintf(rutaFcb, "%s/%s", directorioFcbs, nombreArchivo);   
+    if (sprintf(rutaFcb, "%s/%s", directorioFcbs, nombreArchivo) < 0) {
+        log_error(filesystemLogger, "Error al construir la ruta del archivo del FCB %s.", nombreArchivo);
+        return false;
+    }
 
     FILE* archivoFcb = fopen(rutaFcb, "w");
     if (archivoFcb == NULL) {
