@@ -55,6 +55,7 @@ enum header
     HEADER_segmentation_fault,
     HEADER_solicitud_creacion_archivo,
     HEADER_solicitud_escribir_archivo,
+    HEADER_solicitud_finalizacion_proceso,
     HEADER_tiempo_io,
     HEADER_dispositivo_io,
     HEADER_solicitud_inicializacion_proceso,

@@ -101,6 +101,7 @@ extern t_kernel_config *kernelConfig;
 extern t_dictionary *tablaArchivosAbiertos;
 extern sem_t dispatchPermitido;
 extern pthread_mutex_t mutexSocketMemoria;
+extern pthread_mutex_t mutexSocketFilesystem;
 // Estados
 extern t_estado *estadoNew;
 extern t_estado *estadoReady;

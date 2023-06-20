@@ -15,6 +15,7 @@ t_estado *estadoExit;
 static sem_t gradoMultiprogramacion;
 sem_t dispatchPermitido;
 pthread_mutex_t mutexSocketMemoria;
+pthread_mutex_t mutexSocketFilesystem;
 
 // Funciones privadas
 
