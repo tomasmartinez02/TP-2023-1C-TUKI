@@ -50,6 +50,8 @@ t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos,
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
         t_info_segmentos *infoSegmento = crear_info_segmentos(0,0,0);
 
+        tablaSegmentos[i] = malloc(sizeof(t_info_segmentos));
+
         uint32_t idSegmento;
         buffer_unpack(bufferTablaSegmentos, &idSegmento, sizeof(idSegmento));
         infoSegmento->idSegmento = idSegmento;
