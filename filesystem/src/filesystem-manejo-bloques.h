@@ -29,6 +29,8 @@ void asignar_puntero_indirecto(t_fcb *fcbArchivo, uint32_t cantidadPunteros);
 
 void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo);
 
+void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo, uint32_t cantidadBloquesAsignados);
+
 void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar);
 
 void desasignar_ultimo_bloque(t_fcb *fcbArchivo);
