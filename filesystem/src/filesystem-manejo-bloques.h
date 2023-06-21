@@ -25,11 +25,13 @@
 // Prototipos
 void asignar_puntero_directo(t_fcb *fcbArchivo);
 
-void asignar_puntero_indirecto(t_fcb *fcbArchivo, uint32_t cantidadPunteros);
+void asignar_puntero_indirecto(t_fcb *fcbArchivo);
 
 void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo);
 
-void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo, uint32_t cantidadBloquesAsignados);
+void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo);
+
+void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques);
 
 void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar);
 

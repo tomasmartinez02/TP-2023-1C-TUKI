@@ -38,8 +38,8 @@ t_fcb *crear_archivo(char *nombreArchivo)
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
-    uint32_t tamanioBloquesFS,tamanioNuevoEnBloques, cantidadBloquesAsignadosActual;
-    uint32_t cantidadBloquesAsignar, cantidadBloquesDesasignar, bloqueTemp;
+    uint32_t tamanioBloquesFS,tamanioNuevoEnBloques, cantidadBloquesAsignadosActual,cantidadBloquesDesasignar;
+    
     // Busco el fcb relacionado al archivo que quiero truncar
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
     if (fcbArchivo == NULL)
@@ -53,67 +53,31 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
     tamanioNuevoEnBloques = ceil(tamanioNuevo / tamanioBloquesFS);
 
-    /* Se me ocurrio algo asi pero ni idea, lo explaye mejor en el drive
-    if(cantidadBloquesAsignadosActual == 0 && tamanioNuevoEnBloques == 1) {
-            asignar_puntero_directo(fcbArchivo);
-    }
-
-    if(cantidadBloquesAsignadosActual == 0 && tamanioNuevoEnBloques > 1) {
-            // Si el tamanio nuevo en bloques es 2 --> Hay que asignar el puntero directo, el indirecto y un bloque
-            // Si el tamanio nuevo en bloques es N > 2 --> Hay que asignar el puntero directo, el indirecto y N - 1 ya que se 
-            // Le resta el bloque que se le asigno antes en el puntero directo
-             cantidadBloquesAAsignar = tamanioNuevoEnBloques - 1
-             asignar_puntero_directo(fcbArchivo);
-             asignar_puntero_indirecto(fcbArchivo);
-             asignar_bloques(fcbArchivo, cantidadBloquesAAsignar);
-    }
-    if(cantidadBloquesAsignadosActual == 1 && tamanioNuevoEnBloques == 1) {
-            // nada? no tiene sentido q nos manden esto
-    }
-    if(cantidadBloquesAsignadosActual == 1 && tamanioNuevoEnBloques > 1) {
-            cantidadBloquesAAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual 
-            asignar_puntero_indirecto(fcbArchivo);
-            asignar_bloques(fcbArchivo, cantidadBloquesAAsignar);
-    }
-    if(cantidadBloquesAsignadosActual > 1 && tamanioNuevoEnBloques > 1) {
-            cantidadBloquesAAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual 
-            asignar_bloques(fcbArchivo, cantidadBloquesAAsignar);
-    }
-
-    esto es un choclo no mg!!!!!!!!!!
-
-    */
-
+    // AMPLIAR TAMAÑO
+    /*Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
+    poder direccionar el nuevo tamaño.*/
     if (cantidadBloquesAsignadosActual < tamanioNuevoEnBloques)
-    {    
-        // AMPLIAR TAMAÑO
-        /*Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
-        poder direccionar el nuevo tamaño.*/
-            
+    {
         if(cantidadBloquesAsignadosActual == 0) {
             asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
         }
         else {
-            asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo,cantidadBloquesAsignadosActual);
+            asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo);
             /* en este caso ya tendria bloques, asi que entiendo que el puntero directo no habria que tocarlo.
-            solo habria que asignar mas punteros indirectos*/
+            solo habria que asignar mas punteros a bloques de datos */
         }
-
-        /*cantidadBloquesAsignar = tamanioNuevoEnBloques - cantidadBloquesAsignadosActual;
-        for (uint32_t i = 0; i<cantidadBloquesAsignar; i++)
-        {
-            asignar_bloque(fcbArchivo);
-        }*/
     }
     // REDUCIR TAMAÑO
-    //Asignar el nuevo tamaño del archivo en el FCB y se deberán marcar como libres todos los bloques que ya
-    // no sean necesarios para direccionar el tamaño del archivo (descartando desde el final del archivo hacia el principio).
+    /* Asignar el nuevo tamaño del archivo en el FCB y se deberán marcar como libres todos los bloques que ya
+    no sean necesarios para direccionar el tamaño del archivo (descartando desde el final del archivo hacia el principio).*/
     else
-    {   
+    {
         cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
         desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
     }
 
+    //fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
+    //fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
     persistir_fcb(fcbArchivo);
     enviar_confirmacion_tamanio_archivo_modificado();
     log_truncar_archivo(nombreArchivo, tamanioNuevo);

@@ -97,6 +97,28 @@ void fcb_decrementar_cantidad_bloques_asignados(t_fcb *fcb)
     return;
 }
 
+void fcb_decrementar_tamanio_en_bloque(t_fcb *fcb)
+{
+    uint32_t tamanioBloque = get_superbloque_block_size(superbloque);
+    uint32_t nuevoTamanio = fcb_get_tamanio_archivo(fcb) - tamanioBloque;
+    fcb_set_tamanio_archivo(fcb, nuevoTamanio);
+    return;
+}
+
+void fcb_incrementar_tamanio_en_bloque(t_fcb *fcb)
+{
+    uint32_t tamanioBloque = get_superbloque_block_size(superbloque);
+    uint32_t nuevoTamanio = fcb_get_tamanio_archivo(fcb) + tamanioBloque;
+    fcb_set_tamanio_archivo(fcb, nuevoTamanio);
+    return;
+}
+
+uint32_t obtener_cantidad_punteros_bloque_indirecto(t_fcb* fcb)
+{   
+    uint32_t cantidadPunteros = fcb_get_cantidad_bloques_asignados(fcb) - 1;
+    return cantidadPunteros;
+}
+
 // ARCHIVOS DE FCBS
 
 t_fcb* levantar_fcb(char *pathFcb)

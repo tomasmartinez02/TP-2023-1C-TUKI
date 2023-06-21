@@ -1,37 +1,48 @@
 #include <filesystem-manejo-bloques.h>
 
-
 void asignar_puntero_directo(t_fcb *fcbArchivo)
 {
     uint32_t bloque = bitmap_encontrar_bloque_libre();
     fcbArchivo->PUNTERO_DIRECTO = bloque;
     bitmap_marcar_bloque_ocupado(bloque);
-    fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
-    persistir_fcb(fcbArchivo);
+    //fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+    //persistir_fcb(fcbArchivo);
     return;
 }
 
-void asignar_puntero_indirecto(t_fcb *fcbArchivo, uint32_t cantidadPunteros)
+void asignar_puntero_indirecto(t_fcb *fcbArchivo)
 {
     uint32_t bloquePunteros = bitmap_encontrar_bloque_libre();
     fcbArchivo->PUNTERO_INDIRECTO = bloquePunteros; 
     bitmap_marcar_bloque_ocupado(bloquePunteros);
-    fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
-    persistir_fcb(fcbArchivo);
+    //persistir_fcb(fcbArchivo);
+}
 
-    // Asignar punteros dentro del bloque de punteros
+// Asignar punteros dentro del bloque de punteros
+void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
+{
+    uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
+    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
+    uint32_t cantidadPunteros = obtener_cantidad_punteros_bloque_indirecto(fcbArchivo);
 
     char *pathArchivoBloques = filesystem_config_get_path_bloques(filesystemConfig);
-    archivoDeBloques = fopen(pathArchivoBloques, "r+b"); // Modo lectura y escritura binaria
-    fseek(archivoDeBloques, bloquePunteros*sizeof(uint32_t), SEEK_SET);
 
-    for (uint32_t i = 0; i < cantidadPunteros; i++) {
+    uint32_t desplazamientoArchivoBloque = bloquePunteros * tamanioBloques;
+    uint32_t desplazamientoBloque = cantidadPunteros * sizeof(uint32_t);
+    uint32_t desplazamiento = desplazamientoArchivoBloque + desplazamientoBloque;
+
+    archivoDeBloques = fopen(pathArchivoBloques, "r+b"); // Modo lectura y escritura binaria ---> PROBAR
+
+    fseek(archivoDeBloques, desplazamiento, SEEK_SET);
+
+    for (uint32_t i = 0; i < cantidadBloques; i++) {
         uint32_t bloqueDatos = bitmap_encontrar_bloque_libre();
         bitmap_marcar_bloque_ocupado(bloqueDatos);
         fwrite(&bloqueDatos, sizeof(uint32_t), 1, archivoDeBloques);
+        //fcb_incrementar_tamanio_en_bloque(fcbArchivo);
     }
-
     fclose(archivoDeBloques);
+    //persistir_fcb(fcbArchivo);
     return;
 }
 
@@ -46,23 +57,35 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     }
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
-        uint32_t cantidadPunteros = ceil((tamanioNuevo/tamanioBloques)-1);
+        uint32_t cantidadPunteros = (ceil(tamanioNuevo/tamanioBloques))-1;
 
         asignar_puntero_directo(fcbArchivo);
-        asignar_puntero_indirecto(fcbArchivo, cantidadPunteros);
+        asignar_puntero_indirecto(fcbArchivo);
+        asignar_bloques(fcbArchivo, cantidadPunteros);
     }
 }
 
+
 // esta implementacion es para archivos que ya tienen punteros asignados
-void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo,uint32_t cantidadBloquesAsignados)
+// esta implementacion es para archivos que ya tienen punteros asignados
+void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
+    uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
     // cantidad de punteros a asignar en el bloque de punteros
-    uint32_t cantidadPunteros = ceil((tamanioNuevo/tamanioBloques)-1);
+    uint32_t cantidadBloques = ceil((tamanioNuevo/tamanioBloques)-1);
 
-    asignar_puntero_indirecto(fcbArchivo, cantidadPunteros);
+    if (cantidadBloquesAsignados == 1)
+    {
+        asignar_puntero_indirecto(fcbArchivo);
+        asignar_bloques(fcbArchivo, cantidadBloques);
+    }
+    else
+    {
+        asignar_bloques(fcbArchivo, cantidadBloques);
+    }    
+    return;
 }
-
 
 char* archivo_de_bloques_leer_bloque(uint32_t bloque)
 {
@@ -142,8 +165,8 @@ int32_t leer_ultimo_puntero_de_bloque_de_punteros(t_fcb* fcb)
 {   
     uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcb);
     // Para saber la cantidad de punteros que hay en el bloque indirecto, tomo la cantidad total de bloques asignados y le
-    // resto 1 por el puntero directo (el primer bloque) y le resto 1 por el puntero indirecto (bloque de punteros)
-    uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcb) - 1 - 1;
+    // resto 1 por el puntero directo (el primer bloque)
+    uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcb) - 1;
     // Si hay 4 punteros en el bloque de punteros, quiero acceder el puntero número 3 --> Bloque X: [Ptr.0 , Ptr. 1, Ptr. 2, Ptr. 3]
     uint32_t punteroAAcceder = cantidadBloquesAsignados - 1; 
     uint32_t ultimoPuntero = archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(bloquePunteros, punteroAAcceder);
@@ -157,7 +180,6 @@ int32_t leer_ultimo_puntero_de_bloque_de_punteros(t_fcb* fcb)
 void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
 {   
     uint32_t ultimoBloque;
-    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
 
     // ABRIR EL ARCHIVO DE BLOQUES
     FILE *archivoBloques = abrir_archivo_de_bloques();
@@ -174,8 +196,7 @@ void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
     //ACTUALIZAR FCB 
     // El archivo tiene un bloque asignado menos.
     fcb_decrementar_cantidad_bloques_asignados(fcbArchivo);
-    uint32_t nuevoTamanio = fcb_get_tamanio_archivo(fcbArchivo) - tamanioBloques;
-    fcb_set_tamanio_archivo(fcbArchivo, nuevoTamanio);
+    fcb_decrementar_tamanio_en_bloque(fcbArchivo);
     fclose(archivoBloques);
 }
 

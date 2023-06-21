@@ -6,6 +6,7 @@
 // BIBLIOTECAS FILESYSTEM
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
+#include <filesystem-archivos.h>
 // BIBLIOTECAS ESTANDAR
 #include <string.h>
 #include <stdlib.h>
@@ -35,6 +36,9 @@ void fcb_incrementar_cantidad_bloques_asignados(t_fcb *fcb);
 void fcb_decrementar_cantidad_bloques_asignados(t_fcb *fcb);
 
 // CREACIÓN DE ARCHIVOS DE MANEJO DE FCB
+void fcb_decrementar_tamanio_en_bloque(t_fcb *fcb);
+void fcb_incrementar_tamanio_en_bloque(t_fcb *fcb);
+uint32_t obtener_cantidad_punteros_bloque_indirecto(t_fcb* fcb);
 t_fcb* levantar_fcb(char *pathFcb);
 bool persistir_fcb(t_fcb* fcb);
 bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb);
