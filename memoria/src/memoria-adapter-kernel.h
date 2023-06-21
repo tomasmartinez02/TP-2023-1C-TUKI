@@ -16,5 +16,6 @@ void adapter_kernel_solicitar_compactacion (uint32_t socketKernel);
 void adapter_kernel_error_out_of_memory (uint32_t socketKernel);
 uint32_t adapter_kernel_recibir_id_segmento_a_eliminar(uint32_t socketKernel, t_buffer* bufferRecibido);
 void adapter_kernel_enviar_eliminacion_segmento(uint32_t socketKernel, uint32_t pid); 
+void adapter_kernel_confirmar_finalizacion_proceso(uint32_t socketKernel, uint32_t pid);
 
 #endif
