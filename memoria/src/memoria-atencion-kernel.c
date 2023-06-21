@@ -67,8 +67,8 @@ void *atender_peticiones_kernel()
             }
             case HEADER_solicitud_finalizacion_proceso:
             {
+                stream_recv_buffer(socketKernel,bufferRecibido);
                 uint32_t pid = adapter_kernel_recibir_pid(bufferRecibido);
-
                 eliminar_estructuras_proceso(pid);
                 adapter_kernel_confirmar_finalizacion_proceso(socketKernel, pid);
                 break;
