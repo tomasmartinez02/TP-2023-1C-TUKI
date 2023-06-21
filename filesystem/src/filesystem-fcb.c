@@ -119,6 +119,16 @@ uint32_t obtener_cantidad_punteros_bloque_indirecto(t_fcb* fcb)
     return cantidadPunteros;
 }
 
+// Para pruebas
+void fcb_mostrar_por_pantalla(t_fcb* fcb)
+{   
+    log_info(filesystemLogger, "Nombre archivo: %s", fcb->NOMBRE_ARCHIVO);
+    log_info(filesystemLogger, "Puntero directo: %u", fcb->PUNTERO_DIRECTO);
+    log_info(filesystemLogger, "Puntero indirecto: %u", fcb->PUNTERO_INDIRECTO);
+    log_info(filesystemLogger, "Cantidad de bloques asignados: %u", fcb->cantidad_bloques_asignados);
+    return;
+}
+
 // ARCHIVOS DE FCBS
 
 t_fcb* levantar_fcb(char *pathFcb)

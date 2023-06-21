@@ -34,6 +34,7 @@ uint32_t fcb_get_cantidad_bloques_asignados(t_fcb *fcb);
 void fcb_set_cantidad_bloques_asignados(t_fcb *fcb, uint32_t nuevaCantidadBloques);
 void fcb_incrementar_cantidad_bloques_asignados(t_fcb *fcb);
 void fcb_decrementar_cantidad_bloques_asignados(t_fcb *fcb);
+void fcb_mostrar_por_pantalla(t_fcb* fcb);
 
 // CREACIÓN DE ARCHIVOS DE MANEJO DE FCB
 void fcb_decrementar_tamanio_en_bloque(t_fcb *fcb);

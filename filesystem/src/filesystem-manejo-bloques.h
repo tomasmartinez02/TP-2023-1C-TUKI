@@ -19,6 +19,7 @@
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
 #include <filesystem-fcb.h>
+#include <filesystem-utils.h>
 #include <filesystem-manejo-bitmap.h>
 #include <filesystem-archivos.h>
 

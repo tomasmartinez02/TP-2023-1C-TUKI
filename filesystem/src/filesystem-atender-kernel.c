@@ -39,7 +39,6 @@ t_fcb *crear_archivo(char *nombreArchivo)
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
     uint32_t tamanioBloquesFS,tamanioNuevoEnBloques, cantidadBloquesAsignadosActual,cantidadBloquesDesasignar;
-    
     // Busco el fcb relacionado al archivo que quiero truncar
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
     if (fcbArchivo == NULL)
