@@ -9,6 +9,7 @@ int32_t bitmap_encontrar_bloque_libre()
     for (i=0; i < bitmap->tamanio ; i++)
     {
         bloqueOcupado  = bitarray_test_bit(bitmap->bitarray, i);
+        log_acceso_bitmap(i, bloqueOcupado);
         // Si encuentra un bloque que esté en 0 devuelve la posición de ese bloque
         if(!bloqueOcupado)
         {
@@ -20,6 +21,30 @@ int32_t bitmap_encontrar_bloque_libre()
     return -1;
 }
 
+// Para pruebas
+void bitmap_mostrar_por_pantalla()
+{   
+    // false = 0 --> libre
+    // true = 1 --> ocupado
+    uint32_t i;
+    bool bloqueLeido;
+    for (i=0; i < bitmap->tamanio ; i++)
+    {
+        bloqueLeido  = bitarray_test_bit(bitmap->bitarray, i);
+        // Si encuentra un bloque que esté en 0 devuelve la posición de ese bloque
+        if(bloqueLeido == 0)
+        {
+            log_info(filesystemLogger, "Bloque %u: 0", i);
+        }
+        else
+        {
+            log_info(filesystemLogger, "Bloque %u: 1", i);
+        }
+    }
+    return;
+}
+
+
 void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
 {
     bitarray_clean_bit(bitmap->bitarray, numeroBloque);
@@ -27,6 +52,7 @@ void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
     if (msync(bitmap->direccion, bitmap->tamanio, MS_SYNC) == -1) {
         log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
     }
+    log_acceso_bitmap(numeroBloque, 0);
     return;
 }
 
@@ -37,5 +63,6 @@ void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque) // 1 --> ocupado
     if (msync(bitmap->direccion, bitmap->tamanio, MS_SYNC) == -1) {
         log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
     }
+    log_acceso_bitmap(numeroBloque, 1);
     return;
 }

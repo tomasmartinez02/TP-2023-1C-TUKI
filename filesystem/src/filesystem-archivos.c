@@ -66,7 +66,7 @@ void abrir_bitmap (char* pathBitmap, uint32_t blockCount)
 
     bitmap->direccion = mmap(NULL, bitmap->tamanio, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor,0);
     if (bitmap->direccion == MAP_FAILED) {
-        // error
+        log_error(filesystemLogger,"Error al mapear el Bitmap");
     }
 
     bitmap->bitarray = bitarray_create_with_mode(bitmap->direccion, bitmap->tamanio, LSB_FIRST);
