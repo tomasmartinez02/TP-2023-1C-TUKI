@@ -25,7 +25,6 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
     uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
     uint32_t cantidadPunteros = obtener_cantidad_punteros_bloque_indirecto(fcbArchivo);
-    uint32_t tiempoRetardo = filesystem_config_get_retardo_acceso_bloque(filesystemConfig); // HAY QUE TESTEAR A VER Q DEVUELVE
     char *pathArchivoBloques = filesystem_config_get_path_bloques(filesystemConfig);
 
     uint32_t desplazamientoArchivoBloque = bloquePunteros * tamanioBloques;

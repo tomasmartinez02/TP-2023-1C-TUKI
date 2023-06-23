@@ -59,5 +59,6 @@ extern t_bitmap *bitmap;
 extern t_fcb *fcb;
 extern t_dictionary *listaFcbs;
 extern FILE* archivoDeBloques;
+extern uint32_t tiempoRetardo;
 
 #endif
