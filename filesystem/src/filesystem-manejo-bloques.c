@@ -5,7 +5,8 @@ void asignar_puntero_directo(t_fcb *fcbArchivo)
     uint32_t bloque = bitmap_encontrar_bloque_libre();
     fcbArchivo->PUNTERO_DIRECTO = bloque;
     bitmap_marcar_bloque_ocupado(bloque);
-    //fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+    fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+    fcb_incrementar_tamanio_en_bloque(fcbArchivo);
     //persistir_fcb(fcbArchivo);
     return;
 }
@@ -25,7 +26,7 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
     uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
     uint32_t cantidadPunteros = obtener_cantidad_punteros_bloque_indirecto(fcbArchivo);
-    char *pathArchivoBloques = filesystem_config_get_path_bloques(filesystemConfig);
+    char *pathArchivoBloques = "./archivos/bloques.dat";
 
     uint32_t desplazamientoArchivoBloque = bloquePunteros * tamanioBloques;
     uint32_t desplazamientoBloque = cantidadPunteros * sizeof(uint32_t);
@@ -43,8 +44,9 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
         uint32_t bloqueDatos = bitmap_encontrar_bloque_libre();
         bitmap_marcar_bloque_ocupado(bloqueDatos);
         fwrite(&bloqueDatos, sizeof(uint32_t), 1, archivoDeBloques);
-        sleep(tiempoRetardo);
-        //fcb_incrementar_tamanio_en_bloque(fcbArchivo);
+        //sleep(tiempoRetardo);
+        fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+        fcb_incrementar_tamanio_en_bloque(fcbArchivo);
     }
     fclose(archivoDeBloques);
     return;
@@ -61,7 +63,7 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     }
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
-        uint32_t cantidadPunteros = (ceil(tamanioNuevo/tamanioBloques))-1;
+        uint32_t cantidadPunteros = (tamanioNuevo/tamanioBloques)-1; // AGREGAR CEIL
 
         asignar_puntero_directo(fcbArchivo);
         asignar_puntero_indirecto(fcbArchivo);
@@ -75,7 +77,7 @@ void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-    uint32_t cantidadBloques = ceil((tamanioNuevo/tamanioBloques)-1);
+    uint32_t cantidadBloques = (tamanioNuevo/tamanioBloques)-1; // AGREGAR CEIL
 
     if (cantidadBloquesAsignados == 1)
     {
