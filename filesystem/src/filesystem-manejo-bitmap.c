@@ -6,7 +6,7 @@ int32_t bitmap_encontrar_bloque_libre()
     // true = 1 --> ocupado
     uint32_t i;
     bool bloqueOcupado;
-    for (i=0; i < bitmap->tamanio ; i++)
+    for (i=0; i < (bitmap->tamanio * 8); i++)
     {
         bloqueOcupado  = bitarray_test_bit(bitmap->bitarray, i);
         log_acceso_bitmap(i, bloqueOcupado);
@@ -28,7 +28,7 @@ void bitmap_mostrar_por_pantalla()
     // true = 1 --> ocupado
     uint32_t i;
     bool bloqueLeido;
-    for (i=0; i < bitmap->tamanio ; i++)
+    for (i=0; i < (bitmap->tamanio * 8); i++)
     {
         bloqueLeido  = bitarray_test_bit(bitmap->bitarray, i);
         // Si encuentra un bloque que esté en 0 devuelve la posición de ese bloque
@@ -43,7 +43,6 @@ void bitmap_mostrar_por_pantalla()
     }
     return;
 }
-
 
 void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
 {

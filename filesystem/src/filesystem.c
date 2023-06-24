@@ -5,7 +5,7 @@ t_log *filesystemDebuggingLogger;
 t_log *filesystemLogger;
 t_filesystem_config *filesystemConfig;
 t_dictionary *listaFcbs;
-
+uint32_t tiempoRetardo;
 
 int main(int argc, char* argv[]) 
 {
@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
     // Cargar la estructura de configuracion Filesystem
     char *pathArchivoConfiguracion = string_duplicate(argv[1]);
     filesystemConfig = filesystem_config_create(pathArchivoConfiguracion, filesystemDebuggingLogger);
+    tiempoRetardo = filesystem_config_get_retardo_acceso_bloque(filesystemConfig) / 1000;
     free(pathArchivoConfiguracion);
 
     listaFcbs = dictionary_create();
