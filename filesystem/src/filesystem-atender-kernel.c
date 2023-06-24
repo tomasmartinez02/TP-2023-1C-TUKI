@@ -43,14 +43,16 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
     if (fcbArchivo == NULL)
     {
-        log_info(filesystemLogger, "No se encontró el fcb en la lista de fcbs.");
-        log_info(filesystemDebuggingLogger, "No se encontró el fcb en la lista de fcbs.");
+        log_error(filesystemLogger, "No se encontró el fcb en la lista de fcbs.");
+        log_error(filesystemDebuggingLogger, "No se encontró el fcb en la lista de fcbs.");
         return;
     }
     cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     tamanioBloquesFS = get_superbloque_block_size(superbloque);
     // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
-    tamanioNuevoEnBloques = ceil(tamanioNuevo / tamanioBloquesFS);
+    tamanioNuevoEnBloques = tamanioNuevo / tamanioBloquesFS; // AGREGAR CEIL
+    // PARA PROBAR //
+    log_info(filesystemLogger, "El nuevo tamanio en bloques es %u", tamanioNuevoEnBloques);
 
     // AMPLIAR TAMAÑO
     /*Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
@@ -58,9 +60,11 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     if (cantidadBloquesAsignadosActual < tamanioNuevoEnBloques)
     {
         if(cantidadBloquesAsignadosActual == 0) {
+            log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
             asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
         }
         else {
+            log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
             asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo);
             /* en este caso ya tendria bloques, asi que entiendo que el puntero directo no habria que tocarlo.
             solo habria que asignar mas punteros a bloques de datos */
@@ -71,12 +75,11 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     no sean necesarios para direccionar el tamaño del archivo (descartando desde el final del archivo hacia el principio).*/
     else
     {
+        log_info(filesystemLogger, "El archivo se reducira.");
         cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
         desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
     }
 
-    //fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
-    //fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
     persistir_fcb(fcbArchivo);
     enviar_confirmacion_tamanio_archivo_modificado();
     log_truncar_archivo(nombreArchivo, tamanioNuevo);
@@ -121,8 +124,10 @@ void atender_peticiones_kernel()
         switch(headerPeticionRecibida)
         {
             case HEADER_solicitud_creacion_archivo:
-            {      
+            {     
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
+                // PARA PROBAR //
+                log_info(filesystemLogger, "FS recibe la solicitud de crear el archivo %s", nombreArchivo);
                 crear_archivo(nombreArchivo);
                 free(nombreArchivo);
                 break;
@@ -136,7 +141,7 @@ void atender_peticiones_kernel()
                 recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
 
                 // PARA PROBAR //
-                log_info(filesystemLogger, "fs recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 enviar_confirmacion_escritura_finalizada();
                 
                 //escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
@@ -153,7 +158,7 @@ void atender_peticiones_kernel()
                 //leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
 
                 // PARA PROBAR //
-                log_info(filesystemLogger, "fs recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 enviar_confirmacion_lectura_finalizada();
                 free(nombreArchivo);
                 break;
@@ -163,9 +168,9 @@ void atender_peticiones_kernel()
                 char *nombreArchivo = NULL;
                 uint32_t tamanioNuevo;
                 recibir_buffer_truncate_archivo(&nombreArchivo, &tamanioNuevo);
-                //truncar_archivo(nombreArchivo, tamanioNuevo);
+                truncar_archivo(nombreArchivo, tamanioNuevo);
                 // PARA PROBAR //
-                log_info(filesystemLogger, "fs recibe la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
+                log_info(filesystemLogger, "FS recibe la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
                 enviar_confirmacion_tamanio_archivo_modificado();
 
                 free(nombreArchivo);
@@ -174,6 +179,8 @@ void atender_peticiones_kernel()
             case HEADER_consulta_existencia_archivo:
             {   
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
+                // PARA PROBAR //
+                log_info(filesystemLogger, "FS recibe la consulta de existencia del archivo %s", nombreArchivo);
                 verificar_existencia_archivo(nombreArchivo);
 
                 free(nombreArchivo);

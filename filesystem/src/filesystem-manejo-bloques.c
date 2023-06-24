@@ -5,8 +5,9 @@ void asignar_puntero_directo(t_fcb *fcbArchivo)
     uint32_t bloque = bitmap_encontrar_bloque_libre();
     fcbArchivo->PUNTERO_DIRECTO = bloque;
     bitmap_marcar_bloque_ocupado(bloque);
-    //fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
-    //persistir_fcb(fcbArchivo);
+    fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+    fcb_incrementar_tamanio_en_bloque(fcbArchivo);
+    log_info(filesystemLogger, "Se asigna al bloque %u como bloque directo.", bloque);
     return;
 }
 
@@ -15,7 +16,7 @@ void asignar_puntero_indirecto(t_fcb *fcbArchivo)
     uint32_t bloquePunteros = bitmap_encontrar_bloque_libre();
     fcbArchivo->PUNTERO_INDIRECTO = bloquePunteros; 
     bitmap_marcar_bloque_ocupado(bloquePunteros);
-    //persistir_fcb(fcbArchivo);
+    log_info(filesystemLogger, "Se asigna al bloque %u como bloque indirecto.", bloquePunteros);
 }
 
 // Asignar punteros dentro del bloque de punteros
@@ -25,7 +26,7 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
     uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
     uint32_t cantidadPunteros = obtener_cantidad_punteros_bloque_indirecto(fcbArchivo);
-    char *pathArchivoBloques = filesystem_config_get_path_bloques(filesystemConfig);
+    char *pathArchivoBloques = "./archivos/bloques.dat";
 
     uint32_t desplazamientoArchivoBloque = bloquePunteros * tamanioBloques;
     uint32_t desplazamientoBloque = cantidadPunteros * sizeof(uint32_t);
@@ -37,14 +38,15 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
 
     for (uint32_t i = 0; i < cantidadBloques; i++) {
 
-        // El bloque de punteros siempre va a ser el bloque número 1 del archivo y el bloque al que apunta el puntero indrecto va a ser el 0?
-        // "Acceso Bloque - Archivo: <nombreArchivo> - Bloque Archivo: <1> - Bloque File System <X>"
-        log_acceso_bloque(nombreArchivo, 1, bloquePunteros);
+        // El bloque de punteros siempre va a ser el bloque número 1 del archivo y el bloque al que apunta el puntero indrecto va a ser el 0
+        log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
         uint32_t bloqueDatos = bitmap_encontrar_bloque_libre();
         bitmap_marcar_bloque_ocupado(bloqueDatos);
+        log_bloque_asignado(nombreArchivo, bloqueDatos);
         fwrite(&bloqueDatos, sizeof(uint32_t), 1, archivoDeBloques);
-        sleep(tiempoRetardo);
-        //fcb_incrementar_tamanio_en_bloque(fcbArchivo);
+        //sleep(tiempoRetardo);
+        fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
+        fcb_incrementar_tamanio_en_bloque(fcbArchivo);
     }
     fclose(archivoDeBloques);
     return;
@@ -61,7 +63,7 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     }
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
-        uint32_t cantidadPunteros = (ceil(tamanioNuevo/tamanioBloques))-1;
+        uint32_t cantidadPunteros = (tamanioNuevo/tamanioBloques)-1; // AGREGAR CEIL
 
         asignar_puntero_directo(fcbArchivo);
         asignar_puntero_indirecto(fcbArchivo);
@@ -75,7 +77,7 @@ void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-    uint32_t cantidadBloques = ceil((tamanioNuevo/tamanioBloques)-1);
+    uint32_t cantidadBloques = (tamanioNuevo/tamanioBloques)-1; // AGREGAR CEIL
 
     if (cantidadBloquesAsignados == 1)
     {
@@ -113,7 +115,8 @@ void archivo_de_bloques_escribir(t_fcb *fcbArchivo, uint32_t puntero, char *info
      hasta que no haya mas informacion para escribir */
 }
 
-/*
+
+// probar!!!!!!!!
 char* archivo_de_bloques_leer_bloque(uint32_t bloque)
 {
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
@@ -134,6 +137,7 @@ char* archivo_de_bloques_leer_bloque(uint32_t bloque)
     return contenido;
 }
 
+/*
 bool archivo_de_bloques_escribir_en_bloque(uint32_t bloque, char* informacion)
 {       
     // ACA LA INFORMACION PASADA DEBERIA SER DEL MISMO TAMAÑO QUE EL BLOQUE, OSEA 

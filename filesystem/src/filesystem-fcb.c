@@ -126,6 +126,7 @@ void fcb_mostrar_por_pantalla(t_fcb* fcb)
     log_info(filesystemLogger, "Puntero directo: %u", fcb->PUNTERO_DIRECTO);
     log_info(filesystemLogger, "Puntero indirecto: %u", fcb->PUNTERO_INDIRECTO);
     log_info(filesystemLogger, "Cantidad de bloques asignados: %u", fcb->cantidad_bloques_asignados);
+    log_info(filesystemLogger, "Tamanio archivo: %u", fcb->TAMANIO_ARCHIVO);
     return;
 }
 
@@ -135,13 +136,15 @@ t_fcb* levantar_fcb(char *pathFcb)
 {
     t_config *config_fcb = config_create(pathFcb);
     t_fcb *fcb = malloc(sizeof(*fcb));
+    uint32_t tamanioBloque = get_superbloque_block_size(superbloque);
 
     fcb->NOMBRE_ARCHIVO = (char*) config_get_string_value(config_fcb, "NOMBRE_ARCHIVO");
     fcb->TAMANIO_ARCHIVO = (uint32_t) config_get_int_value(config_fcb, "TAMANIO_ARCHIVO");
     fcb->PUNTERO_DIRECTO = (uint32_t) config_get_int_value(config_fcb, "PUNTERO_DIRECTO");
     fcb->PUNTERO_INDIRECTO = (uint32_t) config_get_int_value(config_fcb, "PUNTERO_INDIRECTO");
+    fcb->cantidad_bloques_asignados = fcb->TAMANIO_ARCHIVO / tamanioBloque; // tiene q tener un ceil
 
-    return fcb;
+  return fcb;
 }
 
 bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
