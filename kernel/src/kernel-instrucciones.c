@@ -161,7 +161,6 @@ void ejecutar_instruccion_ftruncate(t_pcb *pcbEnEjecucion, char *nombreArchivo, 
 {   
     // El PCB se bloquea hasta que FS avisa que ya termino de truncar el archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
-    sem_post(&dispatchPermitido);
     adapter_filesystem_pedir_truncar_archivo(pcbEnEjecucion, nombreArchivo, tamanio);
     log_ejecucion_ftruncate(pcbEnEjecucion, nombreArchivo, tamanio);
     return;
@@ -178,7 +177,6 @@ void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint
     int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
     // El PCB se bloquea hasta que FS avisa que ya termino de leer del archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
-    sem_post(&dispatchPermitido);
     adapter_filesystem_pedir_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     log_ejecucion_fread(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     return;
@@ -190,7 +188,6 @@ void ejecutar_instruccion_fwrite(t_pcb *pcbEnEjecucion, char *nombreArchivo, uin
     int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
       // El PCB se bloquea hasta que FS avisa que ya termino de escribir el archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
-    sem_post(&dispatchPermitido);
     adapter_filesystem_pedir_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     log_ejecucion_fwrite(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     return;
