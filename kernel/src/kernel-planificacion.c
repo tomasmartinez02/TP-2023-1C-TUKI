@@ -422,7 +422,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 recibir_buffer_instruccion_fread(&nombreArchivo, &direccionLogica, &cantidadBytes);
                 ejecutar_instruccion_fread(pcbEnEjecucion, nombreArchivo, direccionLogica, cantidadBytes);
                 free(nombreArchivo);
-                sem_post(&dispatchPermitido);
+                sem_post(&dispatchPermitido); // esto se podria pasar a la funcion d pasar de running a otro estado
                 break;
             }
             case HEADER_instruccion_fwrite:
