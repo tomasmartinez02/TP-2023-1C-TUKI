@@ -155,7 +155,7 @@ void atender_peticiones_kernel()
                 uint32_t cantidadBytes;
                 uint32_t puntero;
                 recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
-                //leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+                leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
 
                 // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);

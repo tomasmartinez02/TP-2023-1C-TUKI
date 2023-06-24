@@ -94,3 +94,14 @@ void log_bloque_asignado(char *nombreArchivo, uint32_t bloqueDatos)
     log_info(filesystemDebuggingLogger, "Bloque <%d> asignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
     return;   
 }
+
+uint32_t redondearHaciaArriba(uint32_t nuevoTamanio)
+{
+    uint32_t tamanioBloquesFS = get_superbloque_block_size(superbloque);
+    uint32_t resultado = nuevoTamanio / tamanioBloquesFS;
+    if ((nuevoTamanio % tamanioBloquesFS) == 0)
+    {
+        return resultado;
+    }
+    return resultado+1;
+}
