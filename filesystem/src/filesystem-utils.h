@@ -28,5 +28,7 @@ void log_truncar_archivo(char *nombreArchivo, uint32_t tamanio);
 void log_acceso_bitmap(uint32_t numeroBloque, uint32_t estadoBloque);
 void log_lectura_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionMemoria, uint32_t tamanio);
 void log_escritura_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionMemoria, uint32_t tamanio);
+void log_acceso_bloque_punteros(char *nombreArchivo, uint32_t numeroBloqueFs);
+void log_bloque_asignado(char *nombreArchivo, uint32_t bloqueDatos);
 void log_acceso_bloque(char *nombreArchivo, uint32_t numeroBloqueArchivo, uint32_t numeroBloqueFs);
 #endif

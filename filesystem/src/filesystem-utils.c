@@ -80,3 +80,17 @@ void log_acceso_bloque(char *nombreArchivo, uint32_t numeroBloqueArchivo, uint32
     log_info(filesystemDebuggingLogger, "Acceso Bloque - Archivo: <%s> - Bloque Archivo: <%d> - Bloque File System <%d>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
     return;   
 }
+
+void log_acceso_bloque_punteros(char *nombreArchivo, uint32_t numeroBloqueFs)
+{   
+    log_info(filesystemLogger, "Acceso Bloque de Punteros - Archivo: <%s> - Bloque Archivo: <1> - Bloque File System <%d>", nombreArchivo, numeroBloqueFs);
+    log_info(filesystemDebuggingLogger, "Acceso Bloque de Punteros - Archivo: <%s> - Bloque Archivo: <1> - Bloque File System <%d>", nombreArchivo, numeroBloqueFs);
+    return;   
+}
+
+void log_bloque_asignado(char *nombreArchivo, uint32_t bloqueDatos)
+{   
+    log_info(filesystemLogger, "Bloque <%d> asignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    log_info(filesystemDebuggingLogger, "Bloque <%d> asignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    return;   
+}

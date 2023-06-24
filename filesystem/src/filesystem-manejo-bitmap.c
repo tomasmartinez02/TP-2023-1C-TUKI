@@ -7,15 +7,17 @@ int32_t bitmap_encontrar_bloque_libre()
     uint32_t i;
     bool bloqueOcupado;
     for (i=0; i < (bitmap->tamanio * 8); i++)
-    {
+    {   
         bloqueOcupado  = bitarray_test_bit(bitmap->bitarray, i);
         log_acceso_bitmap(i, bloqueOcupado);
         // Si encuentra un bloque que esté en 0 devuelve la posición de ese bloque
         if(!bloqueOcupado)
         {
+            log_info(filesystemLogger, "El bloque %u esta libre.", i);
             return i;
             break;
         }
+        log_info(filesystemLogger, "El bloque %u esta ocupado.", i);
     }
      // Si no encuentra un bloque libre, retorna -1
     return -1;
@@ -52,6 +54,7 @@ void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
         log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
     }
     log_acceso_bitmap(numeroBloque, 0);
+    log_info(filesystemLogger, "Se marca al bloque %u como libre.", numeroBloque);
     return;
 }
 
@@ -63,5 +66,6 @@ void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque) // 1 --> ocupado
         log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
     }
     log_acceso_bitmap(numeroBloque, 1);
+    log_info(filesystemLogger, "Se marca al bloque %u como libre.", numeroBloque);
     return;
 }
