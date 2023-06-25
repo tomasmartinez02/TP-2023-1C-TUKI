@@ -152,12 +152,12 @@ static uint32_t __obtener_base_segmento_best_fit(t_info_segmentos* segmento)
 
     while (auxiliarLista->siguiente != NULL)
     {
+        auxiliarLista = auxiliarLista->siguiente;
         if (auxiliarLista->hueco->tamanio < tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio)
         {
             tamanioHueco = auxiliarLista->hueco->tamanio;
             baseSegmento = auxiliarLista->hueco->direccionBase;
         }
-        auxiliarLista = auxiliarLista->siguiente;
     }
 
     return baseSegmento;
@@ -171,12 +171,12 @@ static uint32_t __obtener_base_segmento_worst_fit(t_info_segmentos* segmento)
 
     while (auxiliarLista->siguiente != NULL)
     {
+        auxiliarLista = auxiliarLista->siguiente;
         if (auxiliarLista->hueco->tamanio > tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio)
         {
             tamanioHueco = auxiliarLista->hueco->tamanio;
             baseSegmento = auxiliarLista->hueco->direccionBase;
         }
-        auxiliarLista = auxiliarLista->siguiente;
     }
 
     return baseSegmento;
