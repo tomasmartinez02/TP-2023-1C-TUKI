@@ -63,7 +63,7 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     }
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
-        uint32_t cantidadPunteros = (tamanioNuevo/tamanioBloques)-1; // AGREGAR CEIL
+         uint32_t cantidadPunteros = redondearHaciaArriba((tamanioNuevo/tamanioBloques)-1); // AGREGAR CEIL
 
         asignar_puntero_directo(fcbArchivo);
         asignar_puntero_indirecto(fcbArchivo);
@@ -77,7 +77,7 @@ void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-    uint32_t cantidadBloques = (tamanioNuevo/tamanioBloques)-1; // AGREGAR CEIL
+    uint32_t cantidadBloques = redondearHaciaArriba((tamanioNuevo/tamanioBloques)-1); // AGREGAR CEIL
 
     if (cantidadBloquesAsignados == 1)
     {
@@ -211,13 +211,14 @@ int32_t leer_ultimo_puntero_de_bloque_de_punteros(t_fcb* fcb)
 // 3. Disminuir el tamaño del archivo y la cantidad de bloques asignados.
 void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
 {   
+    char* nombreArchivo = fcb_get_nombre_archivo(fcbArchivo);
     uint32_t ultimoBloque;
 
     // ABRIR EL ARCHIVO DE BLOQUES
     FILE *archivoBloques = abrir_archivo_de_bloques();
     if (archivoBloques == NULL)
     {
-        log_error(filesystemDebuggingLogger, "Error al desasignar el último bloque");
+        log_error(filesystemLogger, "Error al desasignar el último bloque");
         return;
     }
     
@@ -225,11 +226,37 @@ void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
 
     bitmap_marcar_bloque_libre(ultimoBloque);
 
+    log_bloque_desasignado(nombreArchivo, ultimoBloque);
+
     //ACTUALIZAR FCB 
     // El archivo tiene un bloque asignado menos.
     fcb_decrementar_cantidad_bloques_asignados(fcbArchivo);
     fcb_decrementar_tamanio_en_bloque(fcbArchivo);
     fclose(archivoBloques);
+}
+    // REVISAR!!!!!!!!!!
+void desasignar_bloque_punteros(t_fcb *fcbArchivo)
+{
+    if (fcb_get_cantidad_bloques_asignados(fcbArchivo) == 1)
+    {
+        uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
+        fcb_set_puntero_indirecto(fcbArchivo, 0); // COMO MARCO QUE NO TIENE PUNTERO INDIRECTO ASOCIADO????????
+        bitmap_marcar_bloque_libre(bloquePunteros);
+        log_info(filesystemLogger, "Bloque de punteros desasignado.");
+    }
+    return;
+}
+
+// REVISAR!!!!!!!
+void desasignar_puntero_directo(t_fcb *fcbArchivo)
+{
+    if (fcb_get_cantidad_bloques_asignados(fcbArchivo) == 0)
+    {
+        uint32_t punteroDirecto = fcb_get_puntero_directo(fcbArchivo);
+        fcb_set_puntero_directo(fcbArchivo, 0); // COMO MARCO QUE NO TIENE PUNTERO DIRECTO ASOCIADO????????
+        bitmap_marcar_bloque_libre(punteroDirecto);
+    }
+    return;
 }
 
 void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar)
@@ -238,4 +265,6 @@ void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar)
     {
         desasignar_ultimo_bloque(fcbArchivo);
     }
+    desasignar_bloque_punteros(fcbArchivo);
+    desasignar_puntero_directo(fcbArchivo);
 }
