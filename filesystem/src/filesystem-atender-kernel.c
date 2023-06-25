@@ -1,5 +1,29 @@
 #include <filesystem-atender-kernel.h>
 
+void ampliarArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+{
+    uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    if(cantidadBloquesAsignadosActual == 0) {
+            log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
+            asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
+    }
+    else {
+        log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
+        asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
+        /* en este caso ya tendria bloques, asi que entiendo que el puntero directo no habria que tocarlo.
+        solo habria que asignar mas punteros a bloques de datos */
+    }
+}
+void reducirArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+{
+    uint32_t cantidadBloquesDesasignar, cantidadBloquesAsignadosActual, tamanioNuevoEnBloques;
+    cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    // SAME AS --> cantidadBloquesAsignadosActual = fcb_get_tamanio_archivo(fcbArchivo) / tamanioBloques;
+    tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo, tamanioBloques);
+    cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
+    desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
+}
+
 //Verificar que exista el FCB correspondiente al archivo
 void verificar_existencia_archivo(char *nombreArchivo) // para abrir archivo
 {   
@@ -38,7 +62,7 @@ t_fcb *crear_archivo(char *nombreArchivo)
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
-    uint32_t tamanioBloquesFS,tamanioNuevoEnBloques, cantidadBloquesAsignadosActual,cantidadBloquesDesasignar;
+    uint32_t tamanioActual;
     // Busco el fcb relacionado al archivo que quiero truncar
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
     if (fcbArchivo == NULL)
@@ -47,39 +71,22 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
         log_error(filesystemDebuggingLogger, "No se encontró el fcb en la lista de fcbs.");
         return;
     }
-    cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    tamanioBloquesFS = get_superbloque_block_size(superbloque);
-    // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
-    tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo, tamanioBloquesFS);
-    // PARA PROBAR //
-    log_info(filesystemLogger, "El nuevo tamanio en bloques es %u", tamanioNuevoEnBloques);
+
+    tamanioActual = fcb_get_tamanio_archivo(fcbArchivo);
 
     // AMPLIAR TAMAÑO
-    /*Actualizar el tamaño del archivo en el FCB, se le deberán asignar tantos bloques como sea necesario para 
-    poder direccionar el nuevo tamaño.*/
-    if (cantidadBloquesAsignadosActual < tamanioNuevoEnBloques)
-    {
-        if(cantidadBloquesAsignadosActual == 0) {
-            log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
-            asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
-        }
-        else {
-            log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
-            asignar_bloques_archivo_no_vacio(fcbArchivo,tamanioNuevo);
-            /* en este caso ya tendria bloques, asi que entiendo que el puntero directo no habria que tocarlo.
-            solo habria que asignar mas punteros a bloques de datos */
-        }
+    if (tamanioActual < tamanioNuevo)
+    {   
+        log_info(filesystemLogger, "El archivo %s se va a ampliar.", nombreArchivo);
+        ampliarArchivo(fcbArchivo, tamanioNuevo);
     }
     // REDUCIR TAMAÑO
-    /* Asignar el nuevo tamaño del archivo en el FCB y se deberán marcar como libres todos los bloques que ya
-    no sean necesarios para direccionar el tamaño del archivo (descartando desde el final del archivo hacia el principio).*/
-    else
-    {
-        log_info(filesystemLogger, "El archivo se reducira.");
-        cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
-        desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
+    if (tamanioActual > tamanioNuevo)
+    {   
+        log_info(filesystemLogger, "El archivo %s se va a reducir.", nombreArchivo);
+        reducirArchivo(fcbArchivo, tamanioNuevo);
     }
-
+    // SI TAMANIO ACTUAL == TAMANIO NUEVO --> NO SE HACE NADA 
     persistir_fcb(fcbArchivo);
     log_truncar_archivo(nombreArchivo, tamanioNuevo);
     return;
