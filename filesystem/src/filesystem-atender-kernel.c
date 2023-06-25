@@ -50,7 +50,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     tamanioBloquesFS = get_superbloque_block_size(superbloque);
     // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
-    tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo / tamanioBloquesFS);
+    tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo, tamanioBloquesFS);
     // PARA PROBAR //
     log_info(filesystemLogger, "El nuevo tamanio en bloques es %u", tamanioNuevoEnBloques);
 

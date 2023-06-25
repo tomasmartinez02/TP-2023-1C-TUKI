@@ -63,7 +63,7 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     }
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
-         uint32_t cantidadPunteros = redondearHaciaArriba((tamanioNuevo/tamanioBloques)-1); // AGREGAR CEIL
+        uint32_t cantidadPunteros = redondearHaciaArriba((tamanioNuevo-tamanioBloques),tamanioBloques);
 
         asignar_puntero_directo(fcbArchivo);
         asignar_puntero_indirecto(fcbArchivo);
@@ -77,7 +77,7 @@ void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-    uint32_t cantidadBloques = redondearHaciaArriba((tamanioNuevo/tamanioBloques)-1); // AGREGAR CEIL
+    uint32_t cantidadBloques = redondearHaciaArriba((tamanioNuevo-tamanioBloques),tamanioBloques);
 
     if (cantidadBloquesAsignados == 1)
     {
