@@ -48,4 +48,8 @@ int32_t leer_ultimo_puntero_de_bloque_de_punteros(t_fcb* fcb);
 
 bool archivo_de_bloques_escribir_en_bloque(uint32_t bloque, char* informacion);
 
+void desasignar_bloque_punteros(t_fcb *fcbArchivo);
+
+void desasignar_puntero_directo(t_fcb *fcbArchivo);
+
 #endif

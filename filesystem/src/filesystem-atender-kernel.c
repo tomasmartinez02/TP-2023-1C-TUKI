@@ -50,7 +50,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     tamanioBloquesFS = get_superbloque_block_size(superbloque);
     // Calculo cual es la cantidad nueva de bloques que deberá tener el archivo
-    tamanioNuevoEnBloques = tamanioNuevo / tamanioBloquesFS; // AGREGAR CEIL
+    tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo / tamanioBloquesFS);
     // PARA PROBAR //
     log_info(filesystemLogger, "El nuevo tamanio en bloques es %u", tamanioNuevoEnBloques);
 
@@ -81,7 +81,6 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     }
 
     persistir_fcb(fcbArchivo);
-    enviar_confirmacion_tamanio_archivo_modificado();
     log_truncar_archivo(nombreArchivo, tamanioNuevo);
     return;
 }
@@ -93,7 +92,6 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
-    enviar_confirmacion_lectura_finalizada();
     log_lectura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
     
 }
@@ -106,18 +104,14 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     //los bloques correspondientes del archivo a partir del puntero recibido.
     //El tamaño de la información a leer de la memoria y a escribir en los bloques se recibe desde el Kernel (cantidadBytes)
 
-    enviar_confirmacion_escritura_finalizada();
     log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
 }
 
 void atender_peticiones_kernel()
 {   
-    pthread_mutex_t mutexFilesystem;
-    pthread_mutex_init(&mutexFilesystem, NULL);
     // Loop infinito para que este atento a los pedidos de kernel
     for (;;)
-    {     
-        pthread_mutex_lock(&mutexFilesystem);
+    {    
         uint8_t headerPeticionRecibida = recibir_header_peticion_de_kernel();
         
         // Ejecuto el pedido que hizo kernel
@@ -187,8 +181,6 @@ void atender_peticiones_kernel()
                 break;
             }
         }
-        pthread_mutex_unlock(&mutexFilesystem);
     }
-    pthread_mutex_destroy(&mutexFilesystem);
     return;
 }

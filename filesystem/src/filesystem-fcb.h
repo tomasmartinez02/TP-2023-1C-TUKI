@@ -7,6 +7,7 @@
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
 #include <filesystem-archivos.h>
+#include <filesystem-utils.h>
 // BIBLIOTECAS ESTANDAR
 #include <string.h>
 #include <stdlib.h>

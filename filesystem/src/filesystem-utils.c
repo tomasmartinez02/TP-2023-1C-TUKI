@@ -95,6 +95,13 @@ void log_bloque_asignado(char *nombreArchivo, uint32_t bloqueDatos)
     return;   
 }
 
+void log_bloque_desasignado(char *nombreArchivo, uint32_t bloqueDatos)
+{   
+    log_info(filesystemLogger, "Bloque <%d> desasignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    log_info(filesystemDebuggingLogger, "Bloque <%d> desasignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    return;   
+}
+
 uint32_t redondearHaciaArriba(uint32_t nuevoTamanio)
 {
     uint32_t tamanioBloquesFS = get_superbloque_block_size(superbloque);
@@ -103,5 +110,5 @@ uint32_t redondearHaciaArriba(uint32_t nuevoTamanio)
     {
         return resultado;
     }
-    return resultado+1;
+    return (resultado+1);
 }
