@@ -41,4 +41,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
 void atender_peticiones_kernel(void);
 
+void ampliarArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo);
+
+void reducirArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo);
 #endif

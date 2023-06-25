@@ -5,6 +5,9 @@ t_bitmap *bitmap;
 t_superbloque *superbloque;
 t_fcb *fcb;
 FILE* archivoDeBloques;
+uint32_t tamanioBloques;
+char *pathArchivoBloquesHardcodeado;
+char *pathDirectorioFcbsHardcodeado;
 
 // SUPERBLOQUE
 
@@ -120,6 +123,9 @@ void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, u
 
 void inicializar_estructuras(void)
 {
+    char *pathArchivoBloquesHardcodeado = "./archivos/bloques.dat";
+    char *pathDirectorioFcbsHardcodeado = "./fcbs";
+
     char *pathSuperbloque = filesystem_config_get_path_superbloque(filesystemConfig);
     superbloque = crear_superbloque(pathSuperbloque);
     free(pathSuperbloque);
@@ -130,8 +136,8 @@ void inicializar_estructuras(void)
     free(pathBitmap);
 
     char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
-    uint32_t blockSize = get_superbloque_block_size(superbloque);
-    crear_archivo_de_bloques(pathArchivoDeBloques,blockCount,blockSize);
+    tamanioBloques = get_superbloque_block_size(superbloque);
+    crear_archivo_de_bloques(pathArchivoDeBloques,blockCount,tamanioBloques);
     free(pathArchivoDeBloques);
 
     char *directorioFcbs = filesystem_config_get_path_fcb(filesystemConfig);
