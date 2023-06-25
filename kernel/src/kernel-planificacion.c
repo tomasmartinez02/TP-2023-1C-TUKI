@@ -54,6 +54,7 @@ static void __inicializar_semaforos(void)
     sem_init(&gradoMultiprogramacion, 0, valorInicialGradoMultiprogramacion);
     sem_init(&dispatchPermitido, 0, 1);
     pthread_mutex_init(&mutexSocketMemoria, NULL);
+    pthread_mutex_init(&mutexSocketFilesystem, NULL);
 
     log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprogramacion);
     log_info(kernelDebuggingLogger, "Se inicializan los semaforos para la planificacion correctamente");

@@ -1,7 +1,5 @@
 #include <kernel-adapter-filesystem.h>
 
-
-
 void __enviar_consulta_existencia_archivo(char* nombreArchivo)
 {
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
@@ -120,9 +118,9 @@ typedef struct ParametrosHiloIO {
 void *hiloTruncate(void* arg)
 {   
     t_parametros_hilo_truncate *parametrosHilo = (t_parametros_hilo_truncate*)arg;
-     t_pcb* pcbEnEjecucion = parametrosHilo->pcb;
-     char *nombre = parametrosHilo->nombreArchivo;
-     uint32_t tamanio = parametrosHilo->tamanio;
+    t_pcb* pcbEnEjecucion = parametrosHilo->pcb;
+    char *nombre = parametrosHilo->nombreArchivo;
+    uint32_t tamanio = parametrosHilo->tamanio;
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
 
     pthread_mutex_lock(&mutexSocketFilesystem);
@@ -190,36 +188,38 @@ void *hiloFwrite(void* arg)
 void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t tamanio)
 {   
     pthread_t esperarFinalizacionTruncate;
-    log_info(kernelLogger, "PID <%d> solitica la modificación del tamanio de un archivo.", pcb_get_pid(pcbEnEjecucion));
+    log_info(kernelLogger, "PID <%d> solicita la modificación del tamanio de un archivo.", pcb_get_pid(pcbEnEjecucion));
     // Estructura temporal para pasarle los datos necesarios al hilo.
+
     t_parametros_hilo_truncate *parametrosHilo = (t_parametros_hilo_truncate*)malloc(sizeof(t_parametros_hilo_truncate));
     parametrosHilo->pcb = pcbEnEjecucion;
-    parametrosHilo->nombreArchivo = nombreArchivo;
+    parametrosHilo->nombreArchivo = strdup(nombreArchivo);
     parametrosHilo->tamanio = tamanio;
 
     // Hilo que envia la solicitud de truncado y se bloquea hasta que reciba la confirmación de su finalización
-    pthread_create(&esperarFinalizacionTruncate, NULL, hiloTruncate, (void*)pcbEnEjecucion);
+    pthread_create(&esperarFinalizacionTruncate, NULL, hiloTruncate, (void*)parametrosHilo);
     pthread_detach(esperarFinalizacionTruncate);
 
     return;
 }
 
- void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
- {  
+void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
+{  
     pthread_t esperarFinalizacionLectura;
     log_info(kernelLogger, "PID <%d> solicita leer de un archivo.", pcb_get_pid(pcbEnEjecucion));
     // Estructura temporal para pasarle los datos necesarios al hilo.
-    t_parametros_hilo_IO *parametrosHilo = (t_parametros_hilo_IO*)malloc(sizeof(t_parametros_hilo_IO));
+    t_parametros_hilo_IO *parametrosHilo = (t_parametros_hilo_IO *)malloc(sizeof(t_parametros_hilo_IO));
     parametrosHilo->pcb = pcbEnEjecucion;
-    parametrosHilo->nombreArchivo = nombreArchivo;
+    parametrosHilo->nombreArchivo = strdup(nombreArchivo);
     parametrosHilo->punteroArchivo = punteroArchivo;
     parametrosHilo->direccionFisica = direccionFisica;
     parametrosHilo->cantidadBytes = cantidadBytes;
 
     // Hilo que envia la solicitud de leida y se bloquea hasta que reciba la confirmación de su finalización
-    pthread_create(&esperarFinalizacionLectura, NULL, hiloFread, (void*)pcbEnEjecucion);
+    pthread_create(&esperarFinalizacionLectura, NULL, hiloFread, (void*)parametrosHilo);
     pthread_detach(esperarFinalizacionLectura);
- }
+}
+
 
 void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
 {
