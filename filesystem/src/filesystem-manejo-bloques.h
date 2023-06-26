@@ -52,4 +52,6 @@ void desasignar_bloque_punteros(t_fcb *fcbArchivo);
 
 void desasignar_puntero_directo(t_fcb *fcbArchivo);
 
+void vaciar_archivo(t_fcb *fcbArchivo);
+
 #endif
