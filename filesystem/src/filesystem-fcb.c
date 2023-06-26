@@ -68,7 +68,7 @@ uint32_t fcb_get_puntero_indirecto(t_fcb *fcb)
 
 void fcb_set_puntero_indirecto(t_fcb *fcb, uint32_t nuevoPunteroIndirecto)
 {
-    fcb->PUNTERO_DIRECTO = nuevoPunteroIndirecto;
+    fcb->PUNTERO_INDIRECTO = nuevoPunteroIndirecto;
     return;
 }
 

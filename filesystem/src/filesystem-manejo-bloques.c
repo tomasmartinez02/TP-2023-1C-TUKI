@@ -3,7 +3,7 @@
 void asignar_puntero_directo(t_fcb *fcbArchivo)
 {
     uint32_t bloque = bitmap_encontrar_bloque_libre();
-    fcbArchivo->PUNTERO_DIRECTO = bloque;
+    fcb_set_puntero_directo(fcbArchivo, bloque);
     bitmap_marcar_bloque_ocupado(bloque);
     fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
     fcb_incrementar_tamanio_en_bloque(fcbArchivo);
@@ -14,9 +14,10 @@ void asignar_puntero_directo(t_fcb *fcbArchivo)
 void asignar_puntero_indirecto(t_fcb *fcbArchivo)
 {
     uint32_t bloquePunteros = bitmap_encontrar_bloque_libre();
-    fcbArchivo->PUNTERO_INDIRECTO = bloquePunteros; 
+    fcb_set_puntero_indirecto(fcbArchivo, bloquePunteros);
     bitmap_marcar_bloque_ocupado(bloquePunteros);
     log_info(filesystemLogger, "Se asigna al bloque %u como bloque indirecto.", bloquePunteros);
+    return;
 }
 
 // Asignar punteros dentro del bloque de punteros
@@ -30,12 +31,10 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
     uint32_t desplazamientoBloque = cantidadPunteros * sizeof(uint32_t);
     uint32_t desplazamiento = desplazamientoArchivoBloque + desplazamientoBloque;
 
-    archivoDeBloques = fopen(pathArchivoBloquesHardcodeado, "r+b"); // Modo lectura y escritura binaria ---> PROBAR
-
+    //archivoDeBloques = fopen(pathArchivoBloquesHardcodeado, "r+b"); // Modo lectura y escritura binaria ---> PROBAR
+    archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, desplazamiento, SEEK_SET);
-
     for (uint32_t i = 0; i < cantidadBloques; i++) {
-
         // El bloque de punteros siempre va a ser el bloque número 1 del archivo y el bloque al que apunta el puntero indrecto va a ser el 0
         log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
         uint32_t bloqueDatos = bitmap_encontrar_bloque_libre();
@@ -43,8 +42,6 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
         log_bloque_asignado(nombreArchivo, bloqueDatos);
         fwrite(&bloqueDatos, sizeof(uint32_t), 1, archivoDeBloques);
         //sleep(tiempoRetardo);
-        fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
-        fcb_incrementar_tamanio_en_bloque(fcbArchivo);
     }
     fclose(archivoDeBloques);
     return;
@@ -176,51 +173,43 @@ void desasignar_bloque_punteros(t_fcb *fcbArchivo)
 void desasignar_puntero_directo(t_fcb *fcbArchivo)
 {
     uint32_t punteroDirecto = fcb_get_puntero_directo(fcbArchivo);
-    fcb_set_tamanio_archivo(fcbArchivo, 0);
     fcb_set_puntero_directo(fcbArchivo, 0); // COMO MARCO QUE NO TIENE PUNTERO DIRECTO ASOCIADO????????
     bitmap_marcar_bloque_libre(punteroDirecto);
     log_info(filesystemLogger, "Puntero directo desasignado.");
     return;
 }
 
-// HORRIBLE lo se
 void desasignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloquesDesasignar)
 {   
-    uint32_t contadorBloquesDesasignados = 0;
-    uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-
-    // Si tiene 2 bloques asignados significa que tiene el bloque del puntero directo y un bloque en el bloque de punteros
-    if (cantidadBloquesAsignadosActual == 2)
-    {   
-        // Se desasigna el último bloque del bloque de punteros
-        desasignar_ultimo_bloque(fcbArchivo);
-        cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-        contadorBloquesDesasignados++;
-    }
-
-    if (cantidadBloquesAsignadosActual > 1) // SI TIENE BLOQUE DE PUNTEROS
+    for (uint32_t i = 0; i<cantidadBloquesDesasignar; i++)
     {
-        for (uint32_t i = 0; i<cantidadBloquesDesasignar; i++)
-        {
-            desasignar_ultimo_bloque(fcbArchivo);
-            //cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-            contadorBloquesDesasignados++;
-        }
-        cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+        desasignar_ultimo_bloque(fcbArchivo);
     }
+    uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
 
     // Si el archivo quedo solamente con un bloque asignado significa que su bloque de punteros está vacio
     if (cantidadBloquesAsignadosActual == 1)
     {
         desasignar_bloque_punteros(fcbArchivo);
-    }
-    
-    // Si al terminar de desasignar todavia le falta desasignar uno significa que hay que desasignar el último bloque.
-    if ((cantidadBloquesDesasignar - contadorBloquesDesasignados) == 1)
+    } 
+}
+
+void vaciar_archivo(t_fcb *fcbArchivo)
+{   
+    log_info(filesystemLogger, "Se vacia el archivo.");
+    uint32_t cantidadBloquesDesasignar = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    if (cantidadBloquesDesasignar == 1)
     {
+         desasignar_puntero_directo(fcbArchivo);
+    }
+    else
+    {
+        cantidadBloquesDesasignar--;
+        desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
         desasignar_puntero_directo(fcbArchivo);
     }
-    
+    fcb_set_cantidad_bloques_asignados(fcbArchivo, 0);
+    fcb_set_tamanio_archivo(fcbArchivo, 0);
 }
 
 void archivo_de_bloques_escribir(t_fcb *fcbArchivo, uint32_t puntero, char *informacion)

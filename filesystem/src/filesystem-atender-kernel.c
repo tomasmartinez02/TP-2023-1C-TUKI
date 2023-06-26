@@ -3,25 +3,34 @@
 void ampliarArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    uint32_t tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo, tamanioBloques);
+
     if(cantidadBloquesAsignadosActual == 0) {
-            log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
-            asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
+        log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
+        asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
     }
     else {
+        /* Si ya tiene bloques, solo se agregan punteros al bloque de punteros */
         log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
         asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
-        /* en este caso ya tendria bloques, asi que entiendo que el puntero directo no habria que tocarlo.
-        solo habria que asignar mas punteros a bloques de datos */
     }
+    fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
+    fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
 }
+
 void reducirArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesDesasignar, cantidadBloquesAsignadosActual, tamanioNuevoEnBloques;
+    if (tamanioNuevo == 0)
+    {
+        vaciar_archivo(fcbArchivo);
+        return;
+    }
     cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    // SAME AS --> cantidadBloquesAsignadosActual = fcb_get_tamanio_archivo(fcbArchivo) / tamanioBloques;
     tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo, tamanioBloques);
     cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
     desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
+    return;
 }
 
 //Verificar que exista el FCB correspondiente al archivo
@@ -62,7 +71,7 @@ t_fcb *crear_archivo(char *nombreArchivo)
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
-    uint32_t tamanioActual;
+    uint32_t bloquesAsignados, bloquesNuevos;
     // Busco el fcb relacionado al archivo que quiero truncar
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
     if (fcbArchivo == NULL)
@@ -72,23 +81,28 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
         return;
     }
 
-    tamanioActual = fcb_get_tamanio_archivo(fcbArchivo);
+    bloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    bloquesNuevos = redondearHaciaArriba(tamanioNuevo, tamanioBloques);
+    log_info(filesystemLogger, "Bloques asignados actuales: %u", bloquesAsignados);
 
     // AMPLIAR TAMAÑO
-    if (tamanioActual < tamanioNuevo)
+    if (bloquesAsignados < bloquesNuevos)
     {   
         log_info(filesystemLogger, "El archivo %s se va a ampliar.", nombreArchivo);
         ampliarArchivo(fcbArchivo, tamanioNuevo);
     }
     // REDUCIR TAMAÑO
-    if (tamanioActual > tamanioNuevo)
+    if (bloquesAsignados > bloquesNuevos)
     {   
         log_info(filesystemLogger, "El archivo %s se va a reducir.", nombreArchivo);
         reducirArchivo(fcbArchivo, tamanioNuevo);
     }
     // SI TAMANIO ACTUAL == TAMANIO NUEVO --> NO SE HACE NADA 
+    fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
     persistir_fcb(fcbArchivo);
+
     log_truncar_archivo(nombreArchivo, tamanioNuevo);
+    fcb_mostrar_por_pantalla(fcbArchivo);
     return;
 }
 

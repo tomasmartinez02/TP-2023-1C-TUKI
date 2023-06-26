@@ -92,8 +92,8 @@ void destruir_bitmap()
 
 FILE *abrir_archivo_de_bloques()
 {
-    char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
-    archivoDeBloques = fopen(pathArchivoDeBloques, "r+");
+    //char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
+    archivoDeBloques = fopen("./archivos/bloques.dat", "r+");
 
     if (archivoDeBloques == NULL) {
         log_error(filesystemLogger, "No se pudo abrir el archivo.");

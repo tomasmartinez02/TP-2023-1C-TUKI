@@ -102,10 +102,10 @@ void log_bloque_desasignado(char *nombreArchivo, uint32_t bloqueDatos)
     return;   
 }
 
-uint32_t redondearHaciaArriba(uint32_t nuevoTamanio, uint32_t tamanioBloques)
+uint32_t redondearHaciaArriba(uint32_t nuevoTamanio, uint32_t tamanio)
 {
-    uint32_t resultado = (nuevoTamanio / tamanioBloques);
-    if ((nuevoTamanio % tamanioBloques) == 0)
+    uint32_t resultado = (nuevoTamanio / tamanio);
+    if ((nuevoTamanio % tamanio) == 0)
     {
         return resultado;
         log_info(filesystemLogger,"el resultado es: %u",resultado);
