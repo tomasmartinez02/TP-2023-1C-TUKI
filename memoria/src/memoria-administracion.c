@@ -409,18 +409,49 @@ static void __inicializar_mutex_socket()
     return;
 }
 
-static void __inicializar_hilos(){
+/* static void __inicializar_hilos()
+{
 
-    /*pthread_t atencionKernelth;
-    pthread_create(&atencionKernelth, NULL, atender_peticiones_kernel, NULL);
-    pthread_detach(atencionKernelth); */
+    pthread_t atencionFileSystemth;
+    int socketFileSystem = memoria_config_get_socket_filesystem(memoriaConfig);
+    pthread_create(&atencionFileSystemth, NULL, atender_modulo, (void*)&socketFileSystem);
+    pthread_detach(atencionFileSystemth);
+
+    pthread_t atencionCPUth;
+    int socketCPU = memoria_config_get_socket_cpu(memoriaConfig);
+    pthread_create(&atencionCPUth, NULL, atender_modulo, (void*)&socketCPU);
+    pthread_detach(atencionCPUth);
 
     atender_peticiones_kernel();
 
     return;
+} */
+
+static void __inicializar_hilos() {
+
+    void* resultadoAtencionKernel;
+    pthread_t atencionKernelth;
+    pthread_create(&atencionKernelth, NULL, atender_peticiones_kernel, NULL);
+    pthread_join(atencionKernelth, &resultadoAtencionKernel);
+
+    void* resultadoAtencionFileSystem;
+    pthread_t atencionFileSystemth;
+    int socketFileSystem = memoria_config_get_socket_filesystem(memoriaConfig);
+    pthread_create(&atencionFileSystemth, NULL, atender_modulo, (void*)&socketFileSystem);
+    pthread_join(atencionFileSystemth, &resultadoAtencionFileSystem);
+
+    void* resultadoAtencionCPU;
+    pthread_t atencionCPUth;
+    int socketCPU = memoria_config_get_socket_cpu(memoriaConfig);
+    pthread_create(&atencionCPUth, NULL, atender_modulo, (void*)&socketCPU);
+    pthread_join(atencionCPUth, &resultadoAtencionCPU);
+
+    return;
 }
 
-static void __actualizar_huecos_eliminacion_proceso(t_info_segmentos **tablaSegmentos){
+
+static void __actualizar_huecos_eliminacion_proceso(t_info_segmentos **tablaSegmentos)
+{
     log_info(memoriaLogger,"Entra a la funcion");
     for(int i = 0; i < memoria_config_get_cantidad_segmentos(memoriaConfig); i++){
         if(tablaSegmentos[i]->idSegmento != -1 && tablaSegmentos[i]->idSegmento != 0){

@@ -26,9 +26,9 @@ void* obtener_valor_memoria(uint32_t dirFisica, uint32_t tamanio) // VER DESPUES
     return valor;
 }
 
-void escribir_valor_en_memoria(uint32_t dirFisica, void* bytesRecibidos)
+void escribir_valor_en_memoria(uint32_t dirFisica, void* bytesRecibidos, uint32_t tamanio)
 {
-    memcpy(memoriaPrincipal + dirFisica, bytesRecibidos, sizeof(bytesRecibidos)); // cambiar
+    memcpy(memoriaPrincipal + dirFisica, bytesRecibidos, tamanio); // cambiar
 
     return;
 }
@@ -71,7 +71,7 @@ void* atender_modulo(void* args)
             {
                 void* bytesRecibidos = malloc(tamanio);
                 buffer_unpack(bufferRecibido, bytesRecibidos, tamanio);
-                escribir_valor_en_memoria(dirFisica, bytesRecibidos);
+                escribir_valor_en_memoria(dirFisica, bytesRecibidos, tamanio);
                 free(bytesRecibidos);
                 stream_send_empty_buffer(socketModulo, HEADER_memoria_confirmacion_fs_escritura);
                 break;
