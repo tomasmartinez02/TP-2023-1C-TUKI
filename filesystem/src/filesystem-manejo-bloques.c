@@ -212,31 +212,6 @@ void vaciar_archivo(t_fcb *fcbArchivo)
     fcb_set_tamanio_archivo(fcbArchivo, 0);
 }
 
-void archivo_de_bloques_escribir(t_fcb *fcbArchivo, uint32_t puntero, char *informacion)
-{
-    /* Si me pasan que escriba desde el puntero 34 y los bloques tienen un tamaño de 64 --> Escribo en el bloque 0, byte 35 
-     Si me pasan que escriba en el puntero 129 --> Escribo en el tercer bloque [0, 1, 2] en el primer o segundo? byte
-     Puntero / tamaño_bloque --> Resultado = Numero de bloque
-     --> Resto = byte del bloque
-
-     desplazamientoAlBloque = numero de bloque * tam_bloque
-     desplazamientoDentroDelBloque = byte del bloque
-     desplazamientoTotal = desplazamientoAlBloque + desplazamientoDentroDelBloque
-
-     espacioDisponible en bloque = tam_bloque - byte del bloque
-
-     fseek(archivoDeBloques, desplazamientoTotal, SEEK_SET)
-
-     fwrite(informacion, sizeof(char), espacioDisponible)
-
-     moverse_al_siguiente_bloque_Asignado
-
-     fwrite(informacion, sizeof(char), tam_bloque)
-
-     hasta que no haya mas informacion para escribir */
-}
-
-
 // probar!!!!!!!!
 char* archivo_de_bloques_leer_bloque(uint32_t bloque)
 {
@@ -258,24 +233,9 @@ char* archivo_de_bloques_leer_bloque(uint32_t bloque)
     return contenido;
 }
 
-/*
-bool archivo_de_bloques_escribir_en_bloque(uint32_t bloque, char* informacion)
-{       
-    // ACA LA INFORMACION PASADA DEBERIA SER DEL MISMO TAMAÑO QUE EL BLOQUE, OSEA 
-    // HABRIA QUE TENER LA INFORMACION DIVIDA EN PARTECITAS IDK HAY Q VERLO
-    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-    uint32_t desplazamiento = bloque * tamanioBloques;
-    // ABRIR EL ARCHIVO DE BLOQUES
-    FILE *archivoBloques = abrir_archivo_de_bloques();
-    if (archivoBloques == NULL)
-    {
-        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques");
-        return false;
-    }
-    // DESPLAZAR AL BLOQUE CORRESPONDIENTE
-    fseek(archivoBloques, desplazamiento, SEEK_SET);
-    fwrite(informacion, sizeof(char), tamanioBloques, archivoBloques);
-    fclose(archivoBloques);
-    return true;
+uint32_t obtenerPosicionAbsoluta(t_fcb* fcbArchivo, uint32_t posicionRelativa)
+{
+    // TODO
+    // Funcion q se le pasa el puntero del archivo y encuentra en q bloque del archivo esta ponele
+    return 0;
 }
-*/

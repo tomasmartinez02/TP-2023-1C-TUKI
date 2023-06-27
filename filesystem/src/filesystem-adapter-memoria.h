@@ -18,9 +18,9 @@
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
 
-void solicitar_lectura_memoria(uint32_t direccionFisica);
-char* recibir_buffer_informacion_memoria();
-void solicitar_escritura_memoria(uint32_t direccionFisica, char* informacion);
+void solicitar_lectura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes);
+char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes);
+void solicitar_escritura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, char* informacion);
 bool recibir_buffer_confirmacion_escritura_memoria();
 
 #endif

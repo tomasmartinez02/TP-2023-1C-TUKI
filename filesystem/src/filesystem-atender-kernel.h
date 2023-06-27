@@ -24,6 +24,7 @@
 #include <filesystem.h>
 #include <filesystem-config.h>
 #include <filesystem-adapter-kernel.h>
+#include <filesystem-adapter-memoria.h>
 #include <filesystem-utils.h>
 #include <filesystem-fcb.h>
 #include <filesystem-manejo-bloques.h>

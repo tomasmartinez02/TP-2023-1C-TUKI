@@ -111,8 +111,15 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
     // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
+     char* informacion = "aca voy a leer los bloques xd";
     // Enviar información a memoria para ser escrita a partir de la dirección física 
+    solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion);
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
+    bool respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
+    if (respuestaMemoria)
+    {
+        enviar_confirmacion_fread_finalizado();
+    }
     log_lectura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
     
 }
@@ -121,10 +128,12 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {
-    // Solicitar a la Memoria la información que se encuentra a partir de la dirección física y escribirlo en 
-    //los bloques correspondientes del archivo a partir del puntero recibido.
+    // Solicitar a la Memoria la información que se encuentra a partir de la dirección física 
+    // void solicitar_lectura_memoria(direccionFisica, cantidadBytes); a checkear
+    // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.
     //El tamaño de la información a leer de la memoria y a escribir en los bloques se recibe desde el Kernel (cantidadBytes)
-
+    // char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes);
+    //enviar_confirmacion_fwrite_finalizado();
     log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
 }
 
@@ -157,8 +166,6 @@ void atender_peticiones_kernel()
 
                 // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
-                enviar_confirmacion_escritura_finalizada();
-                
                 //escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
                 free(nombreArchivo);
                 break;
@@ -174,7 +181,6 @@ void atender_peticiones_kernel()
 
                 // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
-                enviar_confirmacion_lectura_finalizada();
                 free(nombreArchivo);
                 break;
             }
