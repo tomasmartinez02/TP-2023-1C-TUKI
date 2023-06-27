@@ -328,17 +328,6 @@ static t_pcb *__elegir_pcb(t_estado* estado)
     }
 }
 
-// Permite o no el dispatch
-/*static void __evaluarDispatch(sem_t *dispatchPermitido,char* nombreRecurso)
-{
-    t_dictionary *diccionarioSemaforosRecursos = kernel_config_get_diccionario_semaforos(kernelConfig);
-    t_semaforo_recurso *semaforoRecurso = diccionario_semaforos_recursos_get_semaforo_recurso(diccionarioSemaforosRecursos, nombreRecurso);
-     if (semaforo_recurso_debe_bloquear_proceso(semaforoRecurso)){
-    sem_post(dispatchPermitido);
-    log_info(kernelDebuggingLogger, "Hace el post de dispatch");
-    }
-} */
-
 // Pone en ejecucion al pcb y recibe el pcb desalojado por la cpu
 static void *__ejecucion_desalojo_pcb(void *args)
 {
