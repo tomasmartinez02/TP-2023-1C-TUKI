@@ -1,8 +1,9 @@
 #include <filesystem-adapter-memoria.h>
 
 // F_WRITE
+
 // Solicitar a la Memoria la información que se encuentra a partir de la dirección física.
-void solicitar_lectura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes)
+void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBytes)
 {
     int socketMemoria = filesystem_config_get_socket_memoria(filesystemConfig);
     t_buffer *bufferLectura = buffer_create();
@@ -11,6 +12,7 @@ void solicitar_lectura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes)
     stream_send_buffer(socketMemoria, HEADER_fs_solicitud_memoria_lectura, bufferLectura);
     return;
 }
+
 // Recibir información de Memoria para escribir en los bloques.
 char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
 {   
@@ -36,6 +38,7 @@ char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
 }
 
 // F_READ
+
 // Enviar información a Memoria para que la escriba en la dirección física. 
  void solicitar_escritura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, char* informacion)
 {
@@ -49,6 +52,7 @@ char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
     stream_send_buffer(socketMemoria, HEADER_fs_solicitud_memoria_escritura, bufferLectura);
     return;
 }
+
 // Recibir información de Memoria para escribir en los bloques.
 bool recibir_buffer_confirmacion_escritura_memoria()
 {

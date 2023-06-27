@@ -142,7 +142,7 @@ t_fcb* levantar_fcb(char *pathFcb)
     fcb->TAMANIO_ARCHIVO = (uint32_t) config_get_int_value(config_fcb, "TAMANIO_ARCHIVO");
     fcb->PUNTERO_DIRECTO = (uint32_t) config_get_int_value(config_fcb, "PUNTERO_DIRECTO");
     fcb->PUNTERO_INDIRECTO = (uint32_t) config_get_int_value(config_fcb, "PUNTERO_INDIRECTO");
-    fcb->cantidad_bloques_asignados = redondearHaciaArriba(fcb->TAMANIO_ARCHIVO, tamanioBloque);
+    fcb->cantidad_bloques_asignados = redondear_hacia_arriba(fcb->TAMANIO_ARCHIVO, tamanioBloque);
 
   return fcb;
 }

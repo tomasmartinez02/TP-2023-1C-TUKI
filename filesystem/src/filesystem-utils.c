@@ -102,7 +102,7 @@ void log_bloque_desasignado(char *nombreArchivo, uint32_t bloqueDatos)
     return;   
 }
 
-uint32_t redondearHaciaArriba(uint32_t nuevoTamanio, uint32_t tamanio)
+uint32_t redondear_hacia_arriba(uint32_t nuevoTamanio, uint32_t tamanio)
 {
     uint32_t resultado = (nuevoTamanio / tamanio);
     if ((nuevoTamanio % tamanio) == 0)
@@ -113,7 +113,7 @@ uint32_t redondearHaciaArriba(uint32_t nuevoTamanio, uint32_t tamanio)
     return (resultado+1);
 }
 
-uint32_t redondearHaciaAbajo(uint32_t numero, uint32_t tamanio)
+uint32_t redondear_hacia_abajo(uint32_t numero, uint32_t tamanio)
 {
     uint32_t resultado = (numero / tamanio);
     if ((numero % tamanio) == 0)
