@@ -108,7 +108,18 @@ uint32_t redondearHaciaArriba(uint32_t nuevoTamanio, uint32_t tamanio)
     if ((nuevoTamanio % tamanio) == 0)
     {
         return resultado;
-        log_info(filesystemLogger,"el resultado es: %u",resultado);
+        log_info(filesystemLogger,"El resultado es: %u",resultado);
     }
     return (resultado+1);
+}
+
+uint32_t redondearHaciaAbajo(uint32_t numero, uint32_t tamanio)
+{
+    uint32_t resultado = (numero / tamanio);
+    if ((numero % tamanio) == 0)
+    {
+        return resultado;
+        log_info(filesystemLogger,"El resultado es: %u",resultado);
+    }
+    return (resultado-1);
 }

@@ -54,6 +54,8 @@ void desasignar_puntero_directo(t_fcb *fcbArchivo);
 
 void vaciar_archivo(t_fcb *fcbArchivo);
 
-uint32_t obtenerPosicionAbsoluta(t_fcb* fcbArchivo, uint32_t posicionRelativa);
+uint32_t obtenerBloqueAbsoluto(t_fcb* fcbArchivo, uint32_t punteroFseek);
+uint32_t obtenerPosicionEnBloque(uint32_t punteroFseek);
+uint32_t obtenerPosicionAbsoluta(t_fcb* fcbArchivo, uint32_t punteroFseek);
 
 #endif

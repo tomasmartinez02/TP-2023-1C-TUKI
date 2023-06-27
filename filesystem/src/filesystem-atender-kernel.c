@@ -108,14 +108,31 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 
 // FREAD
 
+// Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
-    // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
-     char* informacion = "aca voy a leer los bloques xd";
+    uint32_t posicionAbsoluta;
+    bool respuestaMemoria;
+
+    // Busco el fcb relacionado al archivo que quiero truncar
+    t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
+    if (fcbArchivo == NULL)
+    {
+        log_error(filesystemLogger, "No se encontró el fcb en la lista de fcbs.");
+        log_error(filesystemDebuggingLogger, "No se encontró el fcb en la lista de fcbs.");
+        return;
+    }
+
+    // Obtengo la posicion desde la cual voy a empezar a leer informacion.
+    posicionAbsoluta = obtenerPosicionAbsoluta(fcbArchivo, punteroProceso);
+
+    char* informacion = "aca voy a tener la info q voy a leer";
+
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion);
+    
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
-    bool respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
+    respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
     if (respuestaMemoria)
     {
         enviar_confirmacion_fread_finalizado();
