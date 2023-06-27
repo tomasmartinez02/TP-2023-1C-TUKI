@@ -25,9 +25,11 @@
  */
 
 void memoria_destroy(t_memoria_config *memoriaConfig, t_log *memoriaLogger, t_log *memoriaDebuggingLogger);
-void* obtener_valor_memoria(int desplazamiento, int tamanio);
-void escribir_valor_en_memoria(void* ptr, const void* src, uint32_t size);
-t_buffer* serializar_bytes_leidos(int socketModulo);
+void* obtener_valor_memoria(uint32_t dirFisica, uint32_t tamanio);
+void escribir_valor_en_memoria(uint32_t dirFisica, void* bytesRecibidos);
+t_buffer* serializar_bytes_leidos(int socketModulo, uint32_t dirFisica, uint32_t bytesALeer);
 uint32_t obtener_base_segmento(uint32_t idSegmento);
+void* atender_modulo(void* args);
+t_buffer* memoria_recibir_buffer_solicitud(int socketModulo, uint32_t *dirFisica, uint32_t *tamanio);
 
 #endif
