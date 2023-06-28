@@ -24,6 +24,7 @@
 #include <filesystem-archivos.h>
 
 // Prototipos
+
 void asignar_puntero_directo(t_fcb *fcbArchivo);
 
 void asignar_puntero_indirecto(t_fcb *fcbArchivo);
@@ -53,5 +54,13 @@ void desasignar_bloque_punteros(t_fcb *fcbArchivo);
 void desasignar_puntero_directo(t_fcb *fcbArchivo);
 
 void vaciar_archivo(t_fcb *fcbArchivo);
+
+uint32_t obtener_bloque_absoluto(t_fcb* fcbArchivo, uint32_t punteroFseek);
+
+uint32_t obtener_posicion_en_bloque(uint32_t punteroFseek);
+
+uint32_t obtener_posicion_absoluta(t_fcb* fcbArchivo, uint32_t punteroFseek);
+
+uint32_t espacio_disponible_en_bloque_desde_posicion(uint32_t punteroFseek);
 
 #endif

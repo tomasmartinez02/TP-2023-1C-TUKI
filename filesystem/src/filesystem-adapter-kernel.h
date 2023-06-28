@@ -26,8 +26,8 @@ void recibir_buffer_escritura_archivo(char **nombreArchivo, uint32_t *puntero, u
 void enviar_confirmacion_existencia_archivo(void);
 void enviar_confirmacion_no_existencia_archivo(void);
 void enviar_confirmacion_archivo_creado(void);
-void enviar_confirmacion_escritura_finalizada(void);
-void enviar_confirmacion_lectura_finalizada(void);
+void enviar_confirmacion_fwrite_finalizado(void);
+void enviar_confirmacion_fread_finalizado(void);
 void enviar_confirmacion_tamanio_archivo_modificado(void);
 
 #endif

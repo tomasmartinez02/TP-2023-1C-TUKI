@@ -117,14 +117,14 @@ void enviar_confirmacion_archivo_creado()
     return;
 }
 
-void enviar_confirmacion_lectura_finalizada()
+void enviar_confirmacion_fread_finalizado()
 {
     int socketKernel = filesystem_config_get_socket_kernel(filesystemConfig);
     stream_send_empty_buffer(socketKernel, HEADER_lectura_finalizada);
     return;
 }
 
-void enviar_confirmacion_escritura_finalizada()
+void enviar_confirmacion_fwrite_finalizado()
 {
     int socketKernel = filesystem_config_get_socket_kernel(filesystemConfig);
     stream_send_empty_buffer(socketKernel, HEADER_escritura_finalizada);

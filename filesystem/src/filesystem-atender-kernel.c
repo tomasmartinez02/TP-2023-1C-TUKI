@@ -1,9 +1,9 @@
 #include <filesystem-atender-kernel.h>
 
-void ampliarArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+void ampliar_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    uint32_t tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo, tamanioBloques);
+    uint32_t tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
 
     if(cantidadBloquesAsignadosActual == 0) {
         log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
@@ -18,7 +18,7 @@ void ampliarArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
     fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
 }
 
-void reducirArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesDesasignar, cantidadBloquesAsignadosActual, tamanioNuevoEnBloques;
     if (tamanioNuevo == 0)
@@ -27,7 +27,7 @@ void reducirArchivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
         return;
     }
     cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    tamanioNuevoEnBloques = redondearHaciaArriba(tamanioNuevo, tamanioBloques);
+    tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
     cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
     desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
     return;
@@ -82,20 +82,20 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     }
 
     bloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    bloquesNuevos = redondearHaciaArriba(tamanioNuevo, tamanioBloques);
+    bloquesNuevos = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
     log_info(filesystemLogger, "Bloques asignados actuales: %u", bloquesAsignados);
 
     // AMPLIAR TAMAÑO
     if (bloquesAsignados < bloquesNuevos)
     {   
         log_info(filesystemLogger, "El archivo %s se va a ampliar.", nombreArchivo);
-        ampliarArchivo(fcbArchivo, tamanioNuevo);
+        ampliar_archivo(fcbArchivo, tamanioNuevo);
     }
     // REDUCIR TAMAÑO
     if (bloquesAsignados > bloquesNuevos)
     {   
         log_info(filesystemLogger, "El archivo %s se va a reducir.", nombreArchivo);
-        reducirArchivo(fcbArchivo, tamanioNuevo);
+        reducir_archivo(fcbArchivo, tamanioNuevo);
     }
     // SI TAMANIO ACTUAL == TAMANIO NUEVO --> NO SE HACE NADA 
     fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
@@ -108,24 +108,115 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 
 // FREAD
 
+// Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
-    // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
+    uint32_t posicionAbsoluta, espacioDisponible;
+    char *informacion;
+    bool respuestaMemoria;
+
+    // Busco el fcb relacionado al archivo que quiero truncar
+    t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
+    if (fcbArchivo == NULL)
+    {
+        log_error(filesystemLogger, "No se encontró el fcb en la lista de fcbs.");
+        log_error(filesystemDebuggingLogger, "No se encontró el fcb en la lista de fcbs.");
+        return;
+    }
+
+    // Obtengo la posicion desde la cual voy a empezar a leer informacion.
+    posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
+
+    espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
+
+    archivoDeBloques = abrir_archivo_de_bloques();
+    fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+    if (cantidadBytes < espacioDisponible)
+    {
+        fread(informacion, sizeof(char), cantidadBytes, archivoDeBloques);
+    }
+    else
+    {
+        fread(informacion, sizeof(char), espacioDisponible, archivoDeBloques);
+    }
+
+    informacion = "aca voy a tener la info q voy a leer";
+
     // Enviar información a memoria para ser escrita a partir de la dirección física 
+    solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion);
+    
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
+    respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
+    if (respuestaMemoria)
+    {
+        enviar_confirmacion_fread_finalizado();
+    }
     log_lectura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
     
 }
 
 // FWRITE
 
-void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
+void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir)
 {
-    // Solicitar a la Memoria la información que se encuentra a partir de la dirección física y escribirlo en 
-    //los bloques correspondientes del archivo a partir del puntero recibido.
-    //El tamaño de la información a leer de la memoria y a escribir en los bloques se recibe desde el Kernel (cantidadBytes)
+    uint32_t bloqueActual, espacioDisponible, bytesAEscribirEnBloque, bytesPorEscribir;
+    uint32_t bytesEscritos = 0;
 
-    log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
+    // Busco el fcb relacionado al archivo en el que se quiere escribir
+    t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
+    if (fcbArchivo == NULL)
+    {
+        log_error(filesystemLogger, "No se encontró el fcb en la lista de fcbs.");
+        log_error(filesystemDebuggingLogger, "No se encontró el fcb en la lista de fcbs.");
+        return;
+    }
+
+    // Solicitar a la Memoria la información que se encuentra a partir de la dirección física
+    solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir);
+
+    char *informacionAEscribir = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
+
+    // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido:
+   
+    // obtener bloqueActual;
+    //espacioDisponible = espacio_disponible_en_bloque(bloqueActual);
+
+    // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza
+    /*
+    if (cantidadBytesAEscribir <= espacioDisponible)
+    {
+        escribir_en_bloque(bloqueActual,cantidadBytesAEscribir);
+        return;
+    }*/
+
+    /* Si se tienen que escribir más bytes de los que hay disponibles hay que escribir una parte en este bloque
+    y el resto en el/los bloques siguientes */
+    /*
+    if (cantidadBytesAEscribir > espacioDisponible)
+    {
+        while (bytesEscritos < cantidadBytesAEscribir) {
+
+            if (espacioDisponible == 0)
+            {
+                //bloqueActual = buscar_siguiente_bloque(bloqueActual);
+                //espacioDisponible = espacio_disponible_en_bloque(bloqueActual);
+            }
+
+            // cuántos bytes voy a poder escribir en el bloque actual
+            bytesAEscribirEnBloque = cantidadBytesAEscribir - espacioDisponible;
+
+            //escribir_en_bloque(bloqueActual,bytesAEscribirEnBloque);
+
+            // cuántos bytes van a faltar escribir
+            bytesPorEscribir = cantidadBytesAEscribir - bytesAEscribirEnBloque;
+
+            bytesEscritos += bytesAEscribirEnBloque;
+        }
+    }
+    */
+
+    log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytesAEscribir);
+    enviar_confirmacion_fwrite_finalizado();
 }
 
 void atender_peticiones_kernel()
@@ -154,12 +245,11 @@ void atender_peticiones_kernel()
                 uint32_t cantidadBytes;
                 uint32_t puntero;
                 recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
+                escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
 
                 // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
-                enviar_confirmacion_escritura_finalizada();
                 
-                //escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
                 free(nombreArchivo);
                 break;
             }
@@ -174,7 +264,6 @@ void atender_peticiones_kernel()
 
                 // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
-                enviar_confirmacion_lectura_finalizada();
                 free(nombreArchivo);
                 break;
             }

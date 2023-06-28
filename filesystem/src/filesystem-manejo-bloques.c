@@ -57,7 +57,7 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
         uint32_t temp = tamanioNuevo-tamanioBloques; // por las dudas de q le agarre la loca pasandole un menos
-        uint32_t cantidadPunteros = redondearHaciaArriba(temp, tamanioBloques);
+        uint32_t cantidadPunteros = redondear_hacia_arriba(temp, tamanioBloques);
         asignar_puntero_directo(fcbArchivo);
         asignar_puntero_indirecto(fcbArchivo);
         asignar_bloques(fcbArchivo, cantidadPunteros);
@@ -70,7 +70,7 @@ void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     uint32_t temp = tamanioNuevo-tamanioBloques; // por las dudas de q le agarre la loca pasandole un menos
-    uint32_t cantidadBloques = redondearHaciaArriba(temp, tamanioBloques);
+    uint32_t cantidadBloques = redondear_hacia_arriba(temp, tamanioBloques);
 
     if (cantidadBloquesAsignados == 1)
     {
@@ -153,27 +153,24 @@ void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
 
     log_bloque_desasignado(nombreArchivo, ultimoBloque);
 
-    //ACTUALIZAR FCB 
-    // El archivo tiene un bloque asignado menos.
+    //ACTUALIZAR FCB  --> El archivo tiene un bloque asignado menos.
     fcb_decrementar_cantidad_bloques_asignados(fcbArchivo);
     fcb_decrementar_tamanio_en_bloque(fcbArchivo);
     fclose(archivoBloques);
 }
-    // REVISAR!!!!!!!!!!
 void desasignar_bloque_punteros(t_fcb *fcbArchivo)
 {
     uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
-    fcb_set_puntero_indirecto(fcbArchivo, 0); // COMO MARCO QUE NO TIENE PUNTERO INDIRECTO ASOCIADO????????
+    fcb_set_puntero_indirecto(fcbArchivo, 0); 
     bitmap_marcar_bloque_libre(bloquePunteros);
     log_info(filesystemLogger, "Bloque de punteros desasignado.");
     return;
 }
 
-// REVISAR!!!!!!!
 void desasignar_puntero_directo(t_fcb *fcbArchivo)
 {
     uint32_t punteroDirecto = fcb_get_puntero_directo(fcbArchivo);
-    fcb_set_puntero_directo(fcbArchivo, 0); // COMO MARCO QUE NO TIENE PUNTERO DIRECTO ASOCIADO????????
+    fcb_set_puntero_directo(fcbArchivo, 0); 
     bitmap_marcar_bloque_libre(punteroDirecto);
     log_info(filesystemLogger, "Puntero directo desasignado.");
     return;
@@ -200,7 +197,7 @@ void vaciar_archivo(t_fcb *fcbArchivo)
     uint32_t cantidadBloquesDesasignar = fcb_get_cantidad_bloques_asignados(fcbArchivo);
     if (cantidadBloquesDesasignar == 1)
     {
-         desasignar_puntero_directo(fcbArchivo);
+        desasignar_puntero_directo(fcbArchivo);
     }
     else
     {
@@ -212,38 +209,12 @@ void vaciar_archivo(t_fcb *fcbArchivo)
     fcb_set_tamanio_archivo(fcbArchivo, 0);
 }
 
-void archivo_de_bloques_escribir(t_fcb *fcbArchivo, uint32_t puntero, char *informacion)
-{
-    /* Si me pasan que escriba desde el puntero 34 y los bloques tienen un tamaño de 64 --> Escribo en el bloque 0, byte 35 
-     Si me pasan que escriba en el puntero 129 --> Escribo en el tercer bloque [0, 1, 2] en el primer o segundo? byte
-     Puntero / tamaño_bloque --> Resultado = Numero de bloque
-     --> Resto = byte del bloque
-
-     desplazamientoAlBloque = numero de bloque * tam_bloque
-     desplazamientoDentroDelBloque = byte del bloque
-     desplazamientoTotal = desplazamientoAlBloque + desplazamientoDentroDelBloque
-
-     espacioDisponible en bloque = tam_bloque - byte del bloque
-
-     fseek(archivoDeBloques, desplazamientoTotal, SEEK_SET)
-
-     fwrite(informacion, sizeof(char), espacioDisponible)
-
-     moverse_al_siguiente_bloque_Asignado
-
-     fwrite(informacion, sizeof(char), tam_bloque)
-
-     hasta que no haya mas informacion para escribir */
-}
-
-
-// probar!!!!!!!!
+/*
 char* archivo_de_bloques_leer_bloque(uint32_t bloque)
 {
     uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
     uint32_t desplazamiento = bloque * tamanioBloques;
     char *contenido = malloc(tamanioBloques);
-    // ABRIR EL ARCHIVO DE BLOQUES
     FILE *archivoBloques = abrir_archivo_de_bloques();
     if (archivoBloques == NULL)
     {
@@ -257,25 +228,60 @@ char* archivo_de_bloques_leer_bloque(uint32_t bloque)
     fclose(archivoBloques);
     return contenido;
 }
-
-/*
-bool archivo_de_bloques_escribir_en_bloque(uint32_t bloque, char* informacion)
-{       
-    // ACA LA INFORMACION PASADA DEBERIA SER DEL MISMO TAMAÑO QUE EL BLOQUE, OSEA 
-    // HABRIA QUE TENER LA INFORMACION DIVIDA EN PARTECITAS IDK HAY Q VERLO
-    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-    uint32_t desplazamiento = bloque * tamanioBloques;
-    // ABRIR EL ARCHIVO DE BLOQUES
-    FILE *archivoBloques = abrir_archivo_de_bloques();
-    if (archivoBloques == NULL)
-    {
-        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques");
-        return false;
-    }
-    // DESPLAZAR AL BLOQUE CORRESPONDIENTE
-    fseek(archivoBloques, desplazamiento, SEEK_SET);
-    fwrite(informacion, sizeof(char), tamanioBloques, archivoBloques);
-    fclose(archivoBloques);
-    return true;
-}
 */
+
+uint32_t obtener_bloque_absoluto(t_fcb* fcbArchivo, uint32_t punteroFseek)
+{   
+    uint32_t bloqueAbsoluto, punteroBloque, bloquePunteros, bloqueRelativo;
+    bloqueRelativo = redondear_hacia_abajo(punteroFseek, tamanioBloques);
+    // Si la posicion relativa es menor al tamaño del bloque significa que se quiere acceder al 
+    // bloque 0 del archivo, que es apuntado por el puntero directo
+    if (bloqueRelativo == 0)
+    {              
+        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque 0 del archivo.");
+        bloqueAbsoluto = fcb_get_puntero_directo(fcbArchivo);
+    }
+    // Si la posicion relativa es mayor al tamaño del bloque significa que se quiere acceder
+    // a un puntero del bloque de punteros.
+    else
+    {   
+        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque %u del archivo. No es el primer bloque", bloqueRelativo);
+        bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
+        // Si se quiere acceder al bloque numero 3 del archivo, se quiere acceder al segundo puntero del bloque de punteros.
+        punteroBloque = bloqueRelativo - 1;
+        bloqueAbsoluto = archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(bloquePunteros, punteroBloque);
+    }
+    return bloqueAbsoluto;
+}
+
+uint32_t obtener_posicion_en_bloque(uint32_t punteroFseek)
+{
+    uint32_t posicion, bloqueRelativo;
+    bloqueRelativo = redondear_hacia_abajo(punteroFseek, tamanioBloques);
+    posicion = punteroFseek - tamanioBloques * bloqueRelativo;
+    return posicion;
+}
+
+uint32_t espacio_disponible_en_bloque_desde_posicion(uint32_t punteroFseek)
+{
+    uint32_t posicion, espacioDisponible;
+    posicion = obtener_posicion_en_bloque(punteroFseek);
+    espacioDisponible = tamanioBloques - posicion;
+    return espacioDisponible;
+}
+
+// Funcion que sirve para saber desde donde empezar a leer/escribir.
+uint32_t obtener_posicion_absoluta(t_fcb* fcbArchivo, uint32_t punteroFseek)
+{
+    uint32_t bloqueAbsoluto, desplazamientoAlBloque, posicionRelativa, desplazamientoEnBloque, desplazamiento;
+
+    bloqueAbsoluto = obtener_bloque_absoluto(fcbArchivo, punteroFseek);
+    // Posiciona al comienzo del bloque
+    desplazamientoAlBloque = bloqueAbsoluto * tamanioBloques;
+    // Posiciona al byte del bloque
+    posicionRelativa = obtener_posicion_en_bloque(punteroFseek);
+    desplazamientoEnBloque = posicionRelativa * sizeof(uint32_t);
+
+    desplazamiento = desplazamientoAlBloque + desplazamientoEnBloque; 
+    return desplazamiento;
+}
