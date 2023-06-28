@@ -55,16 +55,17 @@ enum header
     HEADER_segmentation_fault,
     HEADER_solicitud_creacion_archivo,
     HEADER_solicitud_escribir_archivo,
+    HEADER_solicitud_finalizacion_proceso,
     HEADER_solicitud_inicializacion_proceso,
     HEADER_solicitud_leer_archivo,
     HEADER_solicitud_modificar_tamanio_archivo,
     HEADER_tabla_segmentos,
     HEADER_tamanio_archivo_modificado,
    
-    HEADER_fs_solicitud_memoria_lectura,
-    HEADER_memoria_confirmacion_fs_lectura,
-    HEADER_fs_solicitud_memoria_escritura,
-    HEADER_memoria_confirmacion_fs_escritura
+    HEADER_solicitud_memoria_lectura,
+    HEADER_memoria_confirmacion_lectura,
+    HEADER_solicitud_memoria_escritura,
+    HEADER_memoria_confirmacion_escritura
 };
 typedef enum header t_header;
 
