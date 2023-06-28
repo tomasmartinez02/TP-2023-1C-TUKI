@@ -111,8 +111,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
-    uint32_t posicionAbsoluta, espacioDisponible;
-    char *informacion;
+    uint32_t posicionAbsoluta, espacioDisponible, puntero, bytesLeidos, bytesQueFaltanPorLeer;
     bool respuestaMemoria;
 
     // Busco el fcb relacionado al archivo que quiero truncar
@@ -124,6 +123,13 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         return;
     }
 
+    //cantidadBloquesALeer = redondear_hacia_arriba(cantidadBytes, tamanioBloques);
+    puntero = punteroProceso;
+    //bytesLeidos = 0;
+    bytesQueFaltanPorLeer = cantidadBytes;
+    char *informacion = malloc(cantidadBytes);
+    char *buffer = malloc(tamanioBloques);
+
     // Obtengo la posicion desde la cual voy a empezar a leer informacion.
     posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
 
@@ -131,16 +137,65 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+
+    // Si la cantidad de bytes a leer es menor que el espacio que queda en el 
+    // bloque seleccionado, solamente se accede a ese bloque.
     if (cantidadBytes < espacioDisponible)
     {
-        fread(informacion, sizeof(char), cantidadBytes, archivoDeBloques);
-    }
-    else
-    {
-        fread(informacion, sizeof(char), espacioDisponible, archivoDeBloques);
+        fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        bytesLeidos = cantidadBytes;
+        // Ya se leyeron todos los bytes que habia que leer, no hay que hacer nada mas.
+        // Pasar la data leida del buffer al char *informacion.
+        memcpy(informacion, buffer, bytesLeidos);
+        free(buffer);
     }
 
-    informacion = "aca voy a tener la info q voy a leer";
+    // Si la cantidad de bytes a leer es mayor que el espacio que queda en el bloque
+    // seleccionado, se leen todos los bytes que queden en el bloque antes de pasar al siguiente.
+    else
+    {
+        fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
+        // Se mueve el puntero del archivo hasta el ultimo lugar que se leyo.
+        puntero += espacioDisponible; 
+        // Contador de bytes leidos.
+        bytesLeidos = espacioDisponible;
+        // Contador de bytes que faltan por leer.
+        bytesQueFaltanPorLeer -= bytesLeidos;
+        // Pasar la data leida del buffer al char *informacion.
+        memcpy(informacion, buffer, bytesLeidos);
+        free(buffer);
+    }
+
+    // Repetir hasta que se hayan leido todos los bytes.
+    while(bytesQueFaltanPorLeer != 0)
+    {   
+        buffer = malloc(tamanioBloques);
+        // Se busca la posicion del siguiente bloque
+        // (Si todo esta bien esto deberia llevarnos al byte 0 del bloque) A CHECKEAR
+        posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, puntero);
+        // Si el desplazamiento en el bloque es 0 deberia ser lo mismo hacer 
+        // posicionAbsoluta = obtener_bloque_absoluto(fcbArchivo, puntero);
+
+        // Nos movemos a la posición desdeada 
+        fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+        if (bytesQueFaltanPorLeer < tamanioBloques)
+        {
+            fread(buffer, sizeof(char), bytesQueFaltanPorLeer, archivoDeBloques);
+            // Pasar la data leida del buffer al char *informacion.
+            memcpy(informacion+bytesLeidos, buffer, bytesQueFaltanPorLeer);
+            //bytesLeidos += bytesQueFaltanPorLeer; --> creo que ya no hace falta
+            bytesQueFaltanPorLeer = 0;
+        }
+        else
+        {
+            fread(buffer, sizeof(char), tamanioBloques, archivoDeBloques);
+            memcpy(informacion+bytesLeidos, buffer, tamanioBloques);
+            puntero += tamanioBloques;
+            bytesLeidos += tamanioBloques;
+            bytesQueFaltanPorLeer -= tamanioBloques;
+        }
+        free(buffer);
+    }
 
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion);
@@ -153,6 +208,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     }
     log_lectura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
     
+    return;
 }
 
 // FWRITE
