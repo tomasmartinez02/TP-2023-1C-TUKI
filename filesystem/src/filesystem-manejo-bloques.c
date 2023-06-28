@@ -262,6 +262,14 @@ uint32_t obtener_posicion_en_bloque(uint32_t punteroFseek)
     return posicion;
 }
 
+uint32_t espacio_disponible_en_bloque_desde_posicion(uint32_t punteroFseek)
+{
+    uint32_t posicion, espacioDisponible;
+    posicion = obtener_posicion_en_bloque(punteroFseek);
+    espacioDisponible = tamanioBloques - posicion;
+    return espacioDisponible;
+}
+
 // Funcion que sirve para saber desde donde empezar a leer/escribir.
 uint32_t obtener_posicion_absoluta(t_fcb* fcbArchivo, uint32_t punteroFseek)
 {

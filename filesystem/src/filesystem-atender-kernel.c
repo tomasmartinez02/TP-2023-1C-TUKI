@@ -111,7 +111,8 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
-    uint32_t posicionAbsoluta;
+    uint32_t posicionAbsoluta, espacioDisponible;
+    char *informacion;
     bool respuestaMemoria;
 
     // Busco el fcb relacionado al archivo que quiero truncar
@@ -126,7 +127,20 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     // Obtengo la posicion desde la cual voy a empezar a leer informacion.
     posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
 
-    char* informacion = "aca voy a tener la info q voy a leer";
+    espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
+
+    archivoDeBloques = abrir_archivo_de_bloques();
+    fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+    if (cantidadBytes < espacioDisponible)
+    {
+        fread(informacion, sizeof(char), cantidadBytes, archivoDeBloques);
+    }
+    else
+    {
+        fread(informacion, sizeof(char), espacioDisponible, archivoDeBloques);
+    }
+
+    informacion = "aca voy a tener la info q voy a leer";
 
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion);
