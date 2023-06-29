@@ -1,38 +1,5 @@
 #include <filesystem-atender-kernel.h>
 
-void ampliar_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
-{
-    uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    uint32_t tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
-
-    if(cantidadBloquesAsignadosActual == 0) {
-        log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
-        asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
-    }
-    else {
-        /* Si ya tiene bloques, solo se agregan punteros al bloque de punteros */
-        log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
-        asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
-    }
-    fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
-    fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
-}
-
-void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
-{
-    uint32_t cantidadBloquesDesasignar, cantidadBloquesAsignadosActual, tamanioNuevoEnBloques;
-    if (tamanioNuevo == 0)
-    {
-        vaciar_archivo(fcbArchivo);
-        return;
-    }
-    cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
-    cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
-    desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
-    return;
-}
-
 //Verificar que exista el FCB correspondiente al archivo
 void verificar_existencia_archivo(char *nombreArchivo) // para abrir archivo
 {   
@@ -68,6 +35,39 @@ t_fcb *crear_archivo(char *nombreArchivo)
 }
 
 // FTRUNCATE
+
+void ampliar_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+{
+    uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    uint32_t tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
+
+    if(cantidadBloquesAsignadosActual == 0) {
+        log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
+        asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
+    }
+    else {
+        /* Si ya tiene bloques, solo se agregan punteros al bloque de punteros */
+        log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
+        asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
+    }
+    fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
+    fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
+}
+
+void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+{
+    uint32_t cantidadBloquesDesasignar, cantidadBloquesAsignadosActual, tamanioNuevoEnBloques;
+    if (tamanioNuevo == 0)
+    {
+        vaciar_archivo(fcbArchivo);
+        return;
+    }
+    cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
+    cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
+    desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
+    return;
+}
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
@@ -215,7 +215,9 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir)
 {
-    uint32_t bloqueActual, espacioDisponible, bytesAEscribirEnBloque, bytesPorEscribir;
+    uint32_t posicion, posicionEnBloque, puntero;
+    uint32_t bloqueActual, nuevoBloque, espacioDisponible;
+    uint32_t bytesAEscribirEnBloque, bytesPorEscribir;
     uint32_t bytesEscritos = 0;
 
     // Busco el fcb relacionado al archivo en el que se quiere escribir
@@ -234,45 +236,59 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido:
    
-    // obtener bloqueActual;
-    //espacioDisponible = espacio_disponible_en_bloque(bloqueActual);
+    // --> obtener el bloqueActual;
+    posicionEnBloque = obtener_posicion_en_bloque(punteroProceso);
+    posicion = obtener_posicion_absoluta(fcbArchivo,punteroProceso);
+    espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
 
     // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza
-    /*
     if (cantidadBytesAEscribir <= espacioDisponible)
     {
-        escribir_en_bloque(bloqueActual,cantidadBytesAEscribir);
+        escribir_en_bloque(posicion,cantidadBytesAEscribir,informacionAEscribir);
         return;
-    }*/
+    }
 
     /* Si se tienen que escribir más bytes de los que hay disponibles hay que escribir una parte en este bloque
     y el resto en el/los bloques siguientes */
-    /*
     if (cantidadBytesAEscribir > espacioDisponible)
     {
         while (bytesEscritos < cantidadBytesAEscribir) {
 
             if (espacioDisponible == 0)
             {
-                //bloqueActual = buscar_siguiente_bloque(bloqueActual);
-                //espacioDisponible = espacio_disponible_en_bloque(bloqueActual);
+                nuevoBloque = buscar_siguiente_bloque(bloqueActual,fcbArchivo);
+                bloqueActual = nuevoBloque;
+                /* el puntero ahora deberia apuntar al nuevo bloque: nuevo bloque * el tamaño de bloque */
+                puntero = nuevoBloque *tamanioBloques;
+                // en base al nuevo puntero calculo la nueva posicion
+                posicionEnBloque = obtener_posicion_en_bloque(puntero);
+                espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
             }
 
-            // cuántos bytes voy a poder escribir en el bloque actual
+            // cuántos bytes voy a poder escribir en el bloque
             bytesAEscribirEnBloque = cantidadBytesAEscribir - espacioDisponible;
 
-            //escribir_en_bloque(bloqueActual,bytesAEscribirEnBloque);
+            /* --> VER CÓMO "ACTUALIZAR" informacionAEscribir PARA QUE EN LA PROXIMA ITERACIÓN
+            SIGA ESCRIBIENDO DESDE DONDE SE QUEDÓ */
+            escribir_en_bloque(posicion,bytesAEscribirEnBloque,informacionAEscribir);
 
             // cuántos bytes van a faltar escribir
             bytesPorEscribir = cantidadBytesAEscribir - bytesAEscribirEnBloque;
-
             bytesEscritos += bytesAEscribirEnBloque;
         }
     }
-    */
 
     log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytesAEscribir);
     enviar_confirmacion_fwrite_finalizado();
+}
+
+void escribir_en_bloque(uint32_t posicion, uint32_t cantidadBytesAEscribir, char *informacionAEscribir)
+{
+    archivoDeBloques = abrir_archivo_de_bloques();
+    fseek(archivoDeBloques,posicion,SEEK_SET);
+    // REVISAR !!
+    fwrite(informacionAEscribir,sizeof(char),cantidadBytesAEscribir,archivoDeBloques);
+    fclose(archivoDeBloques);
 }
 
 void atender_peticiones_kernel()

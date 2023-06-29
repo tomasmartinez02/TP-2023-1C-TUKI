@@ -63,4 +63,8 @@ uint32_t obtener_posicion_absoluta(t_fcb* fcbArchivo, uint32_t punteroFseek);
 
 uint32_t espacio_disponible_en_bloque_desde_posicion(uint32_t punteroFseek);
 
+uint32_t espacio_disponible_en_bloque(uint32_t posicion);
+
+uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo);
+
 #endif

@@ -285,3 +285,40 @@ uint32_t obtener_posicion_absoluta(t_fcb* fcbArchivo, uint32_t punteroFseek)
     desplazamiento = desplazamientoAlBloque + desplazamientoEnBloque; 
     return desplazamiento;
 }
+
+uint32_t espacio_disponible_en_bloque(uint32_t posicionEnBloque)
+{
+    uint32_t espacioDisponible;
+
+    espacioDisponible = tamanioBloques - posicionEnBloque;
+    return espacioDisponible;
+}
+
+uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
+{
+    uint32_t siguienteBloque;
+    uint32_t punteroDirecto = fcb_get_puntero_directo(fcbArchivo);
+
+    if (bloqueActual == punteroDirecto) {
+        /* el proximo bloque va a ser el primer bloque de datos al que se
+        apunte en el bloque de punteros */
+        siguienteBloque = archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(fcbArchivo);
+        return siguienteBloque;
+    }
+    else {
+        uint32_t punteroIndirecto = fcb_get_puntero_indirecto(fcbArchivo);
+        uint32_t desplazamiento = (punteroIndirecto * tamanioBloques);
+
+        archivoDeBloques = abrir_archivo_de_bloques();
+
+        fseek(archivoDeBloques,desplazamiento,SEEK_SET);
+        
+        while (fread(&siguienteBloque,sizeof(uint32_t),1,archivoDeBloques)) {
+            if (siguienteBloque == bloqueActual) {
+                fread(&siguienteBloque,sizeof(uint32_t),1,archivoDeBloques);
+                fclose(archivoDeBloques);
+                return siguienteBloque;
+            }
+        }
+    }
+}
