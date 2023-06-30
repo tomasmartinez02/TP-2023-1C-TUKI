@@ -121,5 +121,5 @@ uint32_t redondear_hacia_abajo(uint32_t numero, uint32_t tamanio)
         return resultado;
         log_info(filesystemLogger,"El resultado es: %u",resultado);
     }
-    return (resultado-1);
+    return resultado;
 }

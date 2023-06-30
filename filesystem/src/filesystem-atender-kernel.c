@@ -215,10 +215,12 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir)
 {
-    uint32_t posicion, posicionEnBloque, puntero;
+    uint32_t posicion, puntero;
     uint32_t bloqueActual, nuevoBloque, espacioDisponible;
-    uint32_t bytesAEscribirEnBloque, bytesPorEscribir;
-    uint32_t bytesEscritos = 0;
+    uint32_t bytesAEscribirEnBloque, bytesPorEscribir, bytesEscritos;
+
+    bytesPorEscribir = cantidadBytesAEscribir;
+    bytesEscritos = 0;
 
     // Busco el fcb relacionado al archivo en el que se quiere escribir
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
@@ -234,48 +236,50 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     char *informacionAEscribir = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
 
-    // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido:
-   
-    // --> obtener el bloqueActual: bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso); ???
-    posicionEnBloque = obtener_posicion_en_bloque(punteroProceso);
-    posicion = obtener_posicion_absoluta(fcbArchivo,punteroProceso);
-    espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
+    // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido. 
 
-    // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza
+    bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
+    posicion = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
+    espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
+
+    // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza.
     if (cantidadBytesAEscribir <= espacioDisponible)
     {
-        escribir_en_bloque(posicion,cantidadBytesAEscribir,informacionAEscribir);
-        return;
+        escribir_en_bloque(posicion, cantidadBytesAEscribir, informacionAEscribir);
+        bytesEscritos = cantidadBytesAEscribir;
     }
 
     /* Si se tienen que escribir más bytes de los que hay disponibles hay que escribir una parte en este bloque
     y el resto en el/los bloques siguientes */
-    if (cantidadBytesAEscribir > espacioDisponible)
-    {
-        while (bytesEscritos < cantidadBytesAEscribir) {
-
-            if (espacioDisponible == 0)
-            {
-                nuevoBloque = buscar_siguiente_bloque(bloqueActual,fcbArchivo);
-                bloqueActual = nuevoBloque;
-                /* el puntero ahora deberia apuntar al nuevo bloque: nuevo bloque * el tamaño de bloque */
-                puntero = nuevoBloque * tamanioBloques;
-                // en base al nuevo puntero calculo la nueva posicion
-                posicionEnBloque = obtener_posicion_en_bloque(puntero);
-                espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
-            }
-
-            // cuántos bytes voy a poder escribir en el bloque
-            bytesAEscribirEnBloque = cantidadBytesAEscribir - espacioDisponible;
-
-            /* --> VER CÓMO "ACTUALIZAR" informacionAEscribir PARA QUE EN LA PROXIMA ITERACIÓN
-            SIGA ESCRIBIENDO DESDE DONDE SE QUEDÓ */
-            escribir_en_bloque(posicion,bytesAEscribirEnBloque,informacionAEscribir);
-
-            // cuántos bytes van a faltar escribir
-            bytesPorEscribir = cantidadBytesAEscribir - bytesAEscribirEnBloque;
-            bytesEscritos += bytesAEscribirEnBloque;
+    while (bytesEscritos < cantidadBytesAEscribir) {
+        if (espacioDisponible == 0)
+        {
+            nuevoBloque = buscar_siguiente_bloque(bloqueActual,fcbArchivo);
+            bloqueActual = nuevoBloque;
+            /* el puntero ahora deberia apuntar al nuevo bloque: nuevo bloque * el tamaño de bloque */
+            puntero = nuevoBloque * tamanioBloques;
+            // en base al nuevo puntero calculo la nueva posicion
+            posicion = obtener_posicion_absoluta(fcbArchivo, puntero);
+            espacioDisponible = tamanioBloques;
         }
+
+        //Cuántos bytes voy a poder escribir en el bloque
+        bytesAEscribirEnBloque = espacioDisponible;
+
+        if (bytesPorEscribir <= tamanioBloques)
+        {
+            escribir_en_bloque(posicion, bytesPorEscribir, informacionAEscribir);
+            bytesEscritos += bytesPorEscribir;
+        }
+        else
+        {  /* --> VER CÓMO "ACTUALIZAR" informacionAEscribir PARA QUE EN LA PROXIMA ITERACIÓN SIGA ESCRIBIENDO DESDE DONDE SE QUEDÓ */
+            escribir_en_bloque(posicion, espacioDisponible, informacionAEscribir);
+            bytesEscritos += espacioDisponible;
+        }
+
+        // Cantidad de bytes que falta escribir. 
+        bytesPorEscribir = cantidadBytesAEscribir - bytesEscritos;
+        espacioDisponible = 0;
     }
 
     log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytesAEscribir);
