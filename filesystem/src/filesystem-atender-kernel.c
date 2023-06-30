@@ -236,7 +236,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido:
    
-    // --> obtener el bloqueActual;
+    // --> obtener el bloqueActual: bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso); ???
     posicionEnBloque = obtener_posicion_en_bloque(punteroProceso);
     posicion = obtener_posicion_absoluta(fcbArchivo,punteroProceso);
     espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
@@ -259,7 +259,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
                 nuevoBloque = buscar_siguiente_bloque(bloqueActual,fcbArchivo);
                 bloqueActual = nuevoBloque;
                 /* el puntero ahora deberia apuntar al nuevo bloque: nuevo bloque * el tamaño de bloque */
-                puntero = nuevoBloque *tamanioBloques;
+                puntero = nuevoBloque * tamanioBloques;
                 // en base al nuevo puntero calculo la nueva posicion
                 posicionEnBloque = obtener_posicion_en_bloque(puntero);
                 espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
@@ -286,7 +286,6 @@ void escribir_en_bloque(uint32_t posicion, uint32_t cantidadBytesAEscribir, char
 {
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques,posicion,SEEK_SET);
-    // REVISAR !!
     fwrite(informacionAEscribir,sizeof(char),cantidadBytesAEscribir,archivoDeBloques);
     fclose(archivoDeBloques);
 }
