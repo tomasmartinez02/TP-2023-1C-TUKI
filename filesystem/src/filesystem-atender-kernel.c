@@ -1,38 +1,5 @@
 #include <filesystem-atender-kernel.h>
 
-void ampliar_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
-{
-    uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    uint32_t tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
-
-    if(cantidadBloquesAsignadosActual == 0) {
-        log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
-        asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
-    }
-    else {
-        /* Si ya tiene bloques, solo se agregan punteros al bloque de punteros */
-        log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
-        asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
-    }
-    fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
-    fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
-}
-
-void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
-{
-    uint32_t cantidadBloquesDesasignar, cantidadBloquesAsignadosActual, tamanioNuevoEnBloques;
-    if (tamanioNuevo == 0)
-    {
-        vaciar_archivo(fcbArchivo);
-        return;
-    }
-    cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
-    cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
-    desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
-    return;
-}
-
 //Verificar que exista el FCB correspondiente al archivo
 void verificar_existencia_archivo(char *nombreArchivo) // para abrir archivo
 {   
@@ -68,6 +35,39 @@ t_fcb *crear_archivo(char *nombreArchivo)
 }
 
 // FTRUNCATE
+
+void ampliar_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+{
+    uint32_t cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    uint32_t tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
+
+    if(cantidadBloquesAsignadosActual == 0) {
+        log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
+        asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
+    }
+    else {
+        /* Si ya tiene bloques, solo se agregan punteros al bloque de punteros */
+        log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
+        asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
+    }
+    fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
+    fcb_set_cantidad_bloques_asignados(fcbArchivo, tamanioNuevoEnBloques);
+}
+
+void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
+{
+    uint32_t cantidadBloquesDesasignar, cantidadBloquesAsignadosActual, tamanioNuevoEnBloques;
+    if (tamanioNuevo == 0)
+    {
+        vaciar_archivo(fcbArchivo);
+        return;
+    }
+    cantidadBloquesAsignadosActual = fcb_get_cantidad_bloques_asignados(fcbArchivo);
+    tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
+    cantidadBloquesDesasignar = cantidadBloquesAsignadosActual - tamanioNuevoEnBloques;
+    desasignar_bloques(fcbArchivo, cantidadBloquesDesasignar);
+    return;
+}
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
@@ -111,8 +111,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
-    uint32_t posicionAbsoluta, espacioDisponible;
-    char *informacion;
+    uint32_t posicionAbsoluta, espacioDisponible, puntero, bytesLeidos, bytesQueFaltanPorLeer;
     bool respuestaMemoria;
 
     // Busco el fcb relacionado al archivo que quiero truncar
@@ -124,6 +123,13 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         return;
     }
 
+    //cantidadBloquesALeer = redondear_hacia_arriba(cantidadBytes, tamanioBloques);
+    puntero = punteroProceso;
+    //bytesLeidos = 0;
+    bytesQueFaltanPorLeer = cantidadBytes;
+    char *informacion = malloc(cantidadBytes);
+    char *buffer = malloc(tamanioBloques);
+
     // Obtengo la posicion desde la cual voy a empezar a leer informacion.
     posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
 
@@ -131,16 +137,65 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+
+    // Si la cantidad de bytes a leer es menor que el espacio que queda en el 
+    // bloque seleccionado, solamente se accede a ese bloque.
     if (cantidadBytes < espacioDisponible)
     {
-        fread(informacion, sizeof(char), cantidadBytes, archivoDeBloques);
-    }
-    else
-    {
-        fread(informacion, sizeof(char), espacioDisponible, archivoDeBloques);
+        fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        bytesLeidos = cantidadBytes;
+        // Ya se leyeron todos los bytes que habia que leer, no hay que hacer nada mas.
+        // Pasar la data leida del buffer al char *informacion.
+        memcpy(informacion, buffer, bytesLeidos);
+        free(buffer);
     }
 
-    informacion = "aca voy a tener la info q voy a leer";
+    // Si la cantidad de bytes a leer es mayor que el espacio que queda en el bloque
+    // seleccionado, se leen todos los bytes que queden en el bloque antes de pasar al siguiente.
+    else
+    {
+        fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
+        // Se mueve el puntero del archivo hasta el ultimo lugar que se leyo.
+        puntero += espacioDisponible; 
+        // Contador de bytes leidos.
+        bytesLeidos = espacioDisponible;
+        // Contador de bytes que faltan por leer.
+        bytesQueFaltanPorLeer -= bytesLeidos;
+        // Pasar la data leida del buffer al char *informacion.
+        memcpy(informacion, buffer, bytesLeidos);
+        free(buffer);
+    }
+
+    // Repetir hasta que se hayan leido todos los bytes.
+    while(bytesQueFaltanPorLeer != 0)
+    {   
+        buffer = malloc(tamanioBloques);
+        // Se busca la posicion del siguiente bloque
+        // (Si todo esta bien esto deberia llevarnos al byte 0 del bloque) A CHECKEAR
+        posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, puntero);
+        // Si el desplazamiento en el bloque es 0 deberia ser lo mismo hacer 
+        // posicionAbsoluta = obtener_bloque_absoluto(fcbArchivo, puntero);
+
+        // Nos movemos a la posición desdeada 
+        fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+        if (bytesQueFaltanPorLeer < tamanioBloques)
+        {
+            fread(buffer, sizeof(char), bytesQueFaltanPorLeer, archivoDeBloques);
+            // Pasar la data leida del buffer al char *informacion.
+            memcpy(informacion+bytesLeidos, buffer, bytesQueFaltanPorLeer);
+            //bytesLeidos += bytesQueFaltanPorLeer; --> creo que ya no hace falta
+            bytesQueFaltanPorLeer = 0;
+        }
+        else
+        {
+            fread(buffer, sizeof(char), tamanioBloques, archivoDeBloques);
+            memcpy(informacion+bytesLeidos, buffer, tamanioBloques);
+            puntero += tamanioBloques;
+            bytesLeidos += tamanioBloques;
+            bytesQueFaltanPorLeer -= tamanioBloques;
+        }
+        free(buffer);
+    }
 
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion);
@@ -153,13 +208,16 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     }
     log_lectura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
     
+    return;
 }
 
 // FWRITE
 
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir)
 {
-    uint32_t bloqueActual, espacioDisponible, bytesAEscribirEnBloque, bytesPorEscribir;
+    uint32_t posicion, posicionEnBloque, puntero;
+    uint32_t bloqueActual, nuevoBloque, espacioDisponible;
+    uint32_t bytesAEscribirEnBloque, bytesPorEscribir;
     uint32_t bytesEscritos = 0;
 
     // Busco el fcb relacionado al archivo en el que se quiere escribir
@@ -178,45 +236,59 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido:
    
-    // obtener bloqueActual;
-    //espacioDisponible = espacio_disponible_en_bloque(bloqueActual);
+    // --> obtener el bloqueActual;
+    posicionEnBloque = obtener_posicion_en_bloque(punteroProceso);
+    posicion = obtener_posicion_absoluta(fcbArchivo,punteroProceso);
+    espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
 
     // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza
-    /*
     if (cantidadBytesAEscribir <= espacioDisponible)
     {
-        escribir_en_bloque(bloqueActual,cantidadBytesAEscribir);
+        escribir_en_bloque(posicion,cantidadBytesAEscribir,informacionAEscribir);
         return;
-    }*/
+    }
 
     /* Si se tienen que escribir más bytes de los que hay disponibles hay que escribir una parte en este bloque
     y el resto en el/los bloques siguientes */
-    /*
     if (cantidadBytesAEscribir > espacioDisponible)
     {
         while (bytesEscritos < cantidadBytesAEscribir) {
 
             if (espacioDisponible == 0)
             {
-                //bloqueActual = buscar_siguiente_bloque(bloqueActual);
-                //espacioDisponible = espacio_disponible_en_bloque(bloqueActual);
+                nuevoBloque = buscar_siguiente_bloque(bloqueActual,fcbArchivo);
+                bloqueActual = nuevoBloque;
+                /* el puntero ahora deberia apuntar al nuevo bloque: nuevo bloque * el tamaño de bloque */
+                puntero = nuevoBloque *tamanioBloques;
+                // en base al nuevo puntero calculo la nueva posicion
+                posicionEnBloque = obtener_posicion_en_bloque(puntero);
+                espacioDisponible = espacio_disponible_en_bloque(posicionEnBloque);
             }
 
-            // cuántos bytes voy a poder escribir en el bloque actual
+            // cuántos bytes voy a poder escribir en el bloque
             bytesAEscribirEnBloque = cantidadBytesAEscribir - espacioDisponible;
 
-            //escribir_en_bloque(bloqueActual,bytesAEscribirEnBloque);
+            /* --> VER CÓMO "ACTUALIZAR" informacionAEscribir PARA QUE EN LA PROXIMA ITERACIÓN
+            SIGA ESCRIBIENDO DESDE DONDE SE QUEDÓ */
+            escribir_en_bloque(posicion,bytesAEscribirEnBloque,informacionAEscribir);
 
             // cuántos bytes van a faltar escribir
             bytesPorEscribir = cantidadBytesAEscribir - bytesAEscribirEnBloque;
-
             bytesEscritos += bytesAEscribirEnBloque;
         }
     }
-    */
 
     log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytesAEscribir);
     enviar_confirmacion_fwrite_finalizado();
+}
+
+void escribir_en_bloque(uint32_t posicion, uint32_t cantidadBytesAEscribir, char *informacionAEscribir)
+{
+    archivoDeBloques = abrir_archivo_de_bloques();
+    fseek(archivoDeBloques,posicion,SEEK_SET);
+    // REVISAR !!
+    fwrite(informacionAEscribir,sizeof(char),cantidadBytesAEscribir,archivoDeBloques);
+    fclose(archivoDeBloques);
 }
 
 void atender_peticiones_kernel()

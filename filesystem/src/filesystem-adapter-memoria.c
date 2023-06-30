@@ -9,7 +9,7 @@ void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBy
     t_buffer *bufferLectura = buffer_create();
     buffer_pack(bufferLectura, &direccionFisica, sizeof(uint32_t));
     buffer_pack(bufferLectura, &cantidadBytes, sizeof(uint32_t));
-    stream_send_buffer(socketMemoria, HEADER_fs_solicitud_memoria_lectura, bufferLectura);
+    stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_lectura, bufferLectura);
     return;
 }
 
@@ -18,12 +18,13 @@ char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
 {   
     void* informacionRecibida = malloc(cantidadBytes);
     int socketMemoria = filesystem_config_get_socket_memoria(filesystemConfig);
+
     t_buffer *bufferInformacion = buffer_create();
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
     stream_recv_buffer(socketMemoria, bufferInformacion);
     buffer_unpack(bufferInformacion, informacionRecibida, cantidadBytes);
 
-    if (respuestaMemoria != HEADER_memoria_confirmacion_fs_lectura)
+    if (respuestaMemoria != HEADER_memoria_confirmacion_lectura)
     {
         log_info(filesystemLogger, "Error al recibir la información de memoria.");
         return  NULL;
@@ -38,7 +39,6 @@ char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
 }
 
 // F_READ
-
 // Enviar información a Memoria para que la escriba en la dirección física. 
  void solicitar_escritura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, char* informacion)
 {
@@ -49,7 +49,7 @@ char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
     buffer_pack(bufferLectura, &cantidadBytes, sizeof(uint32_t));
     buffer_pack(bufferLectura, informacionParaBuffer, cantidadBytes);
     
-    stream_send_buffer(socketMemoria, HEADER_fs_solicitud_memoria_escritura, bufferLectura);
+    stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_escritura, bufferLectura);
     return;
 }
 
@@ -60,7 +60,7 @@ bool recibir_buffer_confirmacion_escritura_memoria()
     uint8_t respuestaMemoria = stream_recv_header(socketMemoria);
     stream_recv_empty_buffer(socketMemoria);
 
-    if (respuestaMemoria != HEADER_memoria_confirmacion_fs_escritura)
+    if (respuestaMemoria != HEADER_memoria_confirmacion_escritura)
     {
         log_info(filesystemLogger, "Error al recibir la confirmación de escritura de memoria.");
         return false;

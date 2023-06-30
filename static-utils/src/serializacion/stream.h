@@ -64,10 +64,10 @@ enum header
     HEADER_tabla_segmentos,
     HEADER_tamanio_archivo_modificado,
    
-    HEADER_fs_solicitud_memoria_lectura,
-    HEADER_memoria_confirmacion_fs_lectura,
-    HEADER_fs_solicitud_memoria_escritura,
-    HEADER_memoria_confirmacion_fs_escritura
+    HEADER_solicitud_memoria_lectura,
+    HEADER_memoria_confirmacion_lectura,
+    HEADER_solicitud_memoria_escritura,
+    HEADER_memoria_confirmacion_escritura
 };
 typedef enum header t_header;
 
