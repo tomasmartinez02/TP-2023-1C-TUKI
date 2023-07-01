@@ -429,7 +429,7 @@ static void __inicializar_hilos() {
     pthread_t atencionFileSystemth;
     pthread_create(&atencionFileSystemth, NULL, atender_modulo, (void*)&parametrosFS);*/
 
-    pthread_join(atencionKernelth, &resultadoAtencionKernel);
+    pthread_join(atencionCPUth, &resultadoAtencionCPU);
     //pthread_join(atencionFileSystemth, &resultadoAtencionFileSystem);
     //pthread_join(atencionCPUth, &resultadoAtencionCPU);
 
