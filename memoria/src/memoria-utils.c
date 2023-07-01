@@ -44,27 +44,36 @@ t_buffer* serializar_bytes_leidos(int socketModulo, uint32_t dirFisica, uint32_t
     return bufferAEnviar;
 }
 
-t_buffer* memoria_recibir_buffer_solicitud(int socketModulo, uint32_t *dirFisica, uint32_t *tamanio)
+t_buffer* memoria_recibir_buffer_solicitud(int socketModulo, uint32_t *dirFisica, uint32_t *tamanio, uint32_t *pid)
 {
     t_buffer* bufferRecibido = buffer_create();
     stream_recv_buffer(socketModulo,bufferRecibido);
 
     buffer_unpack(bufferRecibido, dirFisica, sizeof(dirFisica));
     buffer_unpack(bufferRecibido, tamanio, sizeof(tamanio));
+    buffer_unpack(bufferRecibido, &pid, sizeof(pid));
 
     return bufferRecibido;
 }
 
+void log_lectura_escritura_memoria(char *nombreModulo, uint32_t pid, uint32_t dirFisica, uint32_t tamanio, char *accion)
+{
+    log_info(memoriaLogger, "PID: <%u> - Acción: <%s> - Dirección física: <%u> - Tamaño: <%u> - Origen: <%s>", pid, accion, dirFisica, tamanio, nombreModulo);
+}
 
 void* atender_modulo(void* args)
 {
+    parametrosHilo *parametros = (parametrosHilo *) args;
+    int socketModulo = parametros->socketModulo;
+    char* nombreModulo = parametros->nombreModulo;
 
+    if(socketModulo)
     for (;;) {
-        int socketModulo = *(int*)args;
         t_header headerRecibido = stream_recv_header(socketModulo);
         uint32_t dirFisica;
         uint32_t tamanio;
-        t_buffer* bufferRecibido = memoria_recibir_buffer_solicitud(socketModulo, &dirFisica, &tamanio);
+        uint32_t pid;
+        t_buffer* bufferRecibido = memoria_recibir_buffer_solicitud(socketModulo, &dirFisica, &tamanio, &pid);
         
         switch (headerRecibido) {
             case HEADER_solicitud_memoria_escritura:
@@ -73,13 +82,15 @@ void* atender_modulo(void* args)
                 buffer_unpack(bufferRecibido, bytesRecibidos, tamanio);
                 escribir_valor_en_memoria(dirFisica, bytesRecibidos, tamanio);
                 free(bytesRecibidos);
+                log_lectura_escritura_memoria(nombreModulo, pid, dirFisica, tamanio, "ESCRIBIR");
                 stream_send_empty_buffer(socketModulo, HEADER_memoria_confirmacion_escritura);
                 break;
             }
             case HEADER_solicitud_memoria_lectura:
             {
                 t_buffer* bufferAEnviar = serializar_bytes_leidos(socketModulo, dirFisica, tamanio);
-                stream_send_buffer(socketModulo, HEADER_memoria_confirmacion_lectura, bufferAEnviar); // LOS HEADERS HACERLOS GENERICOS
+                stream_send_buffer(socketModulo, HEADER_memoria_confirmacion_lectura, bufferAEnviar); 
+                log_lectura_escritura_memoria(nombreModulo, pid, dirFisica, tamanio, "LEER");
                 buffer_destroy(bufferAEnviar);
                 break;
             }

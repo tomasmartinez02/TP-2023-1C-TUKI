@@ -43,6 +43,13 @@ struct lista_tablas
     lista_tablas* siguiente; 
 };
 
+typedef struct parametrosHilo parametrosHilo;
+struct parametrosHilo
+{
+    int socketModulo;
+    char* nombreModulo;
+};
+
 enum algoritmo
 {   
     FIRST_FIT,
