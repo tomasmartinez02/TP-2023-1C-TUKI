@@ -215,15 +215,14 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir)
 {
-    log_info(filesystemLogger,"entra a escribir archivo");
+  //  log_info(filesystemLogger,"entra a escribir archivo");
 
-    char *informacionAEscribir = "minombreesirinayvos";
-    log_info(filesystemLogger, "info a escribir: %s", informacionAEscribir);
+  //  char *informacionAEscribir = "... PRUEBA";
+  //  log_info(filesystemLogger, "info a escribir: %s", informacionAEscribir);
     
     uint32_t posicion, puntero;
     uint32_t bloqueActual, nuevoBloque, espacioDisponible;
     uint32_t bytesAEscribirEnBloque, bytesPorEscribir, bytesEscritos;
-
     bytesPorEscribir = cantidadBytesAEscribir;
     bytesEscritos = 0;
 
@@ -236,17 +235,20 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
         return;
     }
 
+    // Solicitar a la Memoria la información que se encuentra a partir de la dirección física
+    solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir);
+
+    char *informacionAEscribir = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
     bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
-    log_info(filesystemLogger,"bloque absoluto: %u", bloqueActual);
+    //log_info(filesystemLogger,"bloque absoluto: %u", bloqueActual);
     posicion = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
 
-    
     espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
 
-    log_info(filesystemLogger, "se va a empezar a escribir desde la posicion <%u> del archivo", punteroProceso);
-    log_info(filesystemLogger,"se va a empezar a escribir desde la posicion <%u> del bloque", posicion);
-    log_info(filesystemLogger,"espacio disponible: %u", espacioDisponible);
+    //log_info(filesystemLogger, "se va a empezar a escribir desde la posicion <%u> del archivo", punteroProceso);
+    //log_info(filesystemLogger,"se va a empezar a escribir desde la posicion <%u> del bloque", posicion);
+    //log_info(filesystemLogger,"espacio disponible: %u", espacioDisponible);
 
     // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza.
     
