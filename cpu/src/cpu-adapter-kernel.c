@@ -27,16 +27,20 @@ static t_cpu_pcb *__desempaquetar_pcb()
     stream_recv_buffer(socketKernel, bufferPcb);
     
     // Desempaqueto pid y pc
-    uint32_t pid, programCounter;
+    uint32_t pid, programCounter, tamanioTablaSegmentos;
     buffer_unpack(bufferPcb, &pid, sizeof(pid));
     buffer_unpack(bufferPcb, &programCounter, sizeof(programCounter));
+    buffer_unpack(bufferPcb, &tamanioTablaSegmentos, sizeof(tamanioTablaSegmentos));
+    t_info_segmentos **tablaSegmentos = desempaquetar_tabla_segmentos(bufferPcb, tamanioTablaSegmentos);
+
 
     // Desempaqueto registros
     t_registros_cpu *registrosCpu;
     registrosCpu = desempaquetar_registros(bufferPcb);
     buffer_destroy(bufferPcb);
 
-    t_cpu_pcb *pcb = crear_pcb(pid, programCounter);
+    t_cpu_pcb *pcb = crear_pcb(pid, programCounter, tamanioTablaSegmentos);
+    cpu_pcb_set_tabla_segmentos(pcb, tablaSegmentos);
     cpu_pcb_set_registros(pcb, registrosCpu);
 
     return pcb;
@@ -118,8 +122,8 @@ t_cpu_pcb *recibir_pcb_de_kernel()
 {   
     t_cpu_pcb *pcbRecibido = __desempaquetar_pcb();
 
-    // t_info_segmentos **tablaSegmentos = __desempaquetar_tabla_segmentos();
-    // cpu_pcb_set_tabla_segmentos(pcbRecibido, tablaSegmentos);
+    t_info_segmentos **tablaSegmentos = __desempaquetar_tabla_segmentos();
+    cpu_pcb_set_tabla_segmentos(pcbRecibido, tablaSegmentos);
     
     t_list *listaInstrucciones = __desempaquetar_instrucciones();
     cpu_pcb_set_instrucciones(pcbRecibido, listaInstrucciones);

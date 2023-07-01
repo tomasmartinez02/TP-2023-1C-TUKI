@@ -28,6 +28,7 @@ struct cpu_pcb
     t_list *instrucciones;
     t_registros_cpu *registrosCpu;
     t_info_segmentos **tablaSegmentos;
+    uint32_t tamanioTablaSegmentos;
 };
 typedef struct cpu_pcb t_cpu_pcb;
 
