@@ -10,15 +10,37 @@ static void __cargar_registros_en_buffer(t_buffer *bufferAEnviar, t_pcb *pcb)
     return;
 }
 
+void __empaquetar_tabla_segmentos_cpu(t_buffer *bufferAEnviar, t_info_segmentos **tablaSegmentos, uint32_t tamanioTablaSegmentos)
+{
+
+    for (int i = 0; i < tamanioTablaSegmentos; i++) {
+        t_info_segmentos *infoSegmento = tablaSegmentos[i];
+        
+        uint32_t idSegmento = infoSegmento->idSegmento;
+        buffer_pack(bufferAEnviar, &idSegmento, sizeof(idSegmento));
+
+        uint32_t direccionBase = infoSegmento->direccionBase;
+        buffer_pack(bufferAEnviar, &direccionBase, sizeof(direccionBase));
+
+        uint32_t tamanio = infoSegmento->tamanio;
+        buffer_pack(bufferAEnviar, &tamanio, sizeof(tamanio));
+    }
+
+    return;
+}
+
 // Empaqueta el pcb para ser enviado a cpu
 static t_buffer *__serializar_pcb_para_ejecucion(t_pcb *pcb)
 {
     t_buffer *bufferAEnviar = buffer_create();
     uint32_t pid = pcb_get_pid(pcb);
     uint32_t programCounter = pcb_get_program_counter(pcb);
+    uint32_t tamanioTablaSegmentos = pcb_get_tamanio_tabla_segmentos(pcb);
 
     buffer_pack(bufferAEnviar, &pid, sizeof(pid));
     buffer_pack(bufferAEnviar, &programCounter, sizeof(programCounter));
+    buffer_pack(bufferAEnviar, &tamanioTablaSegmentos, sizeof(tamanioTablaSegmentos));
+    __empaquetar_tabla_segmentos_cpu(bufferAEnviar, pcb_get_tabla_segmentos(pcb), tamanioTablaSegmentos);
 
     __cargar_registros_en_buffer(bufferAEnviar, pcb);
 
