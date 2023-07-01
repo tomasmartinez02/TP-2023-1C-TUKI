@@ -58,7 +58,6 @@ enum header
     HEADER_solicitud_creacion_archivo,
     HEADER_solicitud_escribir_archivo,
     HEADER_solicitud_finalizacion_proceso,
->>>>>>>>> Temporary merge branch 2
     HEADER_solicitud_inicializacion_proceso,
     HEADER_solicitud_leer_archivo,
     HEADER_solicitud_modificar_tamanio_archivo,
