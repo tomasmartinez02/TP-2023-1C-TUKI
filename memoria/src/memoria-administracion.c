@@ -432,18 +432,18 @@ static void __inicializar_hilos() {
     void* resultadoAtencionKernel;
     pthread_t atencionKernelth;
     pthread_create(&atencionKernelth, NULL, atender_peticiones_kernel, NULL);
-    pthread_join(atencionKernelth, &resultadoAtencionKernel);
 
     void* resultadoAtencionFileSystem;
     pthread_t atencionFileSystemth;
     int socketFileSystem = memoria_config_get_socket_filesystem(memoriaConfig);
     pthread_create(&atencionFileSystemth, NULL, atender_modulo, (void*)&socketFileSystem);
-    pthread_join(atencionFileSystemth, &resultadoAtencionFileSystem);
 
     void* resultadoAtencionCPU;
     pthread_t atencionCPUth;
     int socketCPU = memoria_config_get_socket_cpu(memoriaConfig);
     pthread_create(&atencionCPUth, NULL, atender_modulo, (void*)&socketCPU);
+    pthread_join(atencionKernelth, &resultadoAtencionKernel);
+    pthread_join(atencionFileSystemth, &resultadoAtencionFileSystem);
     pthread_join(atencionCPUth, &resultadoAtencionCPU);
 
     return;
