@@ -49,9 +49,9 @@ t_buffer* memoria_recibir_buffer_solicitud(int socketModulo, uint32_t *dirFisica
     t_buffer* bufferRecibido = buffer_create();
     stream_recv_buffer(socketModulo,bufferRecibido);
 
-    buffer_unpack(bufferRecibido, dirFisica, sizeof(dirFisica));
-    buffer_unpack(bufferRecibido, tamanio, sizeof(tamanio));
-    buffer_unpack(bufferRecibido, &pid, sizeof(pid));
+    buffer_unpack(bufferRecibido, dirFisica, sizeof(uint32_t));
+    buffer_unpack(bufferRecibido, tamanio, sizeof(uint32_t));
+    buffer_unpack(bufferRecibido, &pid, sizeof(uint32_t));
 
     return bufferRecibido;
 }
