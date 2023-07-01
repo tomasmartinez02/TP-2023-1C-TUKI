@@ -80,10 +80,6 @@ struct pcb
     uint32_t socketProceso;
     pthread_mutex_t *mutex;
     char* dispositivoIoEnUso;
-    /*
-    int32_t cantidadUnidadesTiemposIo; estos los necesitamos??
-    t_registro registroUsadoEnIo;
-    */
 };
 typedef struct pcb t_pcb;
 
