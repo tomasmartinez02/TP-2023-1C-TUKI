@@ -122,8 +122,8 @@ t_cpu_pcb *recibir_pcb_de_kernel()
 {   
     t_cpu_pcb *pcbRecibido = __desempaquetar_pcb();
 
-    t_info_segmentos **tablaSegmentos = __desempaquetar_tabla_segmentos();
-    cpu_pcb_set_tabla_segmentos(pcbRecibido, tablaSegmentos);
+    //t_info_segmentos **tablaSegmentos = __desempaquetar_tabla_segmentos();
+    //cpu_pcb_set_tabla_segmentos(pcbRecibido, tablaSegmentos);
     
     t_list *listaInstrucciones = __desempaquetar_instrucciones();
     cpu_pcb_set_instrucciones(pcbRecibido, listaInstrucciones);
