@@ -58,28 +58,28 @@ t_buffer* memoria_recibir_buffer_solicitud(int socketModulo, uint32_t *dirFisica
 
 void* atender_modulo(void* args)
 {
-    int socketModulo = *(int*)args;
 
     for (;;) {
+        int socketModulo = *(int*)args;
         t_header headerRecibido = stream_recv_header(socketModulo);
         uint32_t dirFisica;
         uint32_t tamanio;
         t_buffer* bufferRecibido = memoria_recibir_buffer_solicitud(socketModulo, &dirFisica, &tamanio);
         
         switch (headerRecibido) {
-            case HEADER_fs_solicitud_memoria_escritura:
+            case HEADER_solicitud_memoria_escritura:
             {
                 void* bytesRecibidos = malloc(tamanio);
                 buffer_unpack(bufferRecibido, bytesRecibidos, tamanio);
                 escribir_valor_en_memoria(dirFisica, bytesRecibidos, tamanio);
                 free(bytesRecibidos);
-                stream_send_empty_buffer(socketModulo, HEADER_memoria_confirmacion_fs_escritura);
+                stream_send_empty_buffer(socketModulo, HEADER_memoria_confirmacion_escritura);
                 break;
             }
-            case HEADER_fs_solicitud_memoria_lectura:
+            case HEADER_solicitud_memoria_lectura:
             {
                 t_buffer* bufferAEnviar = serializar_bytes_leidos(socketModulo, dirFisica, tamanio);
-                stream_send_buffer(socketModulo, HEADER_memoria_confirmacion_fs_lectura, bufferAEnviar); // LOS HEADERS HACERLOS GENERICOS
+                stream_send_buffer(socketModulo, HEADER_memoria_confirmacion_lectura, bufferAEnviar); // LOS HEADERS HACERLOS GENERICOS
                 buffer_destroy(bufferAEnviar);
                 break;
             }
