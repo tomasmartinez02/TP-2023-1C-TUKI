@@ -2,12 +2,13 @@
 
 // Funciones privadas
 
-static void __enviar_pedido_lectura_a_memoria(uint32_t dirFisica, uint32_t tamanio)
+static void __enviar_pedido_lectura_a_memoria(uint32_t dirFisica, uint32_t tamanio, uint32_t pid)
 {
     int socketMemoria = cpu_config_get_socket_memoria(cpuConfig); 
     t_buffer *bufferAEnviar = buffer_create();
     buffer_pack(bufferAEnviar, &dirFisica, sizeof(dirFisica));
     buffer_pack(bufferAEnviar, &tamanio, sizeof(tamanio));
+    buffer_pack(bufferAEnviar, &pid, sizeof(pid));
 
     stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_lectura, bufferAEnviar);
     buffer_destroy(bufferAEnviar);
@@ -49,7 +50,7 @@ static void __ejecutar_instruccion_movin(t_cpu_pcb *pcb, t_instruccion *siguient
 
     uint32_t tamanio = obtener_tamanio_segun_registro(registro);
 
-    __enviar_pedido_lectura_a_memoria(dirFisica, tamanio);
+    __enviar_pedido_lectura_a_memoria(dirFisica, tamanio, cpu_pcb_get_pid(pcb));
     char *valor = __recibir_valor_a_escribir(tamanio);
   
     set_registro_segun_tipo(pcb, registro, valor);
@@ -57,12 +58,13 @@ static void __ejecutar_instruccion_movin(t_cpu_pcb *pcb, t_instruccion *siguient
     return;
 }
 
-static void __enviar_pedido_escritura_a_memoria(uint32_t dirFisica, uint32_t tamanio, void* bytesAEnviar)
+static void __enviar_pedido_escritura_a_memoria(uint32_t dirFisica, uint32_t tamanio, uint32_t pid, void* bytesAEnviar)
 {
     int socketMemoria = cpu_config_get_socket_memoria(cpuConfig); 
     t_buffer *bufferAEnviar = buffer_create();
     buffer_pack(bufferAEnviar, &dirFisica, sizeof(dirFisica));
     buffer_pack(bufferAEnviar, &tamanio, sizeof(tamanio));
+    buffer_pack(bufferAEnviar, &pid, sizeof(pid));
     buffer_pack(bufferAEnviar, bytesAEnviar, tamanio);
 
     stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_escritura, bufferAEnviar);
@@ -102,7 +104,7 @@ static void __ejecutar_instruccion_movout(t_cpu_pcb *pcb, t_instruccion *siguien
     void* bytesAEnviar = malloc(tamanio);
     memcpy(bytesAEnviar, valorRegistro, tamanio);
 
-    __enviar_pedido_escritura_a_memoria(dirFisica, tamanio, bytesAEnviar);
+    __enviar_pedido_escritura_a_memoria(dirFisica, tamanio, cpu_pcb_get_pid(pcb), bytesAEnviar);
     __recibir_confirmacion_escritura(tamanio);
     free(bytesAEnviar);
     free(valorRegistro);
