@@ -1,5 +1,5 @@
-#ifndef CPU_PCB_H_
-#define CPU_PCB_H_
+#ifndef CPU_MMU_H_
+#define CPU_MMU_H_
 
 // Bibliotecas estandar
 #include <stdint.h>
@@ -9,7 +9,7 @@
 
 // Prototipos
 
-uint32_t obtener_offset(uint32_t dirLogica);
-uint32_t obtener_numero_segmento(uint32_t dirLogica); 
-
+uint32_t obtener_direccion_fisica(t_cpu_pcb *pcb,uint32_t dirLogica);
+uint32_t obtener_tamanio_segun_registro(t_registro registro); 
+char *obtener_valor_registro(t_registro registro, t_registros_cpu *registrosCpu);
 #endif
