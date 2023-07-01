@@ -39,6 +39,8 @@ enum header
     HEADER_instruccion_delete_segment,
     HEADER_instruccion_yield,
     HEADER_instruccion_exit,
+    HEADER_tiempo_io,
+    HEADER_dispositivo_io,
     HEADER_lectura_finalizada,
     HEADER_lista_instrucciones,
     HEADER_memoria_compactada,
@@ -56,8 +58,7 @@ enum header
     HEADER_solicitud_creacion_archivo,
     HEADER_solicitud_escribir_archivo,
     HEADER_solicitud_finalizacion_proceso,
-    HEADER_tiempo_io,
-    HEADER_dispositivo_io,
+>>>>>>>>> Temporary merge branch 2
     HEADER_solicitud_inicializacion_proceso,
     HEADER_solicitud_leer_archivo,
     HEADER_solicitud_modificar_tamanio_archivo,

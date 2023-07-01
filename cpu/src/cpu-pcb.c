@@ -1,11 +1,12 @@
 #include <cpu-pcb.h>
 
-t_cpu_pcb* crear_pcb(int pid, int programCounter)
+t_cpu_pcb* crear_pcb(int pid, int programCounter, uint32_t tamanioTablaSegmentos)
 {
     t_cpu_pcb *pcb = malloc(sizeof(*pcb));
     
     pcb->pid = pid;
     pcb->programCounter = programCounter;
+    pcb->tamanioTablaSegmentos = tamanioTablaSegmentos;
     pcb->instrucciones = NULL;
     pcb->registrosCpu = NULL;
     pcb->tablaSegmentos = NULL;
@@ -17,7 +18,7 @@ void cpu_pcb_destroy(t_cpu_pcb* pcb)
 {
     destroy_lista_instrucciones(pcb->instrucciones);
     registros_cpu_destroy(pcb->registrosCpu);
-    // destruir_tabla_segmentos(pcb->tablaSegmentos);
+    destruir_tabla_segmentos(pcb->tablaSegmentos, pcb->tamanioTablaSegmentos);
     free(pcb);
 
     return;
@@ -79,9 +80,21 @@ t_info_segmentos **cpu_pcb_get_tabla_segmentos(t_cpu_pcb *pcb)
     return pcb->tablaSegmentos;
 }
 
-void cpu_pcb_set_tabla_segmentos(t_cpu_pcb* pcb, t_info_segmentos **tablaSegmentos)
+void cpu_pcb_set_tabla_segmentos(t_cpu_pcb* pcb, t_info_segmentos **nuevaTablaSegmentos)
 {
-    pcb->tablaSegmentos = tablaSegmentos;
+    if(pcb->tablaSegmentos != NULL){
+    destruir_tabla_segmentos(pcb->tablaSegmentos, pcb->tamanioTablaSegmentos);
+    }
+    // Realizar una copia profunda de la tabla de segmentos
+    pcb->tablaSegmentos = malloc(sizeof(t_info_segmentos *) * pcb->tamanioTablaSegmentos);
+    for (int i = 0; i < pcb->tamanioTablaSegmentos; i++) {
+        pcb->tablaSegmentos[i] = malloc(sizeof(t_info_segmentos));
+        pcb->tablaSegmentos[i]->idSegmento = nuevaTablaSegmentos[i]->idSegmento;
+        pcb->tablaSegmentos[i]->direccionBase = nuevaTablaSegmentos[i]->direccionBase;
+        pcb->tablaSegmentos[i]->tamanio = nuevaTablaSegmentos[i]->tamanio;
+    }
+
+    free(nuevaTablaSegmentos);
 }
 
 char *get_registro_segun_tipo(t_cpu_pcb *pcb, t_registro tipoRegistro)

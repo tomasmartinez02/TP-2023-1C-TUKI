@@ -10,7 +10,7 @@
 
 // Prototipos
 
-t_cpu_pcb* crear_pcb(int pid, int programCounter);
+t_cpu_pcb* crear_pcb(int pid, int programCounter, uint32_t tamanioTablaSegmentos);
 void cpu_pcb_destroy(t_cpu_pcb* self);
 int cpu_pcb_get_pid(t_cpu_pcb* self);
 int cpu_pcb_get_program_counter(t_cpu_pcb* self);
