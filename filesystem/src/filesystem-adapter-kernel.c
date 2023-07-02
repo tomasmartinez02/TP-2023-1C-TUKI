@@ -40,7 +40,7 @@ void recibir_buffer_truncate_archivo(char **nombreArchivo, uint32_t *tamanioNuev
     return;
 }
 
-void recibir_buffer_lectura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes)
+void recibir_buffer_lectura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes, uint32_t *pid)
 {
     int socketKernel = filesystem_config_get_socket_kernel(filesystemConfig);
 
@@ -62,13 +62,16 @@ void recibir_buffer_lectura_archivo(char **nombreArchivo, uint32_t *puntero, uin
     uint32_t bytes;
     buffer_unpack(bufferLectura, &bytes, sizeof(bytes));
     *cantidadBytes = bytes;
+
+    uint32_t pidProceso;
+    buffer_unpack(bufferLectura, &pidProceso, sizeof(pidProceso));
+    *pid = pidProceso;
 
     buffer_destroy(bufferLectura);
     return;
 }
 
-//codigo duplicado ?? !! 
-void recibir_buffer_escritura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes)
+void recibir_buffer_escritura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes, uint32_t* pid)
 {
     int socketKernel = filesystem_config_get_socket_kernel(filesystemConfig);
 
@@ -90,6 +93,10 @@ void recibir_buffer_escritura_archivo(char **nombreArchivo, uint32_t *puntero, u
     uint32_t bytes;
     buffer_unpack(bufferLectura, &bytes, sizeof(bytes));
     *cantidadBytes = bytes;
+
+    uint32_t pidProceso;
+    buffer_unpack(bufferLectura, &pidProceso, sizeof(pidProceso));
+    *pid = pidProceso;
 
     buffer_destroy(bufferLectura);
     return;
@@ -108,7 +115,6 @@ void enviar_confirmacion_no_existencia_archivo()
     stream_send_empty_buffer(socketKernel, HEADER_archivo_no_existe_en_filesystem);
     return;
 }
-
 
 void enviar_confirmacion_archivo_creado()
 {

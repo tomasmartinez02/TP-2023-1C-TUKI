@@ -320,5 +320,6 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
                 return siguienteBloque;
             }
         }
+        return 0; // si no tira warning
     }
 }

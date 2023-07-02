@@ -109,7 +109,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 // FREAD
 
 // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
-void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes)
+void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {   
     uint32_t posicionAbsoluta, espacioDisponible, puntero, bytesLeidos, bytesQueFaltanPorLeer;
     bool respuestaMemoria;
@@ -198,7 +198,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     }
 
     // Enviar información a memoria para ser escrita a partir de la dirección física 
-    solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion);
+    solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion, pidProceso);
     
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
     respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
@@ -213,7 +213,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
 // FWRITE
 
-void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir)
+void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir, uint32_t pidProceso)
 {
   //  log_info(filesystemLogger,"entra a escribir archivo");
 
@@ -222,7 +222,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     
     uint32_t posicion, puntero;
     uint32_t bloqueActual, nuevoBloque, espacioDisponible;
-    uint32_t bytesAEscribirEnBloque, bytesPorEscribir, bytesEscritos;
+    uint32_t bytesPorEscribir, bytesEscritos;
     bytesPorEscribir = cantidadBytesAEscribir;
     bytesEscritos = 0;
 
@@ -236,7 +236,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     }
 
     // Solicitar a la Memoria la información que se encuentra a partir de la dirección física
-    solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir);
+    solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir, pidProceso);
 
     char *informacionAEscribir = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
@@ -280,7 +280,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
         log_info(filesystemLogger,"espacio disponible: %u", espacioDisponible);
         //Cuántos bytes voy a poder escribir en el bloque
-        bytesAEscribirEnBloque = espacioDisponible;
+        //bytesAEscribirEnBloque = espacioDisponible;
 
         if (bytesPorEscribir <= tamanioBloques)
         {
@@ -346,8 +346,9 @@ void atender_peticiones_kernel()
                 uint32_t direccionFisica;
                 uint32_t cantidadBytes;
                 uint32_t puntero;
-                recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
-                escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+                uint32_t pidProceso;
+                recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
+                escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
 
                 // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
@@ -361,8 +362,9 @@ void atender_peticiones_kernel()
                 uint32_t direccionFisica;
                 uint32_t cantidadBytes;
                 uint32_t puntero;
-                recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes);
-                leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes);
+                uint32_t pidProceso;
+                recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
+                leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
 
                 // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
