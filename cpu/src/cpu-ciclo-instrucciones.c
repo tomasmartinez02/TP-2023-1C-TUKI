@@ -41,10 +41,9 @@ static char* __recibir_valor_a_escribir(uint32_t tamanio)
     return valorEscritura;
 }
 
-static void __ejecutar_instruccion_movin(t_cpu_pcb *pcb, t_instruccion *siguienteInstruccion)
+/*static void __ejecutar_instruccion_movin(t_cpu_pcb *pcb, t_instruccion *siguienteInstruccion)
 {
     t_registro registro = instruccion_get_registro1(siguienteInstruccion);
-
     uint32_t dirLogica = instruccion_get_operando2(siguienteInstruccion);
     uint32_t dirFisica = obtener_direccion_fisica(pcb, dirLogica);
 
@@ -56,7 +55,7 @@ static void __ejecutar_instruccion_movin(t_cpu_pcb *pcb, t_instruccion *siguient
     set_registro_segun_tipo(pcb, registro, valor);
 
     return;
-}
+}*/
 
 static void __enviar_pedido_escritura_a_memoria(uint32_t dirFisica, uint32_t tamanio, uint32_t pid, void* bytesAEnviar)
 {
@@ -73,7 +72,7 @@ static void __enviar_pedido_escritura_a_memoria(uint32_t dirFisica, uint32_t tam
     return;
 }
 
-static void __recibir_confirmacion_escritura(uint32_t tamanio)
+static void __recibir_confirmacion_escritura()
 {
     int socketMemoria = cpu_config_get_socket_memoria(cpuConfig);
     t_header header = stream_recv_header(socketMemoria);
@@ -89,7 +88,7 @@ static void __recibir_confirmacion_escritura(uint32_t tamanio)
     return;
 }
 
-static void __ejecutar_instruccion_movout(t_cpu_pcb *pcb, t_instruccion *siguienteInstruccion)
+/*static void __ejecutar_instruccion_movout(t_cpu_pcb *pcb, t_instruccion *siguienteInstruccion)
 {
     uint32_t dirLogica = instruccion_get_operando1(siguienteInstruccion);
     uint32_t dirFisica = obtener_direccion_fisica(pcb, dirLogica);
@@ -109,6 +108,12 @@ static void __ejecutar_instruccion_movout(t_cpu_pcb *pcb, t_instruccion *siguien
     free(bytesAEnviar);
     free(valorRegistro);
 
+    return;
+} */
+
+static void __logear_segmentation_fault(uint32_t pid, uint32_t numSegmento, uint32_t offset, uint32_t tamanio)
+{
+    log_info(cpuLogger, "PID: <%u> - Error SEG_FAULT- Segmento: <%u> - Offset: <%u> - Tamaño: <%u>", pid, numSegmento, offset, tamanio);
     return;
 }
 
@@ -169,15 +174,52 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         case INSTRUCCION_movin:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-            __ejecutar_instruccion_movin(pcb, siguienteInstruccion);
-            incrementar_program_counter(pcb);
+            uint32_t numeroSegmento, offset, tamanioSegmento;
+            t_registro registro = instruccion_get_registro1(siguienteInstruccion);
+            uint32_t dirLogica = instruccion_get_operando2(siguienteInstruccion);
+            uint32_t dirFisica = obtener_direccion_fisica(pcb, dirLogica, &numeroSegmento, &offset, &tamanioSegmento);
+            uint32_t tamanioALeer = obtener_tamanio_segun_registro(registro);
+
+            if((tamanioALeer + offset) <= tamanioSegmento){
+                __enviar_pedido_lectura_a_memoria(dirFisica, tamanioALeer, cpu_pcb_get_pid(pcb));
+                char *valor = __recibir_valor_a_escribir(tamanioALeer);
+                set_registro_segun_tipo(pcb, registro, valor);
+                incrementar_program_counter(pcb);
+            }else {
+                incrementar_program_counter(pcb);
+                enviar_pcb_desalojado_a_kernel(pcb);
+                __logear_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                enviar_motivo_desalojo_segmentation_fault();
+                terminarEjecucion = true;
+            }
             break;
         }
         case INSTRUCCION_movout:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-            __ejecutar_instruccion_movout(pcb, siguienteInstruccion);
-            incrementar_program_counter(pcb);
+            uint32_t numeroSegmento, offset, tamanioSegmento;
+            uint32_t dirLogica = instruccion_get_operando1(siguienteInstruccion);
+            t_registro registro = instruccion_get_registro2(siguienteInstruccion);
+            uint32_t dirFisica = obtener_direccion_fisica(pcb, dirLogica, &numeroSegmento, &offset, &tamanioSegmento);
+            uint32_t tamanioALeer = obtener_tamanio_segun_registro(registro);
+
+            if((tamanioALeer + offset) <= tamanioSegmento){
+                t_registros_cpu *registrosCPU = cpu_pcb_get_registros(pcb);
+                char* valorRegistro = obtener_valor_registro(registro, registrosCPU);
+                void* bytesAEnviar = malloc(tamanioALeer);
+                memcpy(bytesAEnviar, valorRegistro, tamanioALeer);
+                __enviar_pedido_escritura_a_memoria(dirFisica, tamanioALeer, cpu_pcb_get_pid(pcb), bytesAEnviar);
+                __recibir_confirmacion_escritura();
+                free(bytesAEnviar);
+                free(valorRegistro);
+            } else{
+                incrementar_program_counter(pcb);
+                enviar_pcb_desalojado_a_kernel(pcb);
+                __logear_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                enviar_motivo_desalojo_segmentation_fault();
+                terminarEjecucion = true;
+            }    
+            
             break;
         }
         case INSTRUCCION_io:

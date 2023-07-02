@@ -14,7 +14,7 @@ static uint32_t __obtener_offset(uint32_t dirLogica)
     return (uint32_t) dirLogica % tam_max_segmento;
 }
 
-static uint32_t __obtener_base_segmento(t_cpu_pcb *pcb, uint32_t numeroSegmento)
+static uint32_t __obtener_base_segmento(t_cpu_pcb *pcb, uint32_t numeroSegmento,  uint32_t *tamanio)
 {
     uint32_t base;
     uint32_t indice = 0;
@@ -24,18 +24,19 @@ static uint32_t __obtener_base_segmento(t_cpu_pcb *pcb, uint32_t numeroSegmento)
     }
 
     base = pcb->tablaSegmentos[indice]->direccionBase;
+    *tamanio = pcb->tablaSegmentos[indice]->tamanio;
 
     return base;
 }
 
 // Funciones publicas
 
-uint32_t obtener_direccion_fisica(t_cpu_pcb *pcb,uint32_t dirLogica)
+uint32_t obtener_direccion_fisica(t_cpu_pcb *pcb,uint32_t dirLogica, uint32_t *numeroSegmento, uint32_t *offset, uint32_t *tamanioSegmento)
 {
-    uint32_t numeroSegmento = __obtener_numero_segmento(dirLogica);
-    uint32_t offset = __obtener_offset(dirLogica);
-    uint32_t base = __obtener_base_segmento(pcb, numeroSegmento);
-    uint32_t direccionFisica = base + offset;
+    *numeroSegmento = __obtener_numero_segmento(dirLogica);
+    *offset = __obtener_offset(dirLogica);
+    uint32_t base = __obtener_base_segmento(pcb, *numeroSegmento, tamanioSegmento);
+    uint32_t direccionFisica = base + *offset;
     return direccionFisica;
 }
 

@@ -154,6 +154,15 @@ void enviar_motivo_desalojo_yield(void)
     return;
 }
 
+void enviar_motivo_desalojo_segmentation_fault()
+{
+    int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
+    t_buffer *desalojoSegFault = buffer_create();
+    stream_send_empty_buffer(socketKernel, HEADER_segmentation_fault);
+    buffer_destroy(desalojoSegFault);
+    return;
+}
+
 void enviar_motivo_desalojo_io(t_instruccion *siguienteInstruccion)
 {   
     int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
