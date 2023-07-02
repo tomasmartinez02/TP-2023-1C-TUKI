@@ -36,9 +36,9 @@ t_fcb *crear_archivo(char *nombreArchivo);
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo);
 
-void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes);
+void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso);
 
-void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir);
+void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir, uint32_t pidProceso);
 
 void atender_peticiones_kernel(void);
 

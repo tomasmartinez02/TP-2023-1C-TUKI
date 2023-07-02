@@ -1,14 +1,14 @@
 #include <filesystem-adapter-memoria.h>
 
 // F_WRITE
-
 // Solicitar a la Memoria la información que se encuentra a partir de la dirección física.
-void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBytes)
+void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pid)
 {
     int socketMemoria = filesystem_config_get_socket_memoria(filesystemConfig);
     t_buffer *bufferLectura = buffer_create();
     buffer_pack(bufferLectura, &direccionFisica, sizeof(uint32_t));
     buffer_pack(bufferLectura, &cantidadBytes, sizeof(uint32_t));
+    buffer_pack(bufferLectura, &pid, sizeof(uint32_t));
     stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_lectura, bufferLectura);
     return;
 }
@@ -40,13 +40,14 @@ char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
 
 // F_READ
 // Enviar información a Memoria para que la escriba en la dirección física. 
- void solicitar_escritura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, char* informacion)
+ void solicitar_escritura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, char* informacion, uint32_t pid)
 {
     int socketMemoria = filesystem_config_get_socket_memoria(filesystemConfig);
     void *informacionParaBuffer = (void*)informacion;
     t_buffer *bufferLectura = buffer_create();
     buffer_pack(bufferLectura, &direccionFisica, sizeof(uint32_t));
     buffer_pack(bufferLectura, &cantidadBytes, sizeof(uint32_t));
+    buffer_pack(bufferLectura, &pid, sizeof(uint32_t));
     buffer_pack(bufferLectura, informacionParaBuffer, cantidadBytes);
     
     stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_escritura, bufferLectura);

@@ -123,8 +123,8 @@ void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, u
 
 void inicializar_estructuras(void)
 {
-    char *pathArchivoBloquesHardcodeado = "./archivos/bloques.dat";
-    char *pathDirectorioFcbsHardcodeado = "./fcbs";
+    //char *pathArchivoBloquesHardcodeado = "./archivos/bloques.dat";
+    //char *pathDirectorioFcbsHardcodeado = "./fcbs";
 
     char *pathSuperbloque = filesystem_config_get_path_superbloque(filesystemConfig);
     superbloque = crear_superbloque(pathSuperbloque);

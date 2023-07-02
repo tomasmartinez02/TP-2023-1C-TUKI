@@ -21,8 +21,8 @@
 t_header recibir_header_peticion_de_kernel(void);
 char *recibir_buffer_nombre_archivo(void);
 void recibir_buffer_truncate_archivo(char **nombreArchivo, uint32_t *tamanioNuevo);
-void recibir_buffer_lectura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes);
-void recibir_buffer_escritura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes);
+void recibir_buffer_lectura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes, uint32_t *pid);
+void recibir_buffer_escritura_archivo(char **nombreArchivo, uint32_t *puntero, uint32_t *direccionFisica, uint32_t *cantidadBytes, uint32_t *pid);
 void enviar_confirmacion_existencia_archivo(void);
 void enviar_confirmacion_no_existencia_archivo(void);
 void enviar_confirmacion_archivo_creado(void);
