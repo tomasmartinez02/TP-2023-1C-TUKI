@@ -212,6 +212,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
                 __recibir_confirmacion_escritura();
                 free(bytesAEnviar);
                 free(valorRegistro);
+                incrementar_program_counter(pcb);
             } else{
                 incrementar_program_counter(pcb);
                 enviar_pcb_desalojado_a_kernel(pcb);
