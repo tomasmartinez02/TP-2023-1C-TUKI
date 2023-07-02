@@ -111,6 +111,12 @@ static void __recibir_confirmacion_escritura()
     return;
 } */
 
+static void __logear_segmentation_fault(uint32_t pid, uint32_t numSegmento, uint32_t offset, uint32_t tamanio)
+{
+    log_info(cpuLogger, "PID: <%u> - Error SEG_FAULT- Segmento: <%u> - Offset: <%u> - Tamaño: <%u>", pid, numSegmento, offset, tamanio);
+    return;
+}
+
 // Funciones publicas
 
 void cpu_decode_instruccion(t_instruccion *instruccion)
@@ -182,7 +188,8 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             }else {
                 incrementar_program_counter(pcb);
                 enviar_pcb_desalojado_a_kernel(pcb);
-                enviar_motivo_desalojo_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                __logear_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                enviar_motivo_desalojo_segmentation_fault();
                 terminarEjecucion = true;
             }
             break;
@@ -208,7 +215,8 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
             } else{
                 incrementar_program_counter(pcb);
                 enviar_pcb_desalojado_a_kernel(pcb);
-                enviar_motivo_desalojo_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                __logear_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                enviar_motivo_desalojo_segmentation_fault();
                 terminarEjecucion = true;
             }    
             

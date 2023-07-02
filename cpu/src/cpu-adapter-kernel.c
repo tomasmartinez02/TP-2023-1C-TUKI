@@ -154,15 +154,11 @@ void enviar_motivo_desalojo_yield(void)
     return;
 }
 
-void enviar_motivo_desalojo_segmentation_fault(uint32_t pid, uint32_t numSegmento, uint32_t offset, uint32_t tamanio)
+void enviar_motivo_desalojo_segmentation_fault()
 {
     int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
     t_buffer *desalojoSegFault = buffer_create();
-    buffer_pack(desalojoSegFault, &pid, sizeof(pid));
-    buffer_pack(desalojoSegFault, &numSegmento, sizeof(numSegmento));
-    buffer_pack(desalojoSegFault, &offset, sizeof(offset));
-    buffer_pack(desalojoSegFault, &tamanio, sizeof(tamanio));
-    stream_send_buffer(socketKernel, HEADER_segmentation_fault, desalojoSegFault);
+    stream_send_empty_buffer(socketKernel, HEADER_segmentation_fault);
     buffer_destroy(desalojoSegFault);
     return;
 }

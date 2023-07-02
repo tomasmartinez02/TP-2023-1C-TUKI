@@ -32,6 +32,6 @@ void enviar_motivo_desalojo_fseek(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_ftruncate(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion);
-void enviar_motivo_desalojo_segmentation_fault(uint32_t pid, uint32_t numSegmento, uint32_t offset, uint32_t tamanio);
+void enviar_motivo_desalojo_segmentation_fault();
 
 #endif
