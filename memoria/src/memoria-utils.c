@@ -51,7 +51,7 @@ t_buffer* memoria_recibir_buffer_solicitud(int socketModulo, uint32_t *dirFisica
 
     buffer_unpack(bufferRecibido, dirFisica, sizeof(uint32_t));
     buffer_unpack(bufferRecibido, tamanio, sizeof(uint32_t));
-    buffer_unpack(bufferRecibido, &pid, sizeof(uint32_t));
+    buffer_unpack(bufferRecibido, pid, sizeof(uint32_t));
 
     return bufferRecibido;
 }
