@@ -28,7 +28,7 @@ void __solicitar_modificacion_tamanio_archivo(t_pcb *pcbEnEjecucion, char *nombr
     buffer_destroy(bufferTruncar);
 }
 
-void __solicitar_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
+void __solicitar_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     t_buffer *bufferFwrite = buffer_create();
@@ -36,11 +36,12 @@ void __solicitar_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, in
     buffer_pack(bufferFwrite, &punteroArchivo, sizeof(punteroArchivo));
     buffer_pack(bufferFwrite, &direccionFisica, sizeof(direccionFisica));
     buffer_pack(bufferFwrite, &cantidadBytes, sizeof(cantidadBytes));
+    buffer_pack(bufferFwrite, &pidProceso, sizeof(uint32_t));
     stream_send_buffer(socketFilesystem, HEADER_solicitud_escribir_archivo, bufferFwrite);
     buffer_destroy(bufferFwrite);
 }
 
-void __solicitar_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
+void __solicitar_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
     t_buffer *bufferFread = buffer_create();
@@ -48,6 +49,7 @@ void __solicitar_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_
     buffer_pack(bufferFread, &punteroArchivo, sizeof(punteroArchivo));
     buffer_pack(bufferFread, &direccionFisica, sizeof(direccionFisica));
     buffer_pack(bufferFread, &cantidadBytes, sizeof(cantidadBytes));
+    buffer_pack(bufferFread, &pidProceso, sizeof(uint32_t));
     stream_send_buffer(socketFilesystem, HEADER_solicitud_leer_archivo, bufferFread);
     buffer_destroy(bufferFread);
 }
@@ -112,6 +114,7 @@ typedef struct ParametrosHiloIO {
     uint32_t punteroArchivo;
     uint32_t direccionFisica;
     uint32_t cantidadBytes;
+    uint32_t pidProceso;
 } t_parametros_hilo_IO;
 
 
@@ -145,10 +148,11 @@ void *hiloFread(void* arg)
     uint32_t punteroArchivo = parametrosHilo->punteroArchivo;
     uint32_t direccionFisica = parametrosHilo->direccionFisica;
     uint32_t cantidadBytes = parametrosHilo->cantidadBytes;
+    uint32_t pidProceso = parametrosHilo->pidProceso;
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
 
      pthread_mutex_lock(&mutexSocketFilesystem);
-    __solicitar_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
+    __solicitar_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes, pidProceso);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
     pthread_mutex_unlock(&mutexSocketFilesystem);
@@ -169,10 +173,11 @@ void *hiloFwrite(void* arg)
     uint32_t punteroArchivo = parametrosHilo->punteroArchivo;
     uint32_t direccionFisica = parametrosHilo->direccionFisica;
     uint32_t cantidadBytes = parametrosHilo->cantidadBytes;
+    uint32_t pidProceso = parametrosHilo->pidProceso;
     int socketFilesystem = kernel_config_get_socket_filesystem(kernelConfig);
 
     pthread_mutex_lock(&mutexSocketFilesystem);
-    __solicitar_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
+    __solicitar_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes, pidProceso);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
     log_info(kernelLogger, "FS recibe el header %u:", respuestaFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
@@ -204,7 +209,7 @@ void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombr
     return;
 }
 
-void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
+void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {  
     pthread_t esperarFinalizacionLectura;
     log_info(kernelLogger, "PID <%d> solicita leer de un archivo.", pcb_get_pid(pcbEnEjecucion));
@@ -215,6 +220,7 @@ void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreAr
     parametrosHilo->punteroArchivo = punteroArchivo;
     parametrosHilo->direccionFisica = direccionFisica;
     parametrosHilo->cantidadBytes = cantidadBytes;
+    parametrosHilo->pidProceso = pidProceso;
 
     // Hilo que envia la solicitud de leida y se bloquea hasta que reciba la confirmación de su finalización
     pthread_create(&esperarFinalizacionLectura, NULL, hiloFread, (void*)parametrosHilo);
@@ -222,7 +228,7 @@ void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreAr
 }
 
 
-void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
+void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {
     pthread_t esperarFinalizacionEscritura;
     log_info(kernelLogger, "PID <%d> solicita escribir en un archivo.", pcb_get_pid(pcbEnEjecucion));
@@ -233,6 +239,7 @@ void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nomb
     parametrosHilo->punteroArchivo = punteroArchivo;
     parametrosHilo->direccionFisica = direccionFisica;
     parametrosHilo->cantidadBytes = cantidadBytes;
+    parametrosHilo->pidProceso = pidProceso;
     
     // Hilo que envia la solicitud de escritura y se bloquea hasta que reciba la confirmación de su finalización
     pthread_create(&esperarFinalizacionEscritura, NULL, hiloFwrite, (void*)parametrosHilo);

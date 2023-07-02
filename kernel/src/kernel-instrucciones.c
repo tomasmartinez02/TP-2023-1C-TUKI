@@ -174,10 +174,11 @@ F_READ: Para esta función se solicita al módulo File System que lea desde el p
 void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
     t_dictionary *archivosAbiertos = pcb_get_archivos_abiertos(pcbEnEjecucion);
+    uint32_t pidProceso = pcb_get_pid(pcbEnEjecucion);
     int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
     // El PCB se bloquea hasta que FS avisa que ya termino de leer del archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
-    adapter_filesystem_pedir_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
+    adapter_filesystem_pedir_leer_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes, pidProceso);
     log_ejecucion_fread(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     return;
 }
@@ -185,10 +186,11 @@ void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint
 void ejecutar_instruccion_fwrite(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
     t_dictionary *archivosAbiertos = pcb_get_archivos_abiertos(pcbEnEjecucion);
+    uint32_t pidProceso = pcb_get_pid(pcbEnEjecucion);
     int32_t punteroArchivo = (int32_t)(intptr_t)dictionary_get(archivosAbiertos, nombreArchivo);
       // El PCB se bloquea hasta que FS avisa que ya termino de escribir el archivo
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
-    adapter_filesystem_pedir_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
+    adapter_filesystem_pedir_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes, pidProceso);
     log_ejecucion_fwrite(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes);
     return;
 }
