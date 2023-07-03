@@ -287,8 +287,10 @@ static void __unir_3_huecos (t_huecos_libres* huecoAnterior, t_huecos_libres* hu
 static void __unir_2_huecos_inferior (t_huecos_libres* huecoAnterior, t_info_segmentos* huecoAInsertar)
 {
     uint32_t nuevoTamanio = huecoAnterior->hueco->tamanio + huecoAInsertar->tamanio;
+    uint32_t nuevaBase = huecoAInsertar->direccionBase;
 
     huecoAnterior->hueco->tamanio = nuevoTamanio;
+    huecoAnterior->hueco->direccionBase = nuevaBase;
 
     free(huecoAInsertar);
 
