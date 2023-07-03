@@ -1,0 +1,9 @@
+[INFO] 12:22:55:244 Filesystem/(23626:23626): Inicialización de campos de configuracion correcta
+[INFO] 12:22:55:332 Filesystem/(23626:23626): Socket creado exitosamente con modulo Memoria
+[INFO] 12:22:55:338 Filesystem/(23626:23626): Se ha enviado el handshake inicial al modulo Memoria
+[INFO] 12:22:55:346 Filesystem/(23626:23626): Handshake inicial con modulo Memoria recibido exitosamente
+[INFO] 12:22:55:346 Filesystem/(23626:23626): Conexión con modulo Memoria establecida exitosamente
+[INFO] 12:22:55:389 Filesystem/(23626:23626): Se ha inicializado el servidor de escucha de Kernel correctamente
+[INFO] 12:22:55:390 Filesystem/(23626:23626): A la escucha de conexion del modulo Kernel en puerto 7
+[INFO] 12:23:02:913 Filesystem/(23626:23626): Se recibio el handshake del kernel correctamente
+[INFO] 12:23:02:915 Filesystem/(23626:23626): Se ha enviado la respuesta al handshake inicial del Kernel con handshake ok continue

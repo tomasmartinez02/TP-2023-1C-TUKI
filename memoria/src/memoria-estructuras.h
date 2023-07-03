@@ -58,6 +58,13 @@ enum algoritmo
 };
 typedef enum algoritmo t_algoritmo;
 
+typedef struct lista_para_compactar lista_para_compactar;
+struct lista_para_compactar
+{
+    t_info_segmentos* segmento;
+    lista_para_compactar* siguiente; 
+};
+
 // Variables globales
 extern t_log *memoriaDebuggingLogger;
 extern t_log *memoriaLogger;
