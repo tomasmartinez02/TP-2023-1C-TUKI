@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 //Bibliotecas commons
 #include <commons/collections/list.h>
 #include <commons/log.h>
@@ -113,5 +114,7 @@ char *int_to_yellow_string(uint32_t number);
  * @return char*: String amarillo 
  */
 char *string_to_yellow_string(char *string);
+
+char* agregarCaracterNulo(void* data); 
 
 #endif
