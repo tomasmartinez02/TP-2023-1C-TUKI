@@ -123,6 +123,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         return;
     }
 
+    
     //cantidadBloquesALeer = redondear_hacia_arriba(cantidadBytes, tamanioBloques);
     puntero = punteroProceso;
     //bytesLeidos = 0;
@@ -197,9 +198,11 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         free(buffer);
     }
 
+    log_info(filesystemLogger, "se llama a fread");
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion, pidProceso);
     
+    log_info(filesystemLogger, "esperamos rta memoria");
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
     respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
     if (respuestaMemoria)
@@ -219,12 +222,15 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
   //  char *informacionAEscribir = "... PRUEBA";
   //  log_info(filesystemLogger, "info a escribir: %s", informacionAEscribir);
-    
+    // PARA PROBAR //
+    log_info(filesystemLogger, "FS entra a escribir archivo.");
     uint32_t posicion, puntero;
     uint32_t bloqueActual, nuevoBloque, espacioDisponible;
     uint32_t bytesPorEscribir, bytesEscritos;
     bytesPorEscribir = cantidadBytesAEscribir;
     bytesEscritos = 0;
+
+    log_info(filesystemLogger,"Bytes por escribir es <%u>",bytesPorEscribir);
 
     // Busco el fcb relacionado al archivo en el que se quiere escribir
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
@@ -236,13 +242,20 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     }
 
     // Solicitar a la Memoria la información que se encuentra a partir de la dirección física
-    solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir, pidProceso);
+    //solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir, pidProceso);
+    //log_info(filesystemLogger,"Se solicitó la información a memoria");
 
-    char *informacionAEscribir = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
+
+    //char *informacionAEscribir = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
+    //log_info(filesystemLogger,"Recibió: <%s>",informacionAEscribir);
+
+    char *informacionAEscribir = "tijerasmouseaireacondicionadonaranjasindependiente";
+
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
     bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
     //log_info(filesystemLogger,"bloque absoluto: %u", bloqueActual);
     posicion = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
+    log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.",posicion);
 
     espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
 
@@ -254,17 +267,18 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     
     if (cantidadBytesAEscribir <= espacioDisponible)
     {
-        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es menor al espacio disponible <%u>",cantidadBytesAEscribir,espacioDisponible);
+        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es menor al espacio disponible <%u> en el bloque.",cantidadBytesAEscribir,espacioDisponible);
         escribir_en_bloque(posicion, cantidadBytesAEscribir, informacionAEscribir);
         bytesEscritos = cantidadBytesAEscribir;
     }
 
     char *buffer = malloc(sizeof(tamanioBloques));
+    
     /* Si se tienen que escribir más bytes de los que hay disponibles hay que escribir una parte en este bloque
-    y el resto en el/los bloques siguientes */
+    y el resto en los bloques siguientes */
     while (bytesEscritos < cantidadBytesAEscribir)
     {
-        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es mayor al espacio disponible <%u>",cantidadBytesAEscribir,espacioDisponible);
+        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es mayor al espacio disponible <%u> en el bloque.",cantidadBytesAEscribir,espacioDisponible);
         
         if (espacioDisponible == 0)
         {
@@ -273,9 +287,9 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
             bloqueActual = nuevoBloque;
             log_info(filesystemLogger,"Nuevo bloque: <%u>", bloqueActual);
             /* el puntero ahora deberia apuntar al nuevo bloque: nuevo bloque * el tamaño de bloque */
-            puntero = bloqueActual * tamanioBloques;
+            posicion = bloqueActual * tamanioBloques;
             // en base al nuevo puntero calculo la nueva posicion
-            posicion = obtener_posicion_absoluta(fcbArchivo, puntero);
+            //posicion = obtener_posicion_absoluta(fcbArchivo, puntero);
             log_info(filesystemLogger,"Va a empezar a escribir en la posicion <%u>", posicion);
             espacioDisponible = tamanioBloques;
         }
@@ -297,11 +311,11 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
             memcpy(buffer,informacionAEscribir+bytesEscritos,espacioDisponible);
             escribir_en_bloque(posicion, espacioDisponible, buffer);
             bytesEscritos += espacioDisponible;
-            bytesPorEscribir -= espacioDisponible;
+            bytesPorEscribir = bytesPorEscribir - espacioDisponible;
         }
 
         // Cantidad de bytes que falta escribir. 
-        bytesPorEscribir -= espacioDisponible;
+        //bytesPorEscribir -= espacioDisponible;
         log_info(filesystemLogger,"Faltan escribir <%u> bytes", bytesPorEscribir);
         log_info(filesystemLogger,"Hasta ahora se escribieron <%u> bytes", bytesEscritos);
 
@@ -321,8 +335,7 @@ void escribir_en_bloque(uint32_t posicion, uint32_t cantidadBytesAEscribir, char
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques,posicion,SEEK_SET);
     fwrite(informacionAEscribir,sizeof(char),cantidadBytesAEscribir,archivoDeBloques);
-    log_info(filesystemLogger,"se escribio <%s>",informacionAEscribir);
-    log_info(filesystemLogger,"escribio  %u bytes en el bloque", cantidadBytesAEscribir);
+    log_info(filesystemLogger,"Escribio  %u bytes en el bloque", cantidadBytesAEscribir);
     fclose(archivoDeBloques);
 }
 
@@ -339,7 +352,6 @@ void atender_peticiones_kernel()
             case HEADER_solicitud_creacion_archivo:
             {     
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
-                // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de crear el archivo %s", nombreArchivo);
                 crear_archivo(nombreArchivo);
                 free(nombreArchivo);
@@ -353,11 +365,8 @@ void atender_peticiones_kernel()
                 uint32_t puntero;
                 uint32_t pidProceso;
                 recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
-                escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
-
-                // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
-                
+                escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
                 free(nombreArchivo);
                 break;
             }
@@ -369,10 +378,8 @@ void atender_peticiones_kernel()
                 uint32_t puntero;
                 uint32_t pidProceso;
                 recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
-                leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
-
-                // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
                 free(nombreArchivo);
                 break;
             }
@@ -381,9 +388,8 @@ void atender_peticiones_kernel()
                 char *nombreArchivo = NULL;
                 uint32_t tamanioNuevo;
                 recibir_buffer_truncate_archivo(&nombreArchivo, &tamanioNuevo);
-                truncar_archivo(nombreArchivo, tamanioNuevo);
-                // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
+                truncar_archivo(nombreArchivo, tamanioNuevo);
                 enviar_confirmacion_tamanio_archivo_modificado();
 
                 free(nombreArchivo);
@@ -392,10 +398,8 @@ void atender_peticiones_kernel()
             case HEADER_consulta_existencia_archivo:
             {   
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
-                // PARA PROBAR //
                 log_info(filesystemLogger, "FS recibe la consulta de existencia del archivo %s", nombreArchivo);
                 verificar_existencia_archivo(nombreArchivo);
-
                 free(nombreArchivo);
                 break;
             }

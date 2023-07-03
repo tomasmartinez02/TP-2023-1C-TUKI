@@ -31,7 +31,6 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
     uint32_t desplazamientoBloque = cantidadPunteros * sizeof(uint32_t);
     uint32_t desplazamiento = desplazamientoArchivoBloque + desplazamientoBloque;
 
-    //archivoDeBloques = fopen(pathArchivoBloquesHardcodeado, "r+b"); // Modo lectura y escritura binaria ---> PROBAR
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, desplazamiento, SEEK_SET);
     for (uint32_t i = 0; i < cantidadBloques; i++) {
@@ -99,7 +98,7 @@ int32_t archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(uint32_t bloque,
     FILE *archivoBloques = abrir_archivo_de_bloques();
     if (archivoBloques == NULL)
     {
-        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques");
+        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques.");
         return -1; 
     }
     
@@ -143,7 +142,7 @@ void desasignar_ultimo_bloque(t_fcb *fcbArchivo)
     FILE *archivoBloques = abrir_archivo_de_bloques();
     if (archivoBloques == NULL)
     {
-        log_error(filesystemLogger, "Error al desasignar el último bloque");
+        log_error(filesystemLogger, "Error al desasignar el último bloque.");
         return;
     }
     
@@ -209,27 +208,6 @@ void vaciar_archivo(t_fcb *fcbArchivo)
     fcb_set_tamanio_archivo(fcbArchivo, 0);
 }
 
-/*
-char* archivo_de_bloques_leer_bloque(uint32_t bloque)
-{
-    uint32_t tamanioBloques = get_superbloque_block_size(superbloque);
-    uint32_t desplazamiento = bloque * tamanioBloques;
-    char *contenido = malloc(tamanioBloques);
-    FILE *archivoBloques = abrir_archivo_de_bloques();
-    if (archivoBloques == NULL)
-    {
-        log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques");
-        free(contenido);
-        return NULL;
-    }
-    
-    fseek(archivoBloques, desplazamiento, SEEK_SET);
-    fread(contenido, sizeof(char), tamanioBloques, archivoBloques);
-    fclose(archivoBloques);
-    return contenido;
-}
-*/
-
 uint32_t obtener_bloque_absoluto(t_fcb* fcbArchivo, uint32_t punteroFseek)
 {   
     uint32_t bloqueAbsoluto, punteroBloque, bloquePunteros, bloqueRelativo;
@@ -238,14 +216,14 @@ uint32_t obtener_bloque_absoluto(t_fcb* fcbArchivo, uint32_t punteroFseek)
     // bloque 0 del archivo, que es apuntado por el puntero directo
     if (bloqueRelativo == 0)
     {              
-        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque 0 del archivo.");
+        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque 0 del archivo. Es su primer bloque.");
         bloqueAbsoluto = fcb_get_puntero_directo(fcbArchivo);
     }
     // Si la posicion relativa es mayor al tamaño del bloque significa que se quiere acceder
     // a un puntero del bloque de punteros.
     else
     {   
-        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque %u del archivo. No es el primer bloque", bloqueRelativo);
+        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque %u del archivo. No es el primer bloque.", bloqueRelativo);
         bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
         // Si se quiere acceder al bloque numero 3 del archivo, se quiere acceder al segundo puntero del bloque de punteros.
         punteroBloque = bloqueRelativo - 1;
@@ -273,15 +251,13 @@ uint32_t espacio_disponible_en_bloque_desde_posicion(uint32_t punteroFseek)
 // Funcion que sirve para saber desde donde empezar a leer/escribir.
 uint32_t obtener_posicion_absoluta(t_fcb* fcbArchivo, uint32_t punteroFseek)
 {
-    uint32_t bloqueAbsoluto, desplazamientoAlBloque, posicionRelativa, desplazamientoEnBloque, desplazamiento;
+    uint32_t bloqueAbsoluto, desplazamientoAlBloque, desplazamientoEnBloque, desplazamiento;
 
     bloqueAbsoluto = obtener_bloque_absoluto(fcbArchivo, punteroFseek);
     // Posiciona al comienzo del bloque
     desplazamientoAlBloque = bloqueAbsoluto * tamanioBloques;
     // Posiciona al byte del bloque
-    posicionRelativa = obtener_posicion_en_bloque(punteroFseek);
-    desplazamientoEnBloque = posicionRelativa * sizeof(uint32_t);
-
+    desplazamientoEnBloque = obtener_posicion_en_bloque(punteroFseek);
     desplazamiento = desplazamientoAlBloque + desplazamientoEnBloque; 
     return desplazamiento;
 }
