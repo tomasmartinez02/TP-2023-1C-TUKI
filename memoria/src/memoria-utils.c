@@ -38,7 +38,7 @@ t_buffer* serializar_bytes_leidos(int socketModulo, uint32_t dirFisica, uint32_t
     void* bytesAEnviar = obtener_valor_memoria(dirFisica, bytesALeer);
 
     t_buffer* bufferAEnviar = buffer_create();
-    buffer_pack(bufferAEnviar, &bytesAEnviar, sizeof(bytesALeer));
+    buffer_pack(bufferAEnviar, bytesAEnviar, bytesALeer);
     free(bytesAEnviar);
 
     return bufferAEnviar;
