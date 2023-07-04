@@ -262,18 +262,43 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
         case INSTRUCCION_fread:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-            incrementar_program_counter(pcb);
-            enviar_pcb_desalojado_a_kernel(pcb);
-            enviar_motivo_desalojo_fread(siguienteInstruccion);
+            uint32_t numeroSegmento, offset, tamanioSegmento;
+            uint32_t dirLogica = instruccion_get_operando2(siguienteInstruccion);
+            uint32_t tamanioALeer = instruccion_get_operando3(siguienteInstruccion);
+            uint32_t dirFisica = obtener_direccion_fisica(pcb, dirLogica, &numeroSegmento, &offset, &tamanioSegmento);
+
+            if((tamanioALeer + offset) <= tamanioSegmento){
+                incrementar_program_counter(pcb);
+                enviar_pcb_desalojado_a_kernel(pcb);
+                enviar_motivo_desalojo_fread(siguienteInstruccion, dirFisica);
+            }else {
+                incrementar_program_counter(pcb);
+                enviar_pcb_desalojado_a_kernel(pcb);
+                __logear_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                enviar_motivo_desalojo_segmentation_fault();
+            }
             terminarEjecucion = true;
             break;
         }
         case INSTRUCCION_fwrite:
         {
             log_instruccion_ejecutada(pcb, siguienteInstruccion);
-            incrementar_program_counter(pcb);
-            enviar_pcb_desalojado_a_kernel(pcb);
-            enviar_motivo_desalojo_fwrite(siguienteInstruccion);
+            uint32_t numeroSegmento, offset, tamanioSegmento;
+            uint32_t dirLogica = instruccion_get_operando2(siguienteInstruccion);
+            uint32_t tamanioALeer = instruccion_get_operando3(siguienteInstruccion);
+            uint32_t dirFisica = obtener_direccion_fisica(pcb, dirLogica, &numeroSegmento, &offset, &tamanioSegmento);
+
+            if((tamanioALeer + offset) <= tamanioSegmento){
+                incrementar_program_counter(pcb);
+                enviar_pcb_desalojado_a_kernel(pcb);
+                enviar_motivo_desalojo_fwrite(siguienteInstruccion, dirFisica);
+            }
+            }else {
+                incrementar_program_counter(pcb);
+                enviar_pcb_desalojado_a_kernel(pcb);
+                __logear_segmentation_fault(cpu_pcb_get_pid(pcb), numeroSegmento, offset, tamanioSegmento);
+                enviar_motivo_desalojo_segmentation_fault();
+            }
             terminarEjecucion = true;
             break;
         }
