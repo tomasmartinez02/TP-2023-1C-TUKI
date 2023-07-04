@@ -63,7 +63,7 @@ void *atender_peticiones_kernel()
             case HEADER_compactar:
             {
                 compactar_memoria();
-                // TODO
+                adapter_kernel_confirmar_compactacion_memoria(socketKernel);
                 break;
             }
             case HEADER_solicitud_finalizacion_proceso:

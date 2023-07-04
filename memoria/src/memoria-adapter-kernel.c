@@ -125,3 +125,11 @@ void adapter_kernel_confirmar_finalizacion_proceso(uint32_t socketKernel, uint32
 
     return;
 }
+
+void adapter_kernel_confirmar_compactacion_memoria(uint32_t socketKernel)
+{
+    //esta funcion deberia avisarle a kernel que la memoria ya fue compactada y devolverle la tabla de segmentos actualizada
+    // TODO
+
+    return; 
+}
