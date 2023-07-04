@@ -62,6 +62,7 @@ void *atender_peticiones_kernel()
             }
             case HEADER_compactar:
             {
+                compactar_memoria();
                 // TODO
                 break;
             }

@@ -1,0 +1,45 @@
+==23626== Memcheck, a memory error detector
+==23626== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==23626== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==23626== Command: ./bin/filesystem.out ./config/config-inicial.config
+==23626== Parent PID: 23625
+==23626== 
+==23626== 
+==23626== Process terminating with default action of signal 1 (SIGHUP)
+==23626==    at 0x499C820: recv (recv.c:28)
+==23626==    by 0x10ED75: stream_recv_header (stream.c:89)
+==23626==    by 0x10ABD5: recibir_header_peticion_de_kernel (filesystem-adapter-kernel.c:6)
+==23626==    by 0x10C324: atender_peticiones_kernel (filesystem-atender-kernel.c:329)
+==23626==    by 0x10DD55: main (filesystem.c:32)
+==23626== 
+==23626== HEAP SUMMARY:
+==23626==     in use at exit: 12,379 bytes in 66 blocks
+==23626==   total heap usage: 357 allocs, 291 frees, 75,948 bytes allocated
+==23626== 
+==23626== 29 bytes in 2 blocks are definitely lost in loss record 16 of 35
+==23626==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==23626==    by 0x491D60E: strdup (strdup.c:42)
+==23626==    by 0x10C619: fcb_get_nombre_archivo (filesystem-fcb.c:29)
+==23626==    by 0x10CD1B: recorrer_directorio_fcbs (filesystem-fcb.c:202)
+==23626==    by 0x10D44A: inicializar_estructuras (filesystem-archivos.c:144)
+==23626==    by 0x10DD3E: main (filesystem.c:27)
+==23626== 
+==23626== 836 (32 direct, 804 indirect) bytes in 2 blocks are definitely lost in loss record 32 of 35
+==23626==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==23626==    by 0x486B96C: config_create (config.c:36)
+==23626==    by 0x10C934: levantar_fcb (filesystem-fcb.c:137)
+==23626==    by 0x10CD05: recorrer_directorio_fcbs (filesystem-fcb.c:201)
+==23626==    by 0x10D44A: inicializar_estructuras (filesystem-archivos.c:144)
+==23626==    by 0x10DD3E: main (filesystem.c:27)
+==23626== 
+==23626== LEAK SUMMARY:
+==23626==    definitely lost: 61 bytes in 4 blocks
+==23626==    indirectly lost: 804 bytes in 28 blocks
+==23626==      possibly lost: 0 bytes in 0 blocks
+==23626==    still reachable: 11,514 bytes in 34 blocks
+==23626==         suppressed: 0 bytes in 0 blocks
+==23626== Reachable blocks (those to which a pointer was found) are not shown.
+==23626== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==23626== 
+==23626== For lists of detected and suppressed errors, rerun with: -s
+==23626== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)

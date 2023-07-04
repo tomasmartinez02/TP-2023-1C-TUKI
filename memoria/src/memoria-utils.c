@@ -67,7 +67,6 @@ void* atender_modulo(void* args)
     int socketModulo = parametros->socketModulo;
     char* nombreModulo = parametros->nombreModulo;
 
-    if(socketModulo)
     for (;;) {
         t_header headerRecibido = stream_recv_header(socketModulo);
         uint32_t dirFisica;

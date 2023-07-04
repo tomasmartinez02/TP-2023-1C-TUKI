@@ -424,12 +424,12 @@ static void __inicializar_hilos() {
     pthread_t atencionCPUth;
     pthread_create(&atencionCPUth, NULL, atender_modulo, (void*)&parametrosCPU);
 
-    /*void* resultadoAtencionFileSystem;
+    // void* resultadoAtencionFileSystem;
     parametrosHilo parametrosFS;
     parametrosFS.socketModulo = memoria_config_get_socket_filesystem(memoriaConfig);
     parametrosFS.nombreModulo = "FS";
     pthread_t atencionFileSystemth;
-    pthread_create(&atencionFileSystemth, NULL, atender_modulo, (void*)&parametrosFS);*/
+    pthread_create(&atencionFileSystemth, NULL, atender_modulo, (void*)&parametrosFS);
 
     pthread_join(atencionCPUth, &resultadoAtencionCPU);
     //pthread_join(atencionFileSystemth, &resultadoAtencionFileSystem);
@@ -437,8 +437,6 @@ static void __inicializar_hilos() {
 
     return;
 }
-
-
 
 static void __actualizar_huecos_eliminacion_proceso(t_info_segmentos **tablaSegmentos)
 {
@@ -450,6 +448,43 @@ static void __actualizar_huecos_eliminacion_proceso(t_info_segmentos **tablaSegm
             __insertar_nuevo_hueco(hueco);
         }
     }
+
+    return;
+}
+
+static void __recorrer_tabla_y_agregar_segmentos(t_info_segmentos** tablaAAgregar, lista_para_compactar* listaCompactacion)
+{
+    for(int i = 0; i < memoria_config_get_cantidad_segmentos(memoriaConfig); i++) {
+        if (tablaAAgregar->idSegmento != -1 && tablaAAgregar->idSegmento != 0){
+            __agregar_segmento_a_lista(tablaAAgregar->); // agregamos el segmento ordenado a la lista
+        }
+    }
+
+    return;
+}
+
+static void __crear_lista_general_segmentos()
+{
+    // esta funcion tendria que ir recorriendo la tabla de segmentos general e irlos agregando a la tabla nueva que no esta dividida por pid
+    lista_tablas* aux = tablaSegmentos;
+    lista_para_compactar* listaCompactacion = NULL;
+
+    if(aux != NULL) {
+        __recorrer_tabla_y_agregar_segmentos(aux->tablaSegmentos, listaCompactacion);
+    }
+    
+    /* 
+    while(aux->siguiente != NULL) {
+        __agregar_segmento_a_tabla_general();
+    }
+    */
+
+    
+    return;
+}
+
+static void __mover_segmentos()
+{
 
     return;
 }
@@ -549,3 +584,10 @@ void eliminar_estructuras_proceso (uint32_t pid)
     return;
 }
 
+void compactar_memoria() 
+{
+    __crear_lista_general_segmentos();
+    __mover_segmentos();
+
+    return;
+}
