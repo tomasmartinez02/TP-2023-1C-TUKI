@@ -210,6 +210,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
                 char* valorRegistro = obtener_valor_registro(registro, registrosCPU);
                 void* bytesAEnviar = malloc(tamanioALeer);
                 memcpy(bytesAEnviar, valorRegistro, tamanioALeer);
+                log_acceso_a_memoria(cpu_pcb_get_pid(pcb), "ESCRIBIR", numeroSegmento, dirFisica, bytesAEnviar);
                 __enviar_pedido_escritura_a_memoria(dirFisica, tamanioALeer, cpu_pcb_get_pid(pcb), bytesAEnviar);
                 __recibir_confirmacion_escritura();
                 free(bytesAEnviar);
