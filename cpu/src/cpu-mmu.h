@@ -3,7 +3,6 @@
 
 // Bibliotecas estandar
 #include <stdint.h>
-#include <math.h>
 // Bibliotecas internas
 #include <cpu-config.h>
 

@@ -17,6 +17,7 @@
 void cpu_destroy(t_cpu_config *cpuConfig, t_log *cpuLogger, t_log *cpuDebuggingLogger);
 
 void log_instruccion_ejecutada(t_cpu_pcb *pcb, t_instruccion *instruccion);
+void log_acceso_a_memoria(uint32_t pid, char* modo, uint32_t idSegmento, uint32_t dirFisica, void* valor);
 
 #endif
 

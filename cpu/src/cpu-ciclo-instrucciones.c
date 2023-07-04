@@ -16,7 +16,7 @@ static void __enviar_pedido_lectura_a_memoria(uint32_t dirFisica, uint32_t taman
     return;
 }
 
-static char* __recibir_valor_a_escribir(uint32_t tamanio)
+static char* __recibir_valor_a_escribir(uint32_t tamanio, uint32_t pid, uint32_t idSegmento, uint32_t dirFisica)
 {
     t_buffer* bufferRecibido = buffer_create();
     int socketMemoria = cpu_config_get_socket_memoria(cpuConfig);
@@ -35,6 +35,8 @@ static char* __recibir_valor_a_escribir(uint32_t tamanio)
 
     char* valorEscritura = malloc(tamanio);
     memcpy(valorEscritura, valor, tamanio);
+
+    log_acceso_a_memoria(pid, "LEER", idSegmento, dirFisica, valor);
 
     free(valor);
 
@@ -182,7 +184,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
 
             if((tamanioALeer + offset) <= tamanioSegmento){
                 __enviar_pedido_lectura_a_memoria(dirFisica, tamanioALeer, cpu_pcb_get_pid(pcb));
-                char *valor = __recibir_valor_a_escribir(tamanioALeer);
+                char *valor = __recibir_valor_a_escribir(tamanioALeer, cpu_pcb_get_pid(pcb), numeroSegmento, dirFisica);
                 set_registro_segun_tipo(pcb, registro, valor);
                 incrementar_program_counter(pcb);
             }else {
@@ -292,7 +294,6 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
                 incrementar_program_counter(pcb);
                 enviar_pcb_desalojado_a_kernel(pcb);
                 enviar_motivo_desalojo_fwrite(siguienteInstruccion, dirFisica);
-            }
             }else {
                 incrementar_program_counter(pcb);
                 enviar_pcb_desalojado_a_kernel(pcb);

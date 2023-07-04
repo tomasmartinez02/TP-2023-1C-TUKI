@@ -31,7 +31,7 @@ void enviar_motivo_desalojo_fclose(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_fseek(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_ftruncate(t_instruccion *siguienteInstruccion);
 void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion, uint32_t direccionFisica);
-void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion, uint32_t direccionFisica)
+void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion, uint32_t direccionFisica);
 void enviar_motivo_desalojo_segmentation_fault();
 
 #endif
