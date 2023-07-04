@@ -218,13 +218,11 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir, uint32_t pidProceso)
 {
-  //  log_info(filesystemLogger,"entra a escribir archivo");
+    log_info(filesystemLogger,"Entra a escribir archivo");
 
-  //  char *informacionAEscribir = "... PRUEBA";
-  //  log_info(filesystemLogger, "info a escribir: %s", informacionAEscribir);
     // PARA PROBAR //
     log_info(filesystemLogger, "FS entra a escribir archivo.");
-    uint32_t posicion, puntero;
+    uint32_t posicion;
     uint32_t bloqueActual, nuevoBloque, espacioDisponible;
     uint32_t bytesPorEscribir, bytesEscritos;
     bytesPorEscribir = cantidadBytesAEscribir;
@@ -242,18 +240,19 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     }
 
     // Solicitar a la Memoria la información que se encuentra a partir de la dirección física
-    //solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir, pidProceso);
-    //log_info(filesystemLogger,"Se solicitó la información a memoria");
+    solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir, pidProceso);
+    log_info(filesystemLogger,"Se solicitó la información a memoria");
 
 
-    //char *informacionAEscribir = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
-    //log_info(filesystemLogger,"Recibió: <%s>",informacionAEscribir);
+    void *informacion = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
 
-    char *informacionAEscribir = "tijerasmouseaireacondicionadonaranjasindependiente";
+    char* infoImprimible = agregarCaracterNulo(informacion);
+    log_info(filesystemLogger,"Recibió: <%s>", infoImprimible);
+
+    char* informacionAEscribir = (char*)informacion;
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
     bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
-    //log_info(filesystemLogger,"bloque absoluto: %u", bloqueActual);
     posicion = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
     log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.",posicion);
 
