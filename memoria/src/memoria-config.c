@@ -110,5 +110,5 @@ void memoria_config_set_socket_kernel(t_memoria_config *self, int socketKernel)
 
 void memoria_config_set_socket_filesystem(t_memoria_config *self, int socketFilesystem)
 {
-    self->SOCKET_CPU = socketFilesystem;
+    self->SOCKET_FILESYSTEM = socketFilesystem;
 }
