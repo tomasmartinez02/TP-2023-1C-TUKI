@@ -110,3 +110,18 @@ char *string_to_yellow_string(char *string)
     char* yellowString = string_from_format("\e[1;93m%s\e[0m", string);
     return yellowString;
 }
+
+char* agregarCaracterNulo(void* data) 
+{
+    size_t length = strlen((char*)data);
+
+    char* str = (char*)malloc((length + 1) * sizeof(char));
+    if (str == NULL) {
+        return NULL;
+    }
+
+    memcpy(str, data, length);
+    memset(str + length, '\0', sizeof(char));
+
+    return str;
+}
