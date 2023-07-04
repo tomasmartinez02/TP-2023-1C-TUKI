@@ -14,7 +14,7 @@ void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBy
 }
 
 // Recibir información de Memoria para escribir en los bloques.
-char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
+void* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
 {   
     void* informacionRecibida = malloc(cantidadBytes);
     int socketMemoria = filesystem_config_get_socket_memoria(filesystemConfig);
@@ -29,13 +29,7 @@ char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
         log_info(filesystemLogger, "Error al recibir la información de memoria.");
         return  NULL;
     }
-
-    char* informacion = (char*)informacionRecibida;
-    //informacion[cantidadBytes - 1] = '\0'; // Agregar terminación nula al final de los datos recibidos
-    buffer_destroy(bufferInformacion);
-    free(informacionRecibida);
-
-    return informacion;
+    return informacionRecibida;
 }
 
 // F_READ

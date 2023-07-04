@@ -24,6 +24,6 @@ bool recibir_buffer_confirmacion_escritura_memoria();
 
 // FWRITE
 void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pid);
-char* recibir_buffer_informacion_memoria(uint32_t cantidadBytes);
+void* recibir_buffer_informacion_memoria(uint32_t cantidadBytes);
 
 #endif
