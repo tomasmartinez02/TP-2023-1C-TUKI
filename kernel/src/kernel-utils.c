@@ -92,8 +92,8 @@ void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t p
 
 void log_creacion_nuevo_proceso(t_pcb *pcb)
 {
-    log_info(kernelLogger, "Creación de nuevo proceso con PID <%d> en NEW", pcb_get_pid(pcb));
-    log_info(kernelDebuggingLogger, "Creación de nuevo con proceso PID <%d> en NEW", pcb_get_pid(pcb));
+    log_info(kernelLogger, "Se crea el proceso <%d> en NEW", pcb_get_pid(pcb));
+    log_info(kernelDebuggingLogger, "Se crea el proceso <%d> en NEW", pcb_get_pid(pcb));
 
     return;
 }
