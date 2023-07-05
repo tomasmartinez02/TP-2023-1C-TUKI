@@ -34,3 +34,11 @@ void log_instruccion_ejecutada(t_cpu_pcb *pcb, t_instruccion *instruccion)
     free(pidAmarillo);
     return;
 }
+
+void log_acceso_a_memoria(uint32_t pid, char* modo, uint32_t idSegmento, uint32_t dirFisica, void* valor)
+{
+    char* valorPrinteable = agregarCaracterNulo(valor);
+    log_info(cpuLogger, "PID: <%d> - Acción: <%s> - Segmento: <%d> - Dirección Física: <%d> - Valor: <%s>", pid, modo, idSegmento, dirFisica, valorPrinteable);
+    free(valorPrinteable);
+    return;
+}

@@ -33,7 +33,6 @@ static t_cpu_pcb *__desempaquetar_pcb()
     buffer_unpack(bufferPcb, &tamanioTablaSegmentos, sizeof(tamanioTablaSegmentos));
     t_info_segmentos **tablaSegmentos = desempaquetar_tabla_segmentos(bufferPcb, tamanioTablaSegmentos);
 
-
     // Desempaqueto registros
     t_registros_cpu *registrosCpu;
     registrosCpu = desempaquetar_registros(bufferPcb);
@@ -261,29 +260,29 @@ void enviar_motivo_desalojo_ftruncate(t_instruccion *siguienteInstruccion)
     buffer_destroy(desalojoArchivo);
 }
 
-void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion)
+void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion, uint32_t direccionFisica)
 {
     int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
     t_buffer *desalojoArchivo = buffer_create();
     char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
-    uint32_t direccionLogica = instruccion_get_operando2(siguienteInstruccion);
+    //uint32_t direccionLogica = instruccion_get_operando2(siguienteInstruccion);
     uint32_t bytes = instruccion_get_operando3(siguienteInstruccion);
     buffer_pack_string(desalojoArchivo, nombreArchivo);
-    buffer_pack(desalojoArchivo, &direccionLogica, sizeof(direccionLogica));
+    buffer_pack(desalojoArchivo, &direccionFisica, sizeof(direccionFisica));
     buffer_pack(desalojoArchivo, &bytes, sizeof(bytes));
     stream_send_buffer(socketKernel, HEADER_instruccion_fwrite, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
 }
 
-void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion)
+void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion, uint32_t direccionFisica)
 {
     int socketKernel = cpu_config_get_socket_kernel(cpuConfig);
     t_buffer *desalojoArchivo = buffer_create();
     char* nombreArchivo = instruccion_get_nombre_archivo(siguienteInstruccion);
-    uint32_t direccionLogica = instruccion_get_operando2(siguienteInstruccion);
+    //uint32_t direccionLogica = instruccion_get_operando2(siguienteInstruccion);
     uint32_t bytes = instruccion_get_operando3(siguienteInstruccion);
     buffer_pack_string(desalojoArchivo, nombreArchivo);
-    buffer_pack(desalojoArchivo, &direccionLogica, sizeof(direccionLogica));
+    buffer_pack(desalojoArchivo, &direccionFisica, sizeof(direccionFisica));
     buffer_pack(desalojoArchivo, &bytes, sizeof(bytes));
     stream_send_buffer(socketKernel, HEADER_instruccion_fread, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
