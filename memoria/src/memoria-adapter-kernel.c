@@ -21,6 +21,31 @@ t_buffer *__empaquetar_tabla_segmentos_eliminacion(t_info_segmentos **tablaSegme
     return bufferTablaSegmentos;
 }
 
+uint32_t __tamanio_tabla_de_segmentos()
+{   
+    lista_tablas *aux = tablasDeSegmentos;
+    uint32_t contador = 0;
+
+    while (aux != NULL) {
+        contador = contador + 1;
+        aux = aux->siguiente;
+    }    
+
+    return contador; 
+}
+
+t_buffer* __empaquetar_tablas_de_segmentos(uint32_t tamanioTablas) 
+{
+    uint32_t tamanioTablaGeneral = __tamanio_tabla_de_segmentos();
+    t_buffer *bufferAEnviar = buffer_create();
+
+    for(int i=0; i < tamanioTablaGeneral; i++) {
+        // aca tengo que empaquetar cada pid y su respectiva tabla
+    }
+
+    return bufferAEnviar;
+}
+
 // Funciones publicas
 
 void adapter_kernel_enviar_tabla(t_info_segmentos** tablaCreada, t_header headerAEnviar) 
@@ -105,7 +130,8 @@ void adapter_kernel_enviar_eliminacion_segmento(uint32_t socketKernel, uint32_t 
 {
     t_buffer *bufferTabla = buffer_create();
     lista_tablas *aux = tablasDeSegmentos;
-    uint32_t tamanioTabla = memoria_config_get_cantidad_segmentos(memoriaConfig); 
+    uint32_t tamanioTabla = memoria_config_get_cantidad_segmentos(memoriaConfig);
+
     while (aux->pidProceso != pid) {
         aux = aux->siguiente;
     }
@@ -129,7 +155,15 @@ void adapter_kernel_confirmar_finalizacion_proceso(uint32_t socketKernel, uint32
 void adapter_kernel_confirmar_compactacion_memoria(uint32_t socketKernel)
 {
     //esta funcion deberia avisarle a kernel que la memoria ya fue compactada y devolverle la tabla de segmentos actualizada
-    // TODO
+    
+    t_buffer *bufferTablas = buffer_create();
+    uint32_t tamanioTabla = memoria_config_get_cantidad_segmentos(memoriaConfig);
+
+    bufferTablas = __empaquetar_tablas_de_segmentos(tamanioTabla);
+
+    stream_send_buffer(socketKernel, HEADER_memoria_compactada, bufferTablas);
+
+    buffer_destroy(bufferTablas);
 
     return; 
 }

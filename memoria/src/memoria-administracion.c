@@ -207,8 +207,8 @@ static uint32_t __obtener_base_segmento_segun_algoritmo(t_algoritmo algoritmo, t
     return baseSegmento;
 }
 
-static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid, uint32_t baseSegmento){
-    //TODO
+static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid, uint32_t baseSegmento)
+{
     lista_tablas *aux = tablasDeSegmentos;
     t_info_segmentos** tablaSeleccionada;
     uint32_t indice = 0;
@@ -589,7 +589,15 @@ static void __mover_segmentos(lista_para_compactar* listaCompactacion)
 static void __liberar_tabla(lista_para_compactar* listaCompactacion)
 {
     // esta funcion debe eliminar toda la listaCompactacion
-    // TODO
+
+    lista_para_compactar* aux = listaCompactacion;
+
+    while(aux != NULL) {
+        destruir_info_segmentos(aux->segmento);
+        aux = aux->siguiente;
+    }
+
+    free(listaCompactacion);
 
     return; 
 }
