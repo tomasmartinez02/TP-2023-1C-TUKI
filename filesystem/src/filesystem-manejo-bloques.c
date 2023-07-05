@@ -33,14 +33,14 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
 
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, desplazamiento, SEEK_SET);
+    log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
     for (uint32_t i = 0; i < cantidadBloques; i++) {
-        // El bloque de punteros siempre va a ser el bloque número 1 del archivo y el bloque al que apunta el puntero indrecto va a ser el 0
-        log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
+        // El bloque de punteros siempre va a ser el bloque número 1 del archivo y el 
+        // bloque al que apunta el puntero indrecto va a ser el 0
         uint32_t bloqueDatos = bitmap_encontrar_bloque_libre();
         bitmap_marcar_bloque_ocupado(bloqueDatos);
         log_bloque_asignado(nombreArchivo, bloqueDatos);
         fwrite(&bloqueDatos, sizeof(uint32_t), 1, archivoDeBloques);
-        //sleep(tiempoRetardo);
     }
     fclose(archivoDeBloques);
     return;
@@ -230,6 +230,13 @@ uint32_t obtener_bloque_absoluto(t_fcb* fcbArchivo, uint32_t punteroFseek)
         bloqueAbsoluto = archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(bloquePunteros, punteroBloque);
     }
     return bloqueAbsoluto;
+}
+
+uint32_t obtener_bloque_relativo(t_fcb* fcbArchivo, uint32_t punteroFseek)
+{   
+    uint32_t bloqueRelativo;
+    bloqueRelativo = redondear_hacia_abajo(punteroFseek, tamanioBloques);
+    return bloqueRelativo;
 }
 
 uint32_t obtener_posicion_en_bloque(uint32_t punteroFseek)

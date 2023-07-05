@@ -31,7 +31,6 @@ void log_lectura_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direcci
 void log_escritura_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionMemoria, uint32_t tamanio);
 void log_acceso_bloque_punteros(char *nombreArchivo, uint32_t numeroBloqueFs);
 void log_bloque_asignado(char *nombreArchivo, uint32_t bloqueDatos);
-void log_acceso_bloque_punteros(char *nombreArchivo, uint32_t numeroBloqueFs);
 void log_bloque_desasignado(char *nombreArchivo, uint32_t bloqueDatos);
 void log_acceso_bloque(char *nombreArchivo, uint32_t numeroBloqueArchivo, uint32_t numeroBloqueFs);
 uint32_t redondear_hacia_arriba(uint32_t nuevoTamanio, uint32_t tamanio);

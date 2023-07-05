@@ -18,11 +18,11 @@
 #include <filesystem-estructuras.h>
 #include <filesystem-config.h>
 
-// FREAD
+// F_READ
 void solicitar_escritura_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, char* informacion, uint32_t pid);
 bool recibir_buffer_confirmacion_escritura_memoria();
 
-// FWRITE
+// F_WRITE
 void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pid);
 void* recibir_buffer_informacion_memoria(uint32_t cantidadBytes);
 
