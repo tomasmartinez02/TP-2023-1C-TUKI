@@ -61,6 +61,7 @@ typedef enum algoritmo t_algoritmo;
 typedef struct lista_para_compactar lista_para_compactar;
 struct lista_para_compactar
 {
+    uint32_t pid;
     t_info_segmentos* segmento;
     lista_para_compactar* siguiente; 
 };

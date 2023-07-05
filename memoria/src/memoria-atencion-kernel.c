@@ -63,7 +63,7 @@ void *atender_peticiones_kernel()
             case HEADER_compactar:
             {
                 compactar_memoria();
-                // TODO
+                adapter_kernel_confirmar_compactacion_memoria(socketKernel);
                 break;
             }
             case HEADER_solicitud_finalizacion_proceso:
@@ -71,6 +71,7 @@ void *atender_peticiones_kernel()
                 stream_recv_buffer(socketKernel,bufferRecibido);
                 uint32_t pid = adapter_kernel_recibir_pid(bufferRecibido);
                 eliminar_estructuras_proceso(pid);
+                log_info(memoriaLogger,  "Eliminación de Proceso PID: <%d>", pid);
                 adapter_kernel_confirmar_finalizacion_proceso(socketKernel, pid);
                 break;
             }

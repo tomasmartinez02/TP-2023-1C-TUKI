@@ -452,41 +452,186 @@ static void __actualizar_huecos_eliminacion_proceso(t_info_segmentos **tablaSegm
     return;
 }
 
-static void __recorrer_tabla_y_agregar_segmentos(t_info_segmentos** tablaAAgregar, lista_para_compactar* listaCompactacion)
+static void __agregar_segmento_a_lista(lista_para_compactar* listaCompactacion, uint32_t pid, uint32_t idSegmento, uint32_t direccionBase, uint32_t tamanio) 
 {
+    // esta funcion agrega el segmento a la lista de compactacion sin orden
+
+    lista_para_compactar* segmentoAAgregar = malloc(sizeof(lista_para_compactar));
+    segmentoAAgregar->pid = pid;
+    segmentoAAgregar->segmento->direccionBase = direccionBase;
+    segmentoAAgregar->segmento->idSegmento = idSegmento;
+    segmentoAAgregar->segmento->tamanio = tamanio;
+    segmentoAAgregar->siguiente = NULL;
+
+    if (listaCompactacion == NULL) {
+        listaCompactacion = segmentoAAgregar;
+    } else {
+        lista_para_compactar* nodo_actual = listaCompactacion;
+        while (nodo_actual->siguiente != NULL) {
+            nodo_actual = nodo_actual->siguiente;
+        }
+
+        nodo_actual->siguiente = segmentoAAgregar;
+    }
+
+    return;
+}
+
+static void __recorrer_tabla_y_agregar_segmentos(uint32_t pid, t_info_segmentos** tablaAAgregar, lista_para_compactar* listaCompactacion)
+{
+    // esta funcion va a recorrer la tabla de segmentos de cada proceso y va a ir agregando los segmentos a la tabla general
+
     for(int i = 0; i < memoria_config_get_cantidad_segmentos(memoriaConfig); i++) {
-        if (tablaAAgregar->idSegmento != -1 && tablaAAgregar->idSegmento != 0){
-            __agregar_segmento_a_lista(tablaAAgregar->); // agregamos el segmento ordenado a la lista
+        if (tablaAAgregar[i]->idSegmento != -1 && tablaAAgregar[i]->idSegmento != 0){
+            __agregar_segmento_a_lista(listaCompactacion, pid, tablaAAgregar[i]->idSegmento, tablaAAgregar[i]->direccionBase, tablaAAgregar[i]->tamanio); 
         }
     }
 
     return;
 }
 
-static void __crear_lista_general_segmentos()
+static void __intercambiar_nodos(lista_para_compactar* nodo1, lista_para_compactar* nodo2) {
+    t_info_segmentos* temp_segmento = nodo1->segmento;
+    uint32_t temp_pid = nodo1->pid;
+
+    nodo1->segmento = nodo2->segmento;
+    nodo1->pid = nodo2->pid;
+
+    nodo2->segmento = temp_segmento;
+    nodo2->pid = temp_pid;
+}
+
+static void __ordenar_tabla_general(lista_para_compactar* listaCompactacion)
 {
-    // esta funcion tendria que ir recorriendo la tabla de segmentos general e irlos agregando a la tabla nueva que no esta dividida por pid
-    lista_tablas* aux = tablaSegmentos;
-    lista_para_compactar* listaCompactacion = NULL;
+    // esta funcion ordena la lista general de compactacion segun la base del segmento
 
-    if(aux != NULL) {
-        __recorrer_tabla_y_agregar_segmentos(aux->tablaSegmentos, listaCompactacion);
+    if (listaCompactacion == NULL || (listaCompactacion)->siguiente == NULL) {
+        return;
     }
-    
-    /* 
-    while(aux->siguiente != NULL) {
-        __agregar_segmento_a_tabla_general();
-    }
-    */
 
-    
+    lista_para_compactar* nodo_actual = listaCompactacion;
+    lista_para_compactar* nodo_minimo = NULL;
+
+    while (nodo_actual != NULL) {
+        nodo_minimo = nodo_actual;
+
+        lista_para_compactar* nodo_siguiente = nodo_actual->siguiente;
+        while (nodo_siguiente != NULL) {
+            if (nodo_siguiente->segmento->direccionBase < nodo_minimo->segmento->direccionBase) {
+                nodo_minimo = nodo_siguiente;
+            }
+            nodo_siguiente = nodo_siguiente->siguiente;
+        }
+
+        if (nodo_actual != nodo_minimo) {
+            __intercambiar_nodos(nodo_actual, nodo_minimo);
+        }
+
+        nodo_actual = nodo_actual->siguiente;
+    }
+
     return;
 }
 
-static void __mover_segmentos()
+static void __crear_lista_general_segmentos(lista_para_compactar* listaCompactacion)
 {
+    // esta funcion tendria que ir recorriendo la tabla de segmentos general e irlos agregando a la tabla nueva que no esta dividida por pid
+    lista_tablas* aux = tablasDeSegmentos;
+
+    __agregar_segmento_a_lista(listaCompactacion, 0, segmentoCero->idSegmento, segmentoCero->direccionBase, segmentoCero->tamanio); // lo agrego para tenerlo en cuenta pero nunca va a ser modificado
+
+    if(aux != NULL) {
+        __recorrer_tabla_y_agregar_segmentos(aux->pidProceso, aux->tablaSegmentos, listaCompactacion);
+        aux = aux->siguiente;
+    }
+    
+    while(aux->siguiente != NULL) {
+        __recorrer_tabla_y_agregar_segmentos(aux->pidProceso, aux->tablaSegmentos, listaCompactacion);
+        aux = aux->siguiente;
+    }
+    
+    __ordenar_tabla_general(listaCompactacion);
 
     return;
+}
+
+static void __imprimir_segmentos_movidos(lista_para_compactar* listaCompactacion)
+{
+    // esta funcion va a ir logueando como quedan los nuevos segmentos una vez que fueron movidos
+
+    lista_para_compactar* aux = listaCompactacion;
+
+    while(aux != NULL) {
+        log_info(memoriaLogger, "PID: %u - Segmento: %u - Base: %u - Tamanio: %u", aux->pid, aux->segmento->idSegmento, aux->segmento->direccionBase, aux->segmento->tamanio);
+        aux = aux->siguiente;
+    }
+
+    return;
+}
+
+static void __mover_segmentos(lista_para_compactar* listaCompactacion)
+{
+    // esta funcion va a tener que tomar la lista de segmentos general e ir moviendo todos los segmentos para que queden compactados
+    lista_para_compactar* aux = listaCompactacion;
+    uint32_t nuevaBase = 0;
+
+    while(aux != NULL) {
+        aux->segmento->direccionBase = 0;
+        nuevaBase = nuevaBase + aux->segmento->tamanio;
+        aux = aux->siguiente;
+    }
+
+    __imprimir_segmentos_movidos(listaCompactacion);
+
+    return;
+}
+
+static void __liberar_tabla(lista_para_compactar* listaCompactacion)
+{
+    // esta funcion debe eliminar toda la listaCompactacion
+    // TODO
+
+    return; 
+}
+
+static void __actualizar_segmento(uint32_t pid, uint32_t idSegmento, uint32_t nuevaBase, uint32_t nuevoTamanio) 
+{
+    // avanzo hasta encontrar la tabla correspondiente a este pid y le actualizo los valores
+
+    lista_tablas* aux = tablasDeSegmentos;
+    t_info_segmentos** tablaSeleccionada;
+    int contador = 0;
+
+    while(aux->pidProceso != pid) {
+        aux = aux->siguiente;
+    } // busco la tabla correspondiente a este proceso
+
+    tablaSeleccionada = aux->tablaSegmentos;
+
+    while(tablaSeleccionada[contador]->idSegmento != idSegmento) {
+        contador++;
+    } // busco el segmento que quiero actualizar dentro de la tabla
+
+    tablaSeleccionada[contador]->direccionBase = nuevaBase; // cambio la base
+    tablaSeleccionada[contador]->tamanio = nuevoTamanio; // cambio el tamanio
+
+    return; 
+} 
+
+static void __actualizar_tabla_compactacion(lista_para_compactar* listaCompactacion)
+{   
+    // esta funcion tiene que tomar la tabla de segmentos general e ir actualizando la tabla de segmentos original segun los resultados de la compactacion
+
+    lista_para_compactar* aux = listaCompactacion;
+    
+    while(aux != NULL) {
+        __actualizar_segmento(aux->pid, aux->segmento->idSegmento, aux->segmento->direccionBase, aux->segmento->tamanio); 
+        aux->siguiente;
+    }
+
+    __liberar_tabla(listaCompactacion);
+
+    return; 
 }
 
 // Funciones publicas
@@ -586,8 +731,12 @@ void eliminar_estructuras_proceso (uint32_t pid)
 
 void compactar_memoria() 
 {
-    __crear_lista_general_segmentos();
-    __mover_segmentos();
+    lista_para_compactar* listaCompactacion = NULL;
+
+    log_info(memoriaLogger, "Solicitud de compactacion");
+    __crear_lista_general_segmentos(listaCompactacion);
+    __mover_segmentos(listaCompactacion);
+    __actualizar_tabla_compactacion(listaCompactacion);
 
     return;
 }
