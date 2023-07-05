@@ -1,10 +1,31 @@
 #include <memoria-adapter-kernel.h>
+
 // funciones privadas
 
-t_buffer *__empaquetar_tabla_segmentos_eliminacion(t_info_segmentos **tablaSegmentos, uint32_t tamanioTablaSegmentos)
+static void __empaquetar_tabla(t_info_segmentos** tablaSegmentos, uint32_t tamanioTabla, t_buffer* bufferAEnviar) 
+{ 
+    for(int i = 0; i < tamanioTabla; i++) {
+        t_info_segmentos *infoSegmento = tablaSegmentos[i];
+        
+        uint32_t idSegmento = infoSegmento->idSegmento;
+        buffer_pack(bufferAEnviar, &idSegmento, sizeof(idSegmento));
+
+        uint32_t direccionBase = infoSegmento->direccionBase;
+        buffer_pack(bufferAEnviar, &direccionBase, sizeof(direccionBase));
+
+        uint32_t tamanio = infoSegmento->tamanio;
+        buffer_pack(bufferAEnviar, &tamanio, sizeof(tamanio));
+    }
+
+    return;
+}
+
+static t_buffer *__empaquetar_tabla_segmentos_eliminacion(t_info_segmentos **tablaSegmentos, uint32_t tamanioTablaSegmentos)
 {
     t_buffer *bufferTablaSegmentos = buffer_create();
 
+    __empaquetar_tabla(tablaSegmentos, tamanioTablaSegmentos, bufferTablaSegmentos);
+    /* 
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
         t_info_segmentos *infoSegmento = tablaSegmentos[i];
         
@@ -17,11 +38,12 @@ t_buffer *__empaquetar_tabla_segmentos_eliminacion(t_info_segmentos **tablaSegme
         uint32_t tamanio = infoSegmento->tamanio;
         buffer_pack(bufferTablaSegmentos, &tamanio, sizeof(tamanio));
     }
+    */
 
     return bufferTablaSegmentos;
 }
 
-uint32_t __tamanio_tabla_de_segmentos()
+/* static uint32_t __tamanio_tabla_de_segmentos()
 {   
     lista_tablas *aux = tablasDeSegmentos;
     uint32_t contador = 0;
@@ -32,15 +54,19 @@ uint32_t __tamanio_tabla_de_segmentos()
     }    
 
     return contador; 
-}
+} */
 
-t_buffer* __empaquetar_tablas_de_segmentos(uint32_t tamanioTablas) 
+static t_buffer* __empaquetar_tablas_de_segmentos(uint32_t tamanioTablas) 
 {
-    uint32_t tamanioTablaGeneral = __tamanio_tabla_de_segmentos();
+    // uint32_t tamanioTablaGeneral = __tamanio_tabla_de_segmentos();
+    lista_tablas *aux = tablasDeSegmentos;
     t_buffer *bufferAEnviar = buffer_create();
 
-    for(int i=0; i < tamanioTablaGeneral; i++) {
+    while(aux != NULL) {
         // aca tengo que empaquetar cada pid y su respectiva tabla
+        uint32_t pid = aux->pidProceso;
+        buffer_pack(bufferAEnviar, &pid, sizeof(pid));
+        __empaquetar_tabla(aux->tablaSegmentos, tamanioTablas, bufferAEnviar);
     }
 
     return bufferAEnviar;

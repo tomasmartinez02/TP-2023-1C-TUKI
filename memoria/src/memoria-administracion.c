@@ -456,8 +456,10 @@ static void __agregar_segmento_a_lista(lista_para_compactar* listaCompactacion, 
 {
     // esta funcion agrega el segmento a la lista de compactacion sin orden
 
+    t_info_segmentos* segmentoNuevo = malloc(sizeof(t_info_segmentos));
     lista_para_compactar* segmentoAAgregar = malloc(sizeof(lista_para_compactar));
     segmentoAAgregar->pid = pid;
+    segmentoAAgregar->segmento = segmentoNuevo;
     segmentoAAgregar->segmento->direccionBase = direccionBase;
     segmentoAAgregar->segmento->idSegmento = idSegmento;
     segmentoAAgregar->segmento->tamanio = tamanio;
@@ -634,7 +636,7 @@ static void __actualizar_tabla_compactacion(lista_para_compactar* listaCompactac
     
     while(aux != NULL) {
         __actualizar_segmento(aux->pid, aux->segmento->idSegmento, aux->segmento->direccionBase, aux->segmento->tamanio); 
-        aux->siguiente;
+        aux = aux->siguiente;
     }
 
     __liberar_tabla(listaCompactacion);
