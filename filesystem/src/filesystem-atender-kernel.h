@@ -48,4 +48,6 @@ void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo);
 
 void escribir_en_bloque(uint32_t posicion,uint32_t cantidadBytesAEscribir,char *informacionAEscribir);
 
+void sleep_y_log_obligatorio(t_fcb *fcb, uint32_t punteroProceso);
+
 #endif
