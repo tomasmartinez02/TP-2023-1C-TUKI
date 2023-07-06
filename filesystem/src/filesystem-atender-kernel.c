@@ -39,8 +39,8 @@ void sleep_y_log_obligatorio(t_fcb *fcbArchivo, uint32_t punteroProceso)
     uint32_t numeroBloqueArchivo, numeroBloqueFS;
     char* nombreArchivo = fcb_get_nombre_archivo(fcbArchivo);
     //sleep(tiempoRetardo);
-    numeroBloqueArchivo = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
-    numeroBloqueFS = obtener_bloque_relativo(fcbArchivo, punteroProceso);
+    numeroBloqueFS = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
+    numeroBloqueArchivo = obtener_bloque_relativo(fcbArchivo, punteroProceso);
     log_acceso_bloque(nombreArchivo, numeroBloqueArchivo, numeroBloqueFS);
     return;
 }
@@ -268,14 +268,11 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
     bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
+    log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.", bloqueActual);
     posicion = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
-    log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.",posicion);
+    log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.", posicion);
 
     espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
-
-    //log_info(filesystemLogger, "se va a empezar a escribir desde la posicion <%u> del archivo", punteroProceso);
-    //log_info(filesystemLogger,"se va a empezar a escribir desde la posicion <%u> del bloque", posicion);
-    //log_info(filesystemLogger,"espacio disponible: %u", espacioDisponible);
 
     // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza.
     if (cantidadBytesAEscribir <= espacioDisponible)
@@ -299,31 +296,36 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
             nuevoBloque = buscar_siguiente_bloque(bloqueActual,fcbArchivo);
             bloqueActual = nuevoBloque;
             log_info(filesystemLogger,"Nuevo bloque: <%u>", bloqueActual);
-            /* el puntero ahora deberia apuntar al nuevo bloque: nuevo bloque * el tamaño de bloque */
             posicion = bloqueActual * tamanioBloques;
-            // en base al nuevo puntero calculo la nueva posicion
-            //posicion = obtener_posicion_absoluta(fcbArchivo, puntero);
             log_info(filesystemLogger,"Va a empezar a escribir en la posicion <%u>", posicion);
             espacioDisponible = tamanioBloques;
         }
 
         log_info(filesystemLogger,"Espacio disponible: <%u>", espacioDisponible);
 
-        if (bytesPorEscribir <= tamanioBloques)
+        if (bytesPorEscribir > espacioDisponible || bytesPorEscribir >= tamanioBloques)
+        {
+            log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es mayor al espacio disponible <%u>",bytesPorEscribir,espacioDisponible);
+            memcpy(buffer,informacionAEscribir+bytesEscritos,espacioDisponible);
+            escribir_en_bloque(posicion, espacioDisponible, buffer);
+            bytesEscritos += espacioDisponible;
+            bytesPorEscribir -= espacioDisponible;
+        }
+        else if (bytesPorEscribir <= tamanioBloques)
         {
             log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es menor al tamanio de bloques <%u>",bytesPorEscribir,tamanioBloques);
             memcpy(buffer,informacionAEscribir+bytesEscritos,bytesPorEscribir);
             escribir_en_bloque(posicion, bytesPorEscribir, buffer);
             bytesEscritos += bytesPorEscribir;
         }
-        else
+        /*else
         {
             log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es mayor al tamanio de bloques <%u>",bytesPorEscribir,tamanioBloques);
             memcpy(buffer,informacionAEscribir+bytesEscritos,espacioDisponible);
             escribir_en_bloque(posicion, espacioDisponible, buffer);
             bytesEscritos += espacioDisponible;
             bytesPorEscribir = bytesPorEscribir - espacioDisponible;
-        }
+        }*/
         log_info(filesystemLogger,"Faltan escribir <%u> bytes", bytesPorEscribir);
         log_info(filesystemLogger,"Hasta ahora se escribieron <%u> bytes", bytesEscritos);
 
