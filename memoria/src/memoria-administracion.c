@@ -207,8 +207,8 @@ static uint32_t __obtener_base_segmento_segun_algoritmo(t_algoritmo algoritmo, t
     return baseSegmento;
 }
 
-static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid, uint32_t baseSegmento){
-    //TODO
+static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid, uint32_t baseSegmento)
+{
     lista_tablas *aux = tablasDeSegmentos;
     t_info_segmentos** tablaSeleccionada;
     uint32_t indice = 0;
@@ -440,10 +440,10 @@ static void __inicializar_hilos() {
 
 static void __actualizar_huecos_eliminacion_proceso(t_info_segmentos **tablaSegmentos)
 {
-    log_info(memoriaLogger,"Entra a la funcion");
+
     for(int i = 0; i < memoria_config_get_cantidad_segmentos(memoriaConfig); i++){
         if(tablaSegmentos[i]->idSegmento != -1 && tablaSegmentos[i]->idSegmento != 0){
-            log_info(memoriaLogger,"Entra al if");
+
             t_info_segmentos *hueco = __crear_hueco(tablaSegmentos[i]->direccionBase, tablaSegmentos[i]->tamanio);
             __insertar_nuevo_hueco(hueco);
         }
@@ -456,8 +456,10 @@ static void __agregar_segmento_a_lista(lista_para_compactar* listaCompactacion, 
 {
     // esta funcion agrega el segmento a la lista de compactacion sin orden
 
+    t_info_segmentos* segmentoNuevo = malloc(sizeof(t_info_segmentos));
     lista_para_compactar* segmentoAAgregar = malloc(sizeof(lista_para_compactar));
     segmentoAAgregar->pid = pid;
+    segmentoAAgregar->segmento = segmentoNuevo;
     segmentoAAgregar->segmento->direccionBase = direccionBase;
     segmentoAAgregar->segmento->idSegmento = idSegmento;
     segmentoAAgregar->segmento->tamanio = tamanio;
@@ -589,7 +591,15 @@ static void __mover_segmentos(lista_para_compactar* listaCompactacion)
 static void __liberar_tabla(lista_para_compactar* listaCompactacion)
 {
     // esta funcion debe eliminar toda la listaCompactacion
-    // TODO
+
+    lista_para_compactar* aux = listaCompactacion;
+
+    while(aux != NULL) {
+        destruir_info_segmentos(aux->segmento);
+        aux = aux->siguiente;
+    }
+
+    free(listaCompactacion);
 
     return; 
 }
@@ -626,7 +636,7 @@ static void __actualizar_tabla_compactacion(lista_para_compactar* listaCompactac
     
     while(aux != NULL) {
         __actualizar_segmento(aux->pid, aux->segmento->idSegmento, aux->segmento->direccionBase, aux->segmento->tamanio); 
-        aux->siguiente;
+        aux = aux->siguiente;
     }
 
     __liberar_tabla(listaCompactacion);
@@ -701,26 +711,35 @@ void eliminar_estructuras_proceso (uint32_t pid)
 {
     lista_tablas *nodoAnterior = tablasDeSegmentos;
     lista_tablas *nodoAEliminar = NULL;
-    
-    while (nodoAnterior->siguiente != NULL  && nodoAnterior->siguiente->pidProceso != pid) {
-        /*if (nodoAnterior->siguiente->pidProceso == pid) {
-            nodoAEliminar = nodoAnterior->siguiente;
-            break;
-        }*/
-        nodoAnterior = nodoAnterior->siguiente;
-    }
+
     if(nodoAnterior->pidProceso == pid){
         nodoAEliminar = nodoAnterior;
-    }else{
-        nodoAEliminar = nodoAnterior->siguiente;
-    }
+        tablasDeSegmentos = tablasDeSegmentos->siguiente;
+    }else{    
+        while (nodoAnterior->siguiente != NULL  && nodoAnterior->siguiente->pidProceso != pid) {
+            if (nodoAnterior->siguiente->pidProceso == pid) {
+                nodoAEliminar = nodoAnterior->siguiente;
+                break;
+            }
 
-    if (nodoAnterior->siguiente != NULL && nodoAnterior->siguiente->siguiente != NULL) {
-    nodoAnterior->siguiente = nodoAnterior->siguiente->siguiente;
-    } else {
-        nodoAnterior->siguiente = NULL;
-    }
+            nodoAnterior = nodoAnterior->siguiente;
+        }
+        if(nodoAnterior->pidProceso == pid){
 
+            nodoAEliminar = nodoAnterior;
+        }else{
+
+            nodoAEliminar = nodoAnterior->siguiente;
+        }
+
+        if (nodoAnterior->siguiente != NULL && nodoAnterior->siguiente->siguiente != NULL) {
+
+        nodoAnterior->siguiente = nodoAnterior->siguiente->siguiente;
+        } else {
+
+            nodoAnterior->siguiente = NULL;
+        }
+    }
     __actualizar_huecos_eliminacion_proceso(nodoAEliminar->tablaSegmentos);
 
     destruir_tabla_segmentos(nodoAEliminar->tablaSegmentos, memoria_config_get_cantidad_segmentos(memoriaConfig));
