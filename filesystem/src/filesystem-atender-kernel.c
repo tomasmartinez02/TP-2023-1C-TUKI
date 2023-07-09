@@ -125,6 +125,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 {   
     log_info(filesystemLogger,"Entra a leer archivo"); // LOG A SACAR
     uint32_t posicionAbsoluta, espacioDisponible, puntero, bytesLeidos, bytesQueFaltanPorLeer;
+    size_t rtaLectura;
     bool respuestaMemoria;
 
     // Busco el fcb relacionado al archivo que quiero truncar
@@ -159,7 +160,11 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     if (cantidadBytes < espacioDisponible)
     {   
         log_info(filesystemLogger,"La cantidad de bytes a leer <%u> es menor al espacio disponible <%u> del bloque", cantidadBytes, espacioDisponible); // LOG A SACAR
-        size_t queLeyo = fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        rtaLectura = fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        if (rtaLectura!=cantidadBytes || ferror(archivoDeBloques))
+        {
+            log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+        }
         // Se mueve el puntero del archivo hasta el ultimo lugar que se leyo.
         puntero = puntero + espacioDisponible; 
         // Contador de bytes leidos.
@@ -180,8 +185,13 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     else
     {
         log_info(filesystemLogger,"La cantidad de bytes a leer <%u> es mayor al espacio disponible <%u> del bloque", cantidadBytes, espacioDisponible); // LOG A SACAR
-        size_t queLeyo = fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
-        log_info(filesystemLogger,"Leyo <%lu> cant bytes", queLeyo); // LOG A SACAR
+        rtaLectura = fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
+        if (rtaLectura!=espacioDisponible || ferror(archivoDeBloques))
+        {
+            log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+        }
+
+        log_info(filesystemLogger,"Leyo <%lu> cant bytes", rtaLectura); // LOG A SACAR
         // Se mueve el puntero del archivo hasta el ultimo lugar que se leyo.
         puntero = puntero + espacioDisponible; 
         log_info(filesystemLogger,"Ahora el puntero del proceso apunta a <%u> ", puntero); // LOG A SACAR
@@ -218,7 +228,11 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         if (bytesQueFaltanPorLeer < tamanioBloques)
         {
             //sleep(tiempoRetardo);
-            fread(buffer, sizeof(char), bytesQueFaltanPorLeer, archivoDeBloques);
+            rtaLectura = fread(buffer, sizeof(char), bytesQueFaltanPorLeer, archivoDeBloques);
+            if (rtaLectura!=bytesQueFaltanPorLeer || ferror(archivoDeBloques))
+            {
+                log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+            }
             
             // Pasar la data leida del buffer al char *informacion.
             memcpy(informacion+bytesLeidos, buffer, bytesQueFaltanPorLeer);
@@ -235,6 +249,10 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         {
             //sleep(tiempoRetardo);
             fread(buffer, sizeof(char), tamanioBloques, archivoDeBloques);
+            if (rtaLectura!=tamanioBloques || ferror(archivoDeBloques))
+            {
+                log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+            }
             memcpy(informacion+bytesLeidos, buffer, tamanioBloques);
             puntero = puntero + tamanioBloques;
             bytesLeidos = bytesLeidos + tamanioBloques;

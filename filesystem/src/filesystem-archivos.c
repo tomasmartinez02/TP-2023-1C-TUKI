@@ -94,7 +94,6 @@ FILE *abrir_archivo_de_bloques()
 {
     char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
     log_info(filesystemLogger, "Path archivo de bloques <%s>", pathArchivoDeBloques); // LOG A SACAR
-    //archivoDeBloques = fopen("./archivos/bloques.dat", "r+b");
     archivoDeBloques = fopen(pathArchivoDeBloques, "r+b");
 
     if (archivoDeBloques == NULL) {
@@ -115,19 +114,11 @@ void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, u
         log_error(filesystemLogger,"Error al truncar el Archivo de Bloques");
     }
 
-    /*char* direccion = mmap(NULL, tamanioArchivoDeBloques, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor,0);
-    if (direccion == MAP_FAILED) {
-        // error
-    }*/
-
     close (fileDescriptor);
 }
 
 void inicializar_estructuras(void)
 {
-    //char *pathArchivoBloquesHardcodeado = "./archivos/bloques.dat";
-    //char *pathDirectorioFcbsHardcodeado = "./fcbs";
-
     char *pathSuperbloque = filesystem_config_get_path_superbloque(filesystemConfig);
     superbloque = crear_superbloque(pathSuperbloque);
     free(pathSuperbloque);
