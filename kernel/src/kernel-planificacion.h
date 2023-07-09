@@ -52,5 +52,6 @@ void pcb_pasar_de_blocked_a_ready_public(t_pcb* pcbAReady);
 void pcb_pasar_de_running_a_blocked_public(t_pcb* pcbABlocked);
 void pcb_pasar_de_running_a_exit_public(t_pcb* pcbAExit);
 void seguir_ejecutando(t_pcb* pcbEnEjecucion);
+void terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion);
 
 #endif
