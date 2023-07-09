@@ -206,7 +206,7 @@ static void __pcb_pasar_de_blocked_a_exit(t_pcb* pcbAExit)
 }
 
 // Termina el proceso del cual se le pasa el PCB
-static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
+void terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 {
     switch (pcb_get_estado_actual(pcbFinalizado))
     {
@@ -232,7 +232,7 @@ static void __terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 void pcb_pasar_de_running_a_exit_public(t_pcb* pcbAExit)
 {   
     __pcb_pasar_de_running_a_exit(pcbAExit);
-    __terminar_proceso(pcbAExit, "El recurso solicitado no existe");
+    terminar_proceso(pcbAExit, "El recurso solicitado no existe");
     return;
 }
 
@@ -285,7 +285,7 @@ static void *__planificador_largo_plazo(void *args)
         pcb_set_tabla_segmentos(pcbAReady, tablaSegmentos);
 
         if (tablaSegmentos == NULL) {
-            __terminar_proceso(pcbAReady, FINALIZACION_OUTOFMEMORY);
+            terminar_proceso(pcbAReady, FINALIZACION_OUTOFMEMORY);
         }
         else {
            __pcb_pasar_de_new_a_ready(pcbAReady);
@@ -363,14 +363,14 @@ static void *__ejecucion_desalojo_pcb(void *args)
             case HEADER_instruccion_exit:
             {
                 recibir_buffer_vacio_instruccion();
-                __terminar_proceso(pcbEnEjecucion, FINALIZACION_SUCCESS);
+                terminar_proceso(pcbEnEjecucion, FINALIZACION_SUCCESS);
                 sem_post(&dispatchPermitido);
                 break;
             }
             case HEADER_segmentation_fault:
             {
                 recibir_buffer_vacio_instruccion();
-                __terminar_proceso(pcbEnEjecucion,FINALIZACION_SEGFAULT);
+                terminar_proceso(pcbEnEjecucion,FINALIZACION_SEGFAULT);
                 sem_post(&dispatchPermitido);
                 break;
             }
@@ -581,4 +581,5 @@ void inicializar_estructuras(void)
     __inicializar_semaforos();
     __crear_hilos_planificadores();
 }
+
 
