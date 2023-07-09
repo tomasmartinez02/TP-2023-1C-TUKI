@@ -103,8 +103,9 @@ int32_t archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(uint32_t bloque,
     }
     
     fseek(archivoBloques, desplazamiento, SEEK_SET);
-    fread(&punteroLeido, sizeof(uint32_t), 1, archivoBloques);
+    fread(&punteroLeido, sizeof(int32_t), 1, archivoBloques);
     fclose(archivoBloques);
+    log_info(filesystemLogger,"Puntero leido: %d", punteroLeido); // LOG A SACAR
     return punteroLeido;
 }
 
@@ -286,6 +287,7 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
         /* el proximo bloque va a ser el primer bloque de datos al que se
         apunte en el bloque de punteros */
         siguienteBloque = archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(fcbArchivo);
+        log_info(filesystemLogger,"Puntero leido: %d", siguienteBloque); // LOG A SACAR
         return siguienteBloque;
     }
     else {

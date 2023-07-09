@@ -123,7 +123,9 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {   
+    log_info(filesystemLogger,"Entra a leer archivo"); // LOG A SACAR
     uint32_t posicionAbsoluta, espacioDisponible, puntero, bytesLeidos, bytesQueFaltanPorLeer;
+    size_t rtaLectura;
     bool respuestaMemoria;
 
     // Busco el fcb relacionado al archivo que quiero truncar
@@ -144,22 +146,37 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
     // Obtengo la posicion desde la cual voy a empezar a leer informacion.
     posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
+    log_info(filesystemLogger,"Va a empezar a leer desde la posicion <%u>.", posicionAbsoluta); // LOG A SACAR
 
     espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
 
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+    log_info(filesystemLogger, "posicion desde la que vamos a leer: %ld", ftell(archivoDeBloques)); // LOG A SACAR
 
     sleep_y_log_obligatorio(fcbArchivo, punteroProceso);
     // Si la cantidad de bytes a leer es menor que el espacio que queda en el 
     // bloque seleccionado, solamente se accede a ese bloque.
     if (cantidadBytes < espacioDisponible)
     {   
-        fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        log_info(filesystemLogger,"La cantidad de bytes a leer <%u> es menor al espacio disponible <%u> del bloque", cantidadBytes, espacioDisponible); // LOG A SACAR
+        rtaLectura = fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        if (rtaLectura!=cantidadBytes || ferror(archivoDeBloques))
+        {
+            log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+        }
+        // Se mueve el puntero del archivo hasta el ultimo lugar que se leyo.
+        puntero = puntero + espacioDisponible; 
+        // Contador de bytes leidos.
         bytesLeidos = cantidadBytes;
-        // Ya se leyeron todos los bytes que habia que leer, no hay que hacer nada mas.
+        // Contador de bytes que faltan por leer.
+        bytesQueFaltanPorLeer = bytesQueFaltanPorLeer - bytesLeidos;
+        
+        // Ya se leyeron todos los bytes que habia que leer, no hay que leer nada mas.
         // Pasar la data leida del buffer al char *informacion.
         memcpy(informacion, buffer, bytesLeidos);
+        log_info(filesystemLogger,"Leyo <%s>", informacion); // LOG A SACAR
+
         free(buffer);
     }
 
@@ -167,26 +184,42 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     // seleccionado, se leen todos los bytes que queden en el bloque antes de pasar al siguiente.
     else
     {
-        fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
+        log_info(filesystemLogger,"La cantidad de bytes a leer <%u> es mayor al espacio disponible <%u> del bloque", cantidadBytes, espacioDisponible); // LOG A SACAR
+        rtaLectura = fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
+        if (rtaLectura!=espacioDisponible || ferror(archivoDeBloques))
+        {
+            log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+        }
+
+        log_info(filesystemLogger,"Leyo <%lu> cant bytes", rtaLectura); // LOG A SACAR
         // Se mueve el puntero del archivo hasta el ultimo lugar que se leyo.
-        puntero += espacioDisponible; 
+        puntero = puntero + espacioDisponible; 
+        log_info(filesystemLogger,"Ahora el puntero del proceso apunta a <%u> ", puntero); // LOG A SACAR
         // Contador de bytes leidos.
         bytesLeidos = espacioDisponible;
         // Contador de bytes que faltan por leer.
-        bytesQueFaltanPorLeer -= bytesLeidos;
+        bytesQueFaltanPorLeer = bytesQueFaltanPorLeer - bytesLeidos;
+
         // Pasar la data leida del buffer al char *informacion.
         memcpy(informacion, buffer, bytesLeidos);
+
+        void* bufferLeido = (void*)buffer;
+        char* infoLeida = agregarCaracterNulo(bufferLeido);
+
+        log_info(filesystemLogger,"Leyo <%s>", infoLeida); // LOG A SACAR
         free(buffer);
     }
 
     // Repetir hasta que se hayan leido todos los bytes.
     while(bytesQueFaltanPorLeer != 0)
     {   
+        log_info(filesystemLogger,"Faltan leer <%u> bytes de los <%u> totales", bytesQueFaltanPorLeer, cantidadBytes); // LOG A SACAR
         buffer = malloc(tamanioBloques);
         // Se busca la posicion del siguiente bloque
         // (Si todo esta bien esto deberia llevarnos al byte 0 del bloque) A CHECKEAR
         posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, puntero);
-        sleep_y_log_obligatorio(fcbArchivo, puntero);
+        log_info(filesystemLogger,"Se posiciona en la posicion absoluta: <%u>.", posicionAbsoluta); // LOG A SACAR
+        //sleep_y_log_obligatorio(fcbArchivo, puntero);
         // Si el desplazamiento en el bloque es 0 deberia ser lo mismo hacer 
         // posicionAbsoluta = obtener_bloque_absoluto(fcbArchivo, puntero);
 
@@ -194,30 +227,51 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
         if (bytesQueFaltanPorLeer < tamanioBloques)
         {
-             //sleep(tiempoRetardo);
-            fread(buffer, sizeof(char), bytesQueFaltanPorLeer, archivoDeBloques);
+            //sleep(tiempoRetardo);
+            rtaLectura = fread(buffer, sizeof(char), bytesQueFaltanPorLeer, archivoDeBloques);
+            if (rtaLectura!=bytesQueFaltanPorLeer || ferror(archivoDeBloques))
+            {
+                log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+            }
+            
             // Pasar la data leida del buffer al char *informacion.
             memcpy(informacion+bytesLeidos, buffer, bytesQueFaltanPorLeer);
-            //bytesLeidos += bytesQueFaltanPorLeer; --> creo que ya no hace falta
+
+            bytesLeidos = bytesLeidos + bytesQueFaltanPorLeer; 
             bytesQueFaltanPorLeer = 0;
+
+            log_info(filesystemLogger,"Hasta ahora se leyeron <%u> bytes.", bytesLeidos); // LOG A SACAR
+            log_info(filesystemLogger,"Leyo <%s>", buffer); // LOG A SACAR
+            log_info(filesystemLogger,"Hasta ahora leyo <%s>", informacion); // LOG A SACAR
+            log_info(filesystemLogger,"Faltan leer <%u> bytes.", bytesQueFaltanPorLeer); // LOG A SACAR
         }
         else
         {
-             //sleep(tiempoRetardo);
+            //sleep(tiempoRetardo);
             fread(buffer, sizeof(char), tamanioBloques, archivoDeBloques);
+            if (rtaLectura!=tamanioBloques || ferror(archivoDeBloques))
+            {
+                log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
+            }
             memcpy(informacion+bytesLeidos, buffer, tamanioBloques);
-            puntero += tamanioBloques;
-            bytesLeidos += tamanioBloques;
-            bytesQueFaltanPorLeer -= tamanioBloques;
+            puntero = puntero + tamanioBloques;
+            bytesLeidos = bytesLeidos + tamanioBloques;
+            bytesQueFaltanPorLeer = bytesQueFaltanPorLeer - tamanioBloques;
+
+            log_info(filesystemLogger,"Hasta ahora se leyeron <%u> bytes.", bytesLeidos); // LOG A SACAR
+            log_info(filesystemLogger,"Faltan leer <%u> bytes.", bytesQueFaltanPorLeer); // LOG A SACAR
+            log_info(filesystemLogger,"Leyo <%s>", buffer); // LOG A SACAR
+            log_info(filesystemLogger,"Hasta ahora leyo <%s>", informacion); // LOG A SACAR
         }
         free(buffer);
     }
 
-    log_info(filesystemLogger, "se solicita escritura en memoria");
+    log_info(filesystemLogger, "Se solicita escritura en memoria"); // LOG A SACAR
+    log_info(filesystemLogger,"Le mandamos <%s>", informacion); // LOG A SACAR
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion, pidProceso);
     
-    log_info(filesystemLogger, "esperamos rta memoria");
+    log_info(filesystemLogger, "Esperamos rta memoria"); // LOG A SACAR
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
     respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
     if (respuestaMemoria)
@@ -233,17 +287,14 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir, uint32_t pidProceso)
 {
-    log_info(filesystemLogger,"Entra a escribir archivo");
-
-    // PARA PROBAR //
-    log_info(filesystemLogger, "FS entra a escribir archivo.");
+    log_info(filesystemLogger,"Entra a escribir archivo"); // LOG A SACAR
     uint32_t posicion;
     uint32_t bloqueActual, nuevoBloque, espacioDisponible;
     uint32_t bytesPorEscribir, bytesEscritos;
     bytesPorEscribir = cantidadBytesAEscribir;
     bytesEscritos = 0;
 
-    log_info(filesystemLogger,"Bytes por escribir es <%u>",bytesPorEscribir);
+    log_info(filesystemLogger,"Bytes por escribir es <%u>",bytesPorEscribir); // LOG A SACAR
 
     // Busco el fcb relacionado al archivo en el que se quiere escribir
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
@@ -256,28 +307,27 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     // Solicitar a la Memoria la información que se encuentra a partir de la dirección física
     solicitar_informacion_memoria(direccionFisica, cantidadBytesAEscribir, pidProceso);
-    log_info(filesystemLogger,"Se solicitó la información a memoria");
-
+    log_info(filesystemLogger,"Se solicitó la información a memoria"); // LOG A SACAR
 
     void *informacion = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
 
-    char* infoImprimible = agregarCaracterNulo(informacion);
-    log_info(filesystemLogger,"Recibió: <%s>", infoImprimible);
+    char* infoImprimible = agregarCaracterNulo(informacion); // no se si vamos a tener que dejarlo  no (?
+    log_info(filesystemLogger,"Recibió: <%s>", infoImprimible); // LOG A SACAR
 
     char* informacionAEscribir = (char*)informacion;
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
     bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
-    log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.", bloqueActual);
+    log_info(filesystemLogger,"Va a empezar a escribir en el bloque <%u>.", bloqueActual); // LOG A SACAR
     posicion = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
-    log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.", posicion);
+    log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.", posicion); // LOG A SACAR
 
     espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
 
     // Si se tienen que escribir menos bytes de los que hay disponibles con escribir solo en este bloque alcanza.
     if (cantidadBytesAEscribir <= espacioDisponible)
     {
-        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es menor al espacio disponible <%u> en el bloque.",cantidadBytesAEscribir,espacioDisponible);
+        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es menor al espacio disponible <%u> en el bloque.",cantidadBytesAEscribir,espacioDisponible); // LOG A SACAR
         escribir_en_bloque(posicion, cantidadBytesAEscribir, informacionAEscribir);
         bytesEscritos = cantidadBytesAEscribir;
     }
@@ -288,24 +338,24 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     y el resto en los bloques siguientes */
     while (bytesEscritos < cantidadBytesAEscribir)
     {
-        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es mayor al espacio disponible <%u> en el bloque.",cantidadBytesAEscribir,espacioDisponible);
+        log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es mayor al espacio disponible <%u> en el bloque.",cantidadBytesAEscribir,espacioDisponible); // LOG A SACAR
         
         if (espacioDisponible == 0)
         {
-            log_info(filesystemLogger,"Se quedo sin espacio en el bloque, pasa a buscar el siguiente");
-            nuevoBloque = buscar_siguiente_bloque(bloqueActual,fcbArchivo);
+            log_info(filesystemLogger,"Se quedo sin espacio en el bloque, pasa a buscar el siguiente"); // LOG A SACAR
+            nuevoBloque = buscar_siguiente_bloque(bloqueActual, fcbArchivo);
             bloqueActual = nuevoBloque;
-            log_info(filesystemLogger,"Nuevo bloque: <%u>", bloqueActual);
+            log_info(filesystemLogger,"Nuevo bloque: <%u>", bloqueActual); // LOG A SACAR
             posicion = bloqueActual * tamanioBloques;
-            log_info(filesystemLogger,"Va a empezar a escribir en la posicion <%u>", posicion);
+            log_info(filesystemLogger,"Va a empezar a escribir en la posicion <%u>", posicion); // LOG A SACAR
             espacioDisponible = tamanioBloques;
         }
 
-        log_info(filesystemLogger,"Espacio disponible: <%u>", espacioDisponible);
+        log_info(filesystemLogger,"Espacio disponible: <%u>", espacioDisponible); // LOG A SACAR
 
         if (bytesPorEscribir > espacioDisponible || bytesPorEscribir >= tamanioBloques)
         {
-            log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es mayor al espacio disponible <%u>",bytesPorEscribir,espacioDisponible);
+            log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es mayor al espacio disponible <%u>",bytesPorEscribir,espacioDisponible); // LOG A SACAR
             memcpy(buffer,informacionAEscribir+bytesEscritos,espacioDisponible);
             escribir_en_bloque(posicion, espacioDisponible, buffer);
             bytesEscritos += espacioDisponible;
@@ -313,7 +363,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
         }
         else if (bytesPorEscribir <= tamanioBloques)
         {
-            log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es menor al tamanio de bloques <%u>",bytesPorEscribir,tamanioBloques);
+            log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es menor al tamanio de bloques <%u>",bytesPorEscribir,tamanioBloques); // LOG A SACAR
             memcpy(buffer,informacionAEscribir+bytesEscritos,bytesPorEscribir);
             escribir_en_bloque(posicion, bytesPorEscribir, buffer);
             bytesEscritos += bytesPorEscribir;
@@ -326,8 +376,8 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
             bytesEscritos += espacioDisponible;
             bytesPorEscribir = bytesPorEscribir - espacioDisponible;
         }*/
-        log_info(filesystemLogger,"Faltan escribir <%u> bytes", bytesPorEscribir);
-        log_info(filesystemLogger,"Hasta ahora se escribieron <%u> bytes", bytesEscritos);
+        log_info(filesystemLogger,"Faltan escribir <%u> bytes", bytesPorEscribir); // LOG A SACAR
+        log_info(filesystemLogger,"Hasta ahora se escribieron <%u> bytes", bytesEscritos); // LOG A SACAR
 
         espacioDisponible = 0;
     }
@@ -339,11 +389,12 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
 void escribir_en_bloque(uint32_t posicion, uint32_t cantidadBytesAEscribir, char *informacionAEscribir)
 {
-     //sleep(tiempoRetardo);
+    //sleep(tiempoRetardo);
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques,posicion,SEEK_SET);
     fwrite(informacionAEscribir,sizeof(char),cantidadBytesAEscribir,archivoDeBloques);
-    log_info(filesystemLogger,"Escribio <%u> bytes en el bloque", cantidadBytesAEscribir);
+    log_info(filesystemLogger,"Escribio <%s>", informacionAEscribir); // LOG A SACAR
+    log_info(filesystemLogger,"Escribio <%u> bytes en el bloque", cantidadBytesAEscribir); // LOG A SACAR
     fclose(archivoDeBloques);
 }
 
