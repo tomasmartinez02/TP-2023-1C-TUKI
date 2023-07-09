@@ -39,7 +39,7 @@ static void __inicializar_memoria_principal(void)
 
     memoriaPrincipal = malloc(tamanioMemoria); // Esto nunca se libera no?
 
-    log_info(memoriaDebuggingLogger, "Se inicializa a la memoria principal con un tamanio de %d bytes", tamanioMemoria);
+    log_info(memoriaDebuggingLogger, "Se inicializa a la memoria principal con un tamanio de %u bytes", tamanioMemoria);
 
     return;
 }
@@ -259,7 +259,7 @@ static t_info_segmentos *__eliminar_segmento_de_tabla (t_info_segmentos** tablaD
         indice = indice + 1;
     }
 
-    log_info(memoriaLogger,  "PID: <%d> - Eliminar Segmento: <%d> - Base: <%d> - TAMAÑO: <%d>", pid, idSegmento, tablaDeSegmentos[indice]->direccionBase, tablaDeSegmentos[indice]->tamanio);
+    log_info(memoriaLogger,  "PID: <%u> - Eliminar Segmento: <%u> - Base: <%u> - TAMAÑO: <%u>", pid, idSegmento, tablaDeSegmentos[indice]->direccionBase, tablaDeSegmentos[indice]->tamanio);
 
     huecoLiberado = __crear_hueco(tablaDeSegmentos[indice]->direccionBase, tablaDeSegmentos[indice]->tamanio);
 
@@ -287,7 +287,7 @@ static void __unir_3_huecos (t_huecos_libres* huecoAnterior, t_huecos_libres* hu
 static void __unir_2_huecos_inferior (t_huecos_libres* huecoAnterior, t_info_segmentos* huecoAInsertar)
 {
     uint32_t nuevoTamanio = huecoAnterior->hueco->tamanio + huecoAInsertar->tamanio;
-    uint32_t nuevaBase = huecoAInsertar->direccionBase;
+    uint32_t nuevaBase = huecoAnterior->hueco->direccionBase;
 
     huecoAnterior->hueco->tamanio = nuevoTamanio;
     huecoAnterior->hueco->direccionBase = nuevaBase;
@@ -340,10 +340,12 @@ void __insertar_en_un_solo_hueco(t_info_segmentos* huecoAInsertar)
     uint32_t limiteHuecoAInsertar = huecoAInsertar->direccionBase + huecoAInsertar->tamanio;
 
     if (limiteHuecoAInsertar == baseHuecoExistente) {
-        __unir_2_huecos_inferior(huecoExistente, huecoAInsertar); 
+        __unir_2_huecos_superior(huecoAInsertar, huecoExistente); 
+        //__unir_2_huecos_inferior(huecoExistente, huecoAInsertar); 
         // los tiene que unir dejando la base del hueco a insertar y cambiando el tamanio
     } else if (limiteHuecoExistente == baseHuecoAInsertar) {
-        __unir_2_huecos_superior(huecoAInsertar, huecoExistente); 
+        __unir_2_huecos_inferior(huecoExistente, huecoAInsertar); 
+        //__unir_2_huecos_superior(huecoAInsertar, huecoExistente); 
         // los tiene que unir dejando la base del hueco existente y cambiando el tamanio
     } else if (baseHuecoExistente < baseHuecoAInsertar) {
         __insertar_hueco(huecoExistente, NULL, huecoAInsertar);
@@ -356,19 +358,21 @@ void __insertar_en_un_solo_hueco(t_info_segmentos* huecoAInsertar)
     return; 
 }
 
-void __insertar_hueco_en_posicion (t_info_segmentos* huecoAInsertar, t_huecos_libres* huecoSiguiente)
+void __insertar_hueco_en_posicion (t_info_segmentos* huecoAInsertar, t_huecos_libres* huecoAnterior)
 {
-    t_huecos_libres* huecoAnterior = listaHuecosLibres;
-    uint32_t baseHuecoSiguiente;
 
-    if (huecoSiguiente != NULL) {
+
+    t_huecos_libres* huecoSiguiente = huecoAnterior->siguiente;
+
+    /*if (huecoSiguiente != NULL) {
         while ((huecoAnterior->siguiente->hueco->direccionBase != huecoSiguiente->hueco->direccionBase)) {
         huecoAnterior = huecoAnterior->siguiente;
         }
         baseHuecoSiguiente = huecoSiguiente->hueco->direccionBase;
     } else {
         baseHuecoSiguiente = 0;
-    }
+    }*/
+    uint32_t baseHuecoSiguiente = huecoSiguiente->hueco->direccionBase;
     uint32_t limiteHuecoAnterior = huecoAnterior->hueco->direccionBase + huecoAnterior->hueco->tamanio;
     uint32_t baseHuecoAInsertar = huecoAInsertar->direccionBase;
     uint32_t limiteHuecoAInsertar = huecoAInsertar->direccionBase + huecoAInsertar->tamanio;
@@ -392,10 +396,10 @@ static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
     if (aux == NULL) {
         listaHuecosLibres = __crear_lista_huecos_libres(huecoLiberado -> direccionBase, huecoLiberado -> tamanio);
     } else {
-        while ((aux->hueco->direccionBase + aux->hueco->tamanio) <= huecoLiberado->direccionBase) {
+        while ((aux->hueco->direccionBase + aux->hueco->tamanio) < huecoLiberado->direccionBase) {
             aux = aux->siguiente;
-        }
-        if(aux->hueco->direccionBase == listaHuecosLibres->hueco->direccionBase) { // hay un solo hueco
+        } 
+        if(aux->siguiente == NULL){ //Hay un solo hueco
             __insertar_en_un_solo_hueco(huecoLiberado);
         } else { //hay mas de un hueco
             __insertar_hueco_en_posicion(huecoLiberado, aux);
