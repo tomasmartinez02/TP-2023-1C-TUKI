@@ -41,6 +41,6 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
 void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb);
 void adapter_memoria_pedir_compactacion(); 
 
-void actualizar_tabla_segmentos(t_info_segmentos **bufferTablaDeSegmentosActualizada, t_list *listaProcesos);
+void actualizar_tabla_segmentos(lista_tablas *bufferTablaDeSegmentosActualizada, t_list *listaProcesos);
 
 #endif

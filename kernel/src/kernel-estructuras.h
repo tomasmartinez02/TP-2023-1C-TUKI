@@ -90,6 +90,16 @@ struct semaforo_recurso
 };
 typedef struct semaforo_recurso t_semaforo_recurso;
 
+// Estructura de la tabla de segmentos general
+typedef struct lista_tablas lista_tablas;
+struct lista_tablas
+{
+    uint32_t pidProceso;
+    t_info_segmentos** tablaSegmentos;
+    lista_tablas* siguiente; 
+};
+
+
 // Variables globales
 extern t_log *kernelDebuggingLogger;
 extern t_log *kernelLogger;
@@ -98,6 +108,11 @@ extern t_dictionary *tablaArchivosAbiertos;
 extern sem_t dispatchPermitido;
 extern pthread_mutex_t mutexSocketMemoria;
 extern pthread_mutex_t mutexSocketFilesystem;
+extern sem_t semFRead;
+extern sem_t semFWrite;
+extern bool fRead;
+extern bool fWrite;
+
 // Estados
 extern t_estado *estadoNew;
 extern t_estado *estadoReady;

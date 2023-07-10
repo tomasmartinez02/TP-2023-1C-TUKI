@@ -97,6 +97,64 @@ static void __enviar_pedido_eliminar_segmento(int socketMemoria, uint32_t idSegm
     return;
 }
 
+static lista_tablas* __desempaquetar_tabla_segmentos(t_buffer* bufferTablaDeSegmentosActualizada, uint32_t tamanioTablaDeSegmentosActualizada, uint32_t tamanioTablas)
+{
+    lista_tablas* tablaDeSegmentos = NULL;
+    lista_tablas* aux = tablaDeSegmentos;    
+
+    for(int i=0; i < tamanioTablaDeSegmentosActualizada; i++) {
+        uint32_t pidProceso;
+        t_info_segmentos** tablaProceso; 
+        buffer_unpack(bufferTablaDeSegmentosActualizada, &pidProceso, sizeof(pidProceso));
+        tablaProceso = desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, tamanioTablas);
+
+        lista_tablas* nuevoNodo = malloc(sizeof(lista_tablas));
+        nuevoNodo->pidProceso = pidProceso;
+        nuevoNodo->tablaSegmentos = tablaProceso;
+        nuevoNodo->siguiente = NULL;
+
+        if(aux == NULL) {
+            aux = nuevoNodo;
+        } else {
+            aux->siguiente = nuevoNodo;
+        }
+    }
+
+    return tablaDeSegmentos;
+}
+
+static void __actualizar_tablas_segmentos(lista_tablas* tablaDesempaquetada)
+{
+    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoReady));
+    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoBlocked));
+    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoExecute));
+
+    return;
+}
+
+static t_info_segmentos** __buscar_tabla_correspondiente(uint32_t pid, lista_tablas* tablasDeSegmentosActualizadas)
+{
+    lista_tablas* aux = tablasDeSegmentosActualizadas;
+
+    while (aux->pidProceso != pid) {
+        aux = aux->siguiente;
+    }
+
+    return aux->tablaSegmentos;
+}
+
+static void __eliminar_tabla_general(lista_tablas* tablaADestruir, uint32_t tamanioTablas)
+{
+    while (tablaADestruir != NULL) {
+        destruir_tabla_segmentos(tablaADestruir->tablaSegmentos, tamanioTablas);
+        tablaADestruir = tablaADestruir->siguiente;
+    }
+
+    free(tablaADestruir);
+
+    return; 
+}
+
 
 // Funciones publicas
 
@@ -179,8 +237,17 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
         
         case HEADER_necesita_compactacion:
         {
+            if(fRead || fWrite) {
+                log_info(kernelLogger, "Compactacion: <Esperando Fin de Operaciones de FS>");
+            } 
+            sem_wait(&semFRead);
+            sem_wait(&semFWrite);
+            log_info(kernelLogger, "Compactacion: <Se solicito compactacion>");
             adapter_memoria_pedir_compactacion(socketMemoria);
-            pthread_mutex_unlock(&mutexSocketMemoria); //liberamos el socket porque como llamamos 
+            log_info(kernelLogger, "Se finalizo el proceso de compactacion");
+            pthread_mutex_unlock(&mutexSocketMemoria);
+            sem_post(&semFRead);
+            sem_post(&semFWrite);
             adapter_memoria_pedir_creacion_segmento(idSegmento, tamanio, pcb);
             break;
         }
@@ -211,16 +278,20 @@ void adapter_memoria_pedir_compactacion()
         t_buffer *bufferTablaDeSegmentosActualizada = buffer_create();
         stream_recv_buffer(socketMemoria, bufferTablaDeSegmentosActualizada);
 
-        uint32_t tamanioTablaDeSegmentosActualizada; // FINJO DEMENCIA Y SIGO PERO LO VAMOS A CAMBIAR
+        uint32_t tamanioTablaDeSegmentosActualizada; 
         buffer_unpack(bufferTablaDeSegmentosActualizada, &tamanioTablaDeSegmentosActualizada, sizeof(tamanioTablaDeSegmentosActualizada));
 
-        t_info_segmentos **tablaNueva = desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, tamanioTablaDeSegmentosActualizada);
+        uint32_t tamanioTablas;
+        buffer_unpack(bufferTablaDeSegmentosActualizada, &tamanioTablas, sizeof(tamanioTablas));
 
-        actualizar_tabla_segmentos(tablaNueva, estado_get_list(estadoReady));
-        actualizar_tabla_segmentos(tablaNueva, estado_get_list(estadoBlocked));
-        actualizar_tabla_segmentos(tablaNueva, estado_get_list(estadoExecute));
+        lista_tablas* tablaDesempaquetada = __desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, tamanioTablaDeSegmentosActualizada, tamanioTablas); 
+
+        __actualizar_tablas_segmentos(tablaDesempaquetada);
+
+        __eliminar_tabla_general(tablaDesempaquetada, tamanioTablas);
+
     } else {
-        // error
+        log_error(kernelLogger, "No se pudo compactar la memoria");
     }
 
     return;
@@ -262,11 +333,13 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
     return ;   
 }
 
-void actualizar_tabla_segmentos(t_info_segmentos **tablaDeSegmentosActualizada, t_list *listaProcesos)
+void actualizar_tabla_segmentos(lista_tablas* tablasDeSegmentosActualizadas, t_list *listaProcesos)
 {
+
     void __cambiar_tabla_segmentos(void* pcb)
     {
-        pcb_set_tabla_segmentos(pcb, tablaDeSegmentosActualizada);
+        t_info_segmentos** tablaDeSegmentosProceso = __buscar_tabla_correspondiente(pcb_get_pid(pcb), tablasDeSegmentosActualizadas);
+        pcb_set_tabla_segmentos(pcb, tablaDeSegmentosProceso);
         return ;
     }
 

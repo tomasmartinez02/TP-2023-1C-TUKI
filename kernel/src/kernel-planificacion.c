@@ -16,6 +16,10 @@ static sem_t gradoMultiprogramacion;
 sem_t dispatchPermitido;
 pthread_mutex_t mutexSocketMemoria;
 pthread_mutex_t mutexSocketFilesystem;
+sem_t semFRead;
+sem_t semFWrite;
+bool fRead;
+bool fWrite;
 
 // Funciones privadas
 
@@ -55,6 +59,10 @@ static void __inicializar_semaforos(void)
     sem_init(&dispatchPermitido, 0, 1);
     pthread_mutex_init(&mutexSocketMemoria, NULL);
     pthread_mutex_init(&mutexSocketFilesystem, NULL);
+    sem_init(&semFRead, 0, 1);
+    sem_init(&semFWrite, 0, 1);
+    fRead = false;
+    fWrite = false;
 
     log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprogramacion);
     log_info(kernelDebuggingLogger, "Se inicializan los semaforos para la planificacion correctamente");
@@ -406,6 +414,8 @@ static void *__ejecucion_desalojo_pcb(void *args)
             }
             case HEADER_instruccion_fread:
             {
+                sem_wait(&semFRead);
+                fRead = true;
                 char *nombreArchivo = NULL;
                 uint32_t direccionLogica;
                 uint32_t cantidadBytes;
@@ -417,7 +427,9 @@ static void *__ejecucion_desalojo_pcb(void *args)
             }
             case HEADER_instruccion_fwrite:
             {
-                 char *nombreArchivo = NULL;
+                sem_wait(&semFWrite);
+                fWrite = true;
+                char *nombreArchivo = NULL;
                 uint32_t direccionLogica;
                 uint32_t cantidadBytes;
                 recibir_buffer_instruccion_fwrite(&nombreArchivo, &direccionLogica, &cantidadBytes);
