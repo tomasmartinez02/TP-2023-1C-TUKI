@@ -161,6 +161,8 @@ void *hiloFread(void* arg)
     {
         log_info(kernelDebuggingLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de leer.", pcb_get_pid(pcbEnEjecucion));
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
+        fRead = false;
+        sem_post(&semFRead);
     }
     return NULL;
 }
@@ -187,6 +189,8 @@ void *hiloFwrite(void* arg)
     {
         log_info(kernelDebuggingLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de escribir.", pcb_get_pid(pcbEnEjecucion));
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
+        fWrite = false;
+        sem_post(&semFWrite);
     }
     return NULL;
 }
