@@ -330,9 +330,9 @@ static void __insertar_hueco_antes (t_huecos_libres* huecoExistente, t_info_segm
     return; 
 }
 
-void __insertar_en_un_solo_hueco(t_info_segmentos* huecoAInsertar)
+void __insertar_en_un_solo_hueco(t_info_segmentos* huecoAInsertar, t_huecos_libres* huecoAnterior)
 {
-    t_huecos_libres* huecoExistente = listaHuecosLibres;
+    t_huecos_libres* huecoExistente = huecoAnterior;
 
     uint32_t baseHuecoExistente = huecoExistente->hueco->direccionBase;
     uint32_t limiteHuecoExistente = huecoExistente->hueco->direccionBase + huecoExistente->hueco->tamanio;                                                                                                                                                                                                                                                                                                                                                                                                      
@@ -399,8 +399,8 @@ static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
         while ((aux->hueco->direccionBase + aux->hueco->tamanio) < huecoLiberado->direccionBase) {
             aux = aux->siguiente;
         } 
-        if(aux->siguiente == NULL){ //Hay un solo hueco
-            __insertar_en_un_solo_hueco(huecoLiberado);
+        if(aux->siguiente == NULL || (aux->hueco->direccionBase == listaHuecosLibres->hueco->direccionBase && (aux->hueco->direccionBase > huecoLiberado->direccionBase))){ //Hay un solo hueco
+            __insertar_en_un_solo_hueco(huecoLiberado, aux);
         } else { //hay mas de un hueco
             __insertar_hueco_en_posicion(huecoLiberado, aux);
         }
