@@ -43,7 +43,7 @@ static t_buffer *__empaquetar_tabla_segmentos_eliminacion(t_info_segmentos **tab
     return bufferTablaSegmentos;
 }
 
-/* static uint32_t __tamanio_tabla_de_segmentos()
+static uint32_t __tamanio_tabla_de_segmentos()
 {   
     lista_tablas *aux = tablasDeSegmentos;
     uint32_t contador = 0;
@@ -54,7 +54,7 @@ static t_buffer *__empaquetar_tabla_segmentos_eliminacion(t_info_segmentos **tab
     }    
 
     return contador; 
-} */
+}
 
 static t_buffer* __empaquetar_tablas_de_segmentos(uint32_t tamanioTablas) 
 {
@@ -184,6 +184,10 @@ void adapter_kernel_confirmar_compactacion_memoria(uint32_t socketKernel)
     
     t_buffer *bufferTablas = buffer_create();
     uint32_t tamanioTabla = memoria_config_get_cantidad_segmentos(memoriaConfig);
+    uint32_t tamanioTotalTabla = __tamanio_tabla_de_segmentos();
+
+    buffer_pack(bufferTablas, &tamanioTotalTabla, sizeof(tamanioTotalTabla));
+    buffer_pack(bufferTablas, &tamanioTabla, sizeof(tamanioTabla));
 
     bufferTablas = __empaquetar_tablas_de_segmentos(tamanioTabla);
 
