@@ -168,6 +168,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
 
         case HEADER_out_of_memory:
         {
+            stream_recv_empty_buffer(socketMemoria);
             terminar_proceso(pcb, FINALIZACION_OUTOFMEMORY);
             pthread_mutex_unlock(&mutexSocketMemoria);
             log_error(kernelDebuggingLogger, "No hay memoria suficiente");
