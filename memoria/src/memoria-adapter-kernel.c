@@ -67,6 +67,7 @@ static t_buffer* __empaquetar_tablas_de_segmentos(uint32_t tamanioTablas)
         uint32_t pid = aux->pidProceso;
         buffer_pack(bufferAEnviar, &pid, sizeof(pid));
         __empaquetar_tabla(aux->tablaSegmentos, tamanioTablas, bufferAEnviar);
+        aux = aux->siguiente;
     }
 
     return bufferAEnviar;
