@@ -73,7 +73,12 @@ static void __eliminar_hueco (t_huecos_libres *huecoAEliminar)
         auxiliarLista = auxiliarLista->siguiente;
     } // avanza hasta que encuentra el nodo anterior al que quiere eliminar
 
-    auxiliarLista->siguiente = huecoAEliminar->siguiente;
+    if(auxiliarLista->hueco->direccionBase == huecoAEliminar->hueco->direccionBase) {
+        auxiliarLista = huecoAEliminar->siguiente;// si el nodo a eliminar es el primero de la lista
+        listaHuecosLibres = auxiliarLista;
+    } else{
+        auxiliarLista->siguiente = huecoAEliminar->siguiente;
+    }
 
     free(huecoAEliminar);
 
@@ -147,16 +152,24 @@ static uint32_t __obtener_base_segmento_first_fit(t_info_segmentos* segmento)
 static uint32_t __obtener_base_segmento_best_fit(t_info_segmentos* segmento)
 {
     t_huecos_libres* auxiliarLista = listaHuecosLibres;
-    uint32_t baseSegmento = auxiliarLista->hueco->direccionBase;
-    uint32_t tamanioHueco = auxiliarLista->hueco->tamanio;
+    uint32_t baseSegmento, tamanioHueco;
+    if(auxiliarLista->hueco->tamanio >= segmento->tamanio) {
+        baseSegmento = auxiliarLista->hueco->direccionBase;
+        tamanioHueco = auxiliarLista->hueco->tamanio;
+    } else {
+        baseSegmento = -1;
+        tamanioHueco = -1;
+    }
 
     while (auxiliarLista->siguiente != NULL)
     {
         auxiliarLista = auxiliarLista->siguiente;
-        if (auxiliarLista->hueco->tamanio < tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio)
-        {
-            tamanioHueco = auxiliarLista->hueco->tamanio;
-            baseSegmento = auxiliarLista->hueco->direccionBase;
+        if(auxiliarLista->hueco->tamanio >= segmento->tamanio){
+            if (tamanioHueco == -1 || (auxiliarLista->hueco->tamanio < tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio))
+            {
+                tamanioHueco = auxiliarLista->hueco->tamanio;
+                baseSegmento = auxiliarLista->hueco->direccionBase;
+            }
         }
     }
 
@@ -166,16 +179,24 @@ static uint32_t __obtener_base_segmento_best_fit(t_info_segmentos* segmento)
 static uint32_t __obtener_base_segmento_worst_fit(t_info_segmentos* segmento)
 {
     t_huecos_libres* auxiliarLista = listaHuecosLibres;
-    uint32_t baseSegmento = auxiliarLista->hueco->direccionBase;
-    uint32_t tamanioHueco = auxiliarLista->hueco->tamanio;
+    uint32_t baseSegmento, tamanioHueco;
+    if(auxiliarLista->hueco->tamanio >= segmento->tamanio) {
+        baseSegmento = auxiliarLista->hueco->direccionBase;
+        tamanioHueco = auxiliarLista->hueco->tamanio;
+    } else {
+        baseSegmento = -1;
+        tamanioHueco = -1;
+    }
 
     while (auxiliarLista->siguiente != NULL)
     {
         auxiliarLista = auxiliarLista->siguiente;
-        if (auxiliarLista->hueco->tamanio > tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio)
-        {
-            tamanioHueco = auxiliarLista->hueco->tamanio;
-            baseSegmento = auxiliarLista->hueco->direccionBase;
+        if(auxiliarLista->hueco->tamanio >= segmento->tamanio){
+            if (tamanioHueco == -1 ||(auxiliarLista->hueco->tamanio > tamanioHueco && auxiliarLista->hueco->tamanio >= segmento->tamanio))
+            {
+                tamanioHueco = auxiliarLista->hueco->tamanio;
+                baseSegmento = auxiliarLista->hueco->direccionBase;
+            }
         }
     }
 
@@ -396,10 +417,10 @@ static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
     if (aux == NULL) {
         listaHuecosLibres = __crear_lista_huecos_libres(huecoLiberado -> direccionBase, huecoLiberado -> tamanio);
     } else {
-        while ((aux->hueco->direccionBase + aux->hueco->tamanio) < huecoLiberado->direccionBase) {
+        while (aux->siguiente != NULL && (aux->siguiente->hueco->direccionBase + aux->siguiente->hueco->tamanio) <= huecoLiberado->direccionBase) {
             aux = aux->siguiente;
         } 
-        if(aux->siguiente == NULL || (aux->hueco->direccionBase == listaHuecosLibres->hueco->direccionBase && (aux->hueco->direccionBase > huecoLiberado->direccionBase))){ //Hay un solo hueco
+        if(aux->hueco->direccionBase == listaHuecosLibres->hueco->direccionBase && (aux->siguiente == NULL || huecoLiberado->direccionBase < aux->hueco->direccionBase)){ //Hay un solo hueco
             __insertar_en_un_solo_hueco(huecoLiberado, aux);
         } else { //hay mas de un hueco
             __insertar_hueco_en_posicion(huecoLiberado, aux);
@@ -694,7 +715,7 @@ bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
 {
     t_huecos_libres* aux = listaHuecosLibres;
 
-    while (aux->siguiente != NULL && tamanioSolicitado < aux->hueco->tamanio) {
+    while (aux->siguiente != NULL && tamanioSolicitado > aux->hueco->tamanio) {
         aux = aux->siguiente;
     }
     
