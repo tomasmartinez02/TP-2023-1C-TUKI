@@ -52,7 +52,6 @@ void bitmap_marcar_bloque_libre(uint32_t numeroBloque) // 0 --> libre
         log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
     }
     log_acceso_bitmap(numeroBloque, 0);
-    log_info(filesystemLogger, "Se marca al bloque %u como libre.", numeroBloque);
     return;
 }
 
@@ -64,6 +63,5 @@ void bitmap_marcar_bloque_ocupado(uint32_t numeroBloque) // 1 --> ocupado
         log_error(filesystemLogger,"Error al sincronizar los cambios en el Bitmap");
     }
     log_acceso_bitmap(numeroBloque, 1);
-    log_info(filesystemLogger, "Se marca al bloque %u como ocupado.", numeroBloque);
     return;
 }

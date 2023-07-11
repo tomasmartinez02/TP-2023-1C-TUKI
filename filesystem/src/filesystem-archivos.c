@@ -6,8 +6,8 @@ t_superbloque *superbloque;
 t_fcb *fcb;
 FILE* archivoDeBloques;
 uint32_t tamanioBloques;
-char *pathArchivoBloquesHardcodeado;
-char *pathDirectorioFcbsHardcodeado;
+char *directorioFcbs;
+char *pathArchivoDeBloques;
 
 // SUPERBLOQUE
 
@@ -92,8 +92,6 @@ void destruir_bitmap()
 
 FILE *abrir_archivo_de_bloques()
 {
-    char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
-    log_info(filesystemLogger, "Path archivo de bloques <%s>", pathArchivoDeBloques); // LOG A SACAR
     archivoDeBloques = fopen(pathArchivoDeBloques, "r+b");
 
     if (archivoDeBloques == NULL) {
@@ -102,7 +100,7 @@ FILE *abrir_archivo_de_bloques()
     return archivoDeBloques;
 }
 
-void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize)
+void crear_archivo_de_bloques(uint32_t blockCount, uint32_t blockSize)
 {
     uint32_t fileDescriptor = open(pathArchivoDeBloques, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fileDescriptor == -1) {
@@ -128,12 +126,10 @@ void inicializar_estructuras(void)
     crear_bitmap(pathBitmap,blockCount);
     free(pathBitmap);
 
-    char *pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
+    pathArchivoDeBloques = filesystem_config_get_path_bloques(filesystemConfig);
     tamanioBloques = get_superbloque_block_size(superbloque);
-    crear_archivo_de_bloques(pathArchivoDeBloques,blockCount,tamanioBloques);
-    free(pathArchivoDeBloques);
+    crear_archivo_de_bloques(blockCount,tamanioBloques);
 
-    char *directorioFcbs = filesystem_config_get_path_fcb(filesystemConfig);
-    recorrer_directorio_fcbs(directorioFcbs);
-    free(directorioFcbs);
+    directorioFcbs = filesystem_config_get_path_fcb(filesystemConfig);
+    recorrer_directorio_fcbs();
 }

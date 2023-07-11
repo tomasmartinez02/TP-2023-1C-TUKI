@@ -61,7 +61,7 @@ extern t_dictionary *listaFcbs;
 extern FILE* archivoDeBloques;
 extern uint32_t tiempoRetardo;
 extern uint32_t tamanioBloques;
-extern char *pathArchivoBloquesHardcodeado;
-extern char *pathDirectorioFcbsHardcodeado;
+extern char *directorioFcbs;
+extern char *pathArchivoDeBloques;
 
 #endif
