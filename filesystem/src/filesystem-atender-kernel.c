@@ -57,7 +57,6 @@ void ampliar_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
         asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
     }
     else {
-        /* Si ya tiene bloques, solo se agregan punteros al bloque de punteros */
         log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
         asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
     }
@@ -152,9 +151,8 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
-    log_info(filesystemLogger, "posicion desde la que vamos a leer: %ld", ftell(archivoDeBloques)); // LOG A SACAR
+    log_info(filesystemLogger, "Posicion desde la que vamos a leer: %ld", ftell(archivoDeBloques)); // LOG A SACAR
 
-    sleep_y_log_obligatorio(fcbArchivo, punteroProceso);
     // Si la cantidad de bytes a leer es menor que el espacio que queda en el 
     // bloque seleccionado, solamente se accede a ese bloque.
     if (cantidadBytes < espacioDisponible)
@@ -178,13 +176,13 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         log_info(filesystemLogger,"Leyo <%s>", informacion); // LOG A SACAR
 
         free(buffer);
+        fclose(archivoDeBloques);
     }
 
     // Si la cantidad de bytes a leer es mayor que el espacio que queda en el bloque
     // seleccionado, se leen todos los bytes que queden en el bloque antes de pasar al siguiente.
     else
     {
-        log_info(filesystemLogger,"La cantidad de bytes a leer <%u> es mayor al espacio disponible <%u> del bloque", cantidadBytes, espacioDisponible); // LOG A SACAR
         rtaLectura = fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
         if (rtaLectura!=espacioDisponible || ferror(archivoDeBloques))
         {
@@ -208,6 +206,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 
         log_info(filesystemLogger,"Leyo <%s>", infoLeida); // LOG A SACAR
         free(buffer);
+        fclose(archivoDeBloques);
     }
 
     // Repetir hasta que se hayan leido todos los bytes.
@@ -215,19 +214,16 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     {   
         log_info(filesystemLogger,"Faltan leer <%u> bytes de los <%u> totales", bytesQueFaltanPorLeer, cantidadBytes); // LOG A SACAR
         buffer = malloc(tamanioBloques);
+
         // Se busca la posicion del siguiente bloque
-        // (Si todo esta bien esto deberia llevarnos al byte 0 del bloque) A CHECKEAR
         posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, puntero);
         log_info(filesystemLogger,"Se posiciona en la posicion absoluta: <%u>.", posicionAbsoluta); // LOG A SACAR
-        //sleep_y_log_obligatorio(fcbArchivo, puntero);
-        // Si el desplazamiento en el bloque es 0 deberia ser lo mismo hacer 
-        // posicionAbsoluta = obtener_bloque_absoluto(fcbArchivo, puntero);
-
         // Nos movemos a la posición desdeada 
+        archivoDeBloques = abrir_archivo_de_bloques();
         fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
+        log_info(filesystemLogger, "Posicion desde la que se va a leer: %ld", ftell(archivoDeBloques)); // LOG A SACAR
         if (bytesQueFaltanPorLeer < tamanioBloques)
         {
-            //sleep(tiempoRetardo);
             rtaLectura = fread(buffer, sizeof(char), bytesQueFaltanPorLeer, archivoDeBloques);
             if (rtaLectura!=bytesQueFaltanPorLeer || ferror(archivoDeBloques))
             {
@@ -247,8 +243,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         }
         else
         {
-            //sleep(tiempoRetardo);
-            fread(buffer, sizeof(char), tamanioBloques, archivoDeBloques);
+            rtaLectura = fread(buffer, sizeof(char), tamanioBloques, archivoDeBloques);
             if (rtaLectura!=tamanioBloques || ferror(archivoDeBloques))
             {
                 log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
@@ -264,14 +259,12 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
             log_info(filesystemLogger,"Hasta ahora leyo <%s>", informacion); // LOG A SACAR
         }
         free(buffer);
+        fclose(archivoDeBloques);
     }
-
-    log_info(filesystemLogger, "Se solicita escritura en memoria"); // LOG A SACAR
-    log_info(filesystemLogger,"Le mandamos <%s>", informacion); // LOG A SACAR
+    log_info(filesystemLogger,"FS le manda <%s> a memoria.", informacion); // LOG A SACAR
     // Enviar información a memoria para ser escrita a partir de la dirección física 
     solicitar_escritura_memoria(direccionFisica, cantidadBytes, informacion, pidProceso);
-    
-    log_info(filesystemLogger, "Esperamos rta memoria"); // LOG A SACAR
+
     // Esperar su finalización para poder confirmar el éxito de la operación al Kernel.
     respuestaMemoria = recibir_buffer_confirmacion_escritura_memoria();
     if (respuestaMemoria)
@@ -284,7 +277,6 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 }
 
 // FWRITE
-
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir, uint32_t pidProceso)
 {
     log_info(filesystemLogger,"Entra a escribir archivo"); // LOG A SACAR
@@ -368,17 +360,8 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
             escribir_en_bloque(posicion, bytesPorEscribir, buffer);
             bytesEscritos += bytesPorEscribir;
         }
-        /*else
-        {
-            log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es mayor al tamanio de bloques <%u>",bytesPorEscribir,tamanioBloques);
-            memcpy(buffer,informacionAEscribir+bytesEscritos,espacioDisponible);
-            escribir_en_bloque(posicion, espacioDisponible, buffer);
-            bytesEscritos += espacioDisponible;
-            bytesPorEscribir = bytesPorEscribir - espacioDisponible;
-        }*/
         log_info(filesystemLogger,"Faltan escribir <%u> bytes", bytesPorEscribir); // LOG A SACAR
         log_info(filesystemLogger,"Hasta ahora se escribieron <%u> bytes", bytesEscritos); // LOG A SACAR
-
         espacioDisponible = 0;
     }
     free(buffer);
@@ -389,7 +372,6 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
 void escribir_en_bloque(uint32_t posicion, uint32_t cantidadBytesAEscribir, char *informacionAEscribir)
 {
-    //sleep(tiempoRetardo);
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques,posicion,SEEK_SET);
     fwrite(informacionAEscribir,sizeof(char),cantidadBytesAEscribir,archivoDeBloques);
@@ -424,7 +406,7 @@ void atender_peticiones_kernel()
                 uint32_t puntero;
                 uint32_t pidProceso;
                 recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
-                log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica %d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
                 free(nombreArchivo);
                 break;
@@ -437,7 +419,7 @@ void atender_peticiones_kernel()
                 uint32_t puntero;
                 uint32_t pidProceso;
                 recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
-                log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica%d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
+                log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica %d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
                 free(nombreArchivo);
                 break;
