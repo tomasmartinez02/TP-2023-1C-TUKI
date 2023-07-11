@@ -70,6 +70,6 @@ void destruir_bitmap (void);
 
 FILE *abrir_archivo_de_bloques(void);
 
-void crear_archivo_de_bloques(char *pathArchivoDeBloques, uint32_t blockCount, uint32_t blockSize);
+void crear_archivo_de_bloques(uint32_t blockCount, uint32_t blockSize);
 
 #endif

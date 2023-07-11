@@ -7,7 +7,7 @@ void asignar_puntero_directo(t_fcb *fcbArchivo)
     bitmap_marcar_bloque_ocupado(bloque);
     fcb_incrementar_cantidad_bloques_asignados(fcbArchivo);
     fcb_incrementar_tamanio_en_bloque(fcbArchivo);
-    log_info(filesystemLogger, "Se asigna al bloque %u como bloque directo.", bloque);
+    log_info(filesystemLogger, "Se asigna el bloque <%u> como bloque directo.", bloque);
     return;
 }
 
@@ -16,7 +16,7 @@ void asignar_puntero_indirecto(t_fcb *fcbArchivo)
     uint32_t bloquePunteros = bitmap_encontrar_bloque_libre();
     fcb_set_puntero_indirecto(fcbArchivo, bloquePunteros);
     bitmap_marcar_bloque_ocupado(bloquePunteros);
-    log_info(filesystemLogger, "Se asigna al bloque %u como bloque indirecto.", bloquePunteros);
+    log_info(filesystemLogger, "Se asigna el bloque <%u> como bloque de punteros.", bloquePunteros);
     return;
 }
 
@@ -43,6 +43,7 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
         fwrite(&bloqueDatos, sizeof(uint32_t), 1, archivoDeBloques);
     }
     fclose(archivoDeBloques);
+    free(nombreArchivo);
     return;
 }
 
@@ -62,7 +63,6 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
         asignar_bloques(fcbArchivo, cantidadPunteros);
     }
 }
-
 
 // Archivos que ya tienen punteros asignados
 void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
@@ -282,6 +282,11 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
 {
     uint32_t siguienteBloque;
     uint32_t punteroDirecto = fcb_get_puntero_directo(fcbArchivo);
+    uint32_t punteroIndirecto = fcb_get_puntero_indirecto(fcbArchivo);
+    char * nombreArchivo = fcb_get_nombre_archivo(fcbArchivo);
+
+    log_acceso_bloque_punteros(nombreArchivo,punteroIndirecto);
+    free(nombreArchivo);
 
     if (bloqueActual == punteroDirecto) {
         /* el proximo bloque va a ser el primer bloque de datos al que se
@@ -291,7 +296,6 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
         return siguienteBloque;
     }
     else {
-        uint32_t punteroIndirecto = fcb_get_puntero_indirecto(fcbArchivo);
         uint32_t desplazamiento = (punteroIndirecto * tamanioBloques);
 
         archivoDeBloques = abrir_archivo_de_bloques();

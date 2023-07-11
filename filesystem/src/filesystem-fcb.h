@@ -44,6 +44,6 @@ uint32_t obtener_cantidad_punteros_bloque_indirecto(t_fcb* fcb);
 t_fcb* levantar_fcb(char *pathFcb);
 bool persistir_fcb(t_fcb* fcb);
 bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb);
-void recorrer_directorio_fcbs(char *directorioFcbs);
+void recorrer_directorio_fcbs(void);
 
 #endif
