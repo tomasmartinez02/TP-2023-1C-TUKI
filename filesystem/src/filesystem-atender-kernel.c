@@ -281,7 +281,8 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 {
     log_info(filesystemLogger,"Entra a escribir archivo"); // LOG A SACAR
     uint32_t posicion;
-    uint32_t bloqueActual, nuevoBloque, espacioDisponible;
+    // el 'bloqueActual' es el absoluto
+    uint32_t bloqueActual, bloqueRelativo, nuevoBloque, espacioDisponible;
     uint32_t bytesPorEscribir, bytesEscritos;
     bytesPorEscribir = cantidadBytesAEscribir;
     bytesEscritos = 0;
@@ -310,7 +311,9 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
     bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
-    log_info(filesystemLogger,"Va a empezar a escribir en el bloque <%u>.", bloqueActual); // LOG A SACAR
+    log_info(filesystemLogger,"Va a empezar a escribir en el bloque <%u> del archivo de bloques.", bloqueActual); // LOG A SACAR
+    bloqueRelativo = obtener_bloque_relativo(fcbArchivo, punteroProceso);
+    log_info(filesystemLogger,"Va a empezar a escribir en el bloque <%u> del archivo.", bloqueRelativo); // LOG A SACAR
     posicion = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
     log_info(filesystemLogger,"Va a empezar a escribir desde la posicion <%u>.", posicion); // LOG A SACAR
 
@@ -320,6 +323,8 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     if (cantidadBytesAEscribir <= espacioDisponible)
     {
         log_info(filesystemLogger,"La cantidad de bytes a escribir <%u> es menor al espacio disponible <%u> en el bloque.",cantidadBytesAEscribir,espacioDisponible); // LOG A SACAR
+        sleep(tiempoRetardo);
+        log_acceso_bloque(nombreArchivo,bloqueRelativo,bloqueActual);
         escribir_en_bloque(posicion, cantidadBytesAEscribir, informacionAEscribir);
         bytesEscritos = cantidadBytesAEscribir;
     }
@@ -340,6 +345,8 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
             log_info(filesystemLogger,"Nuevo bloque: <%u>", bloqueActual); // LOG A SACAR
             posicion = bloqueActual * tamanioBloques;
             log_info(filesystemLogger,"Va a empezar a escribir en la posicion <%u>", posicion); // LOG A SACAR
+            bloqueRelativo = obtener_bloque_relativo(fcbArchivo, posicion);
+            log_info(filesystemLogger,"El nuevo bloque es el bloque <%u> del archivo.", bloqueRelativo); // LOG A SACAR
             espacioDisponible = tamanioBloques;
         }
 
@@ -349,6 +356,8 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
         {
             log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es mayor al espacio disponible <%u>",bytesPorEscribir,espacioDisponible); // LOG A SACAR
             memcpy(buffer,informacionAEscribir+bytesEscritos,espacioDisponible);
+            sleep(tiempoRetardo);
+            log_acceso_bloque(nombreArchivo,bloqueRelativo,bloqueActual);
             escribir_en_bloque(posicion, espacioDisponible, buffer);
             bytesEscritos += espacioDisponible;
             bytesPorEscribir -= espacioDisponible;
@@ -357,6 +366,8 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
         {
             log_info(filesystemLogger,"La cantidad de bytes que quedan por escribir <%u> es menor al tamanio de bloques <%u>",bytesPorEscribir,tamanioBloques); // LOG A SACAR
             memcpy(buffer,informacionAEscribir+bytesEscritos,bytesPorEscribir);
+            sleep(tiempoRetardo);
+            log_acceso_bloque(nombreArchivo,bloqueRelativo,bloqueActual);
             escribir_en_bloque(posicion, bytesPorEscribir, buffer);
             bytesEscritos += bytesPorEscribir;
         }

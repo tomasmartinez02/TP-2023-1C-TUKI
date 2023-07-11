@@ -13,11 +13,9 @@ int32_t bitmap_encontrar_bloque_libre()
         // Si encuentra un bloque que esté en 0 devuelve la posición de ese bloque
         if(!bloqueOcupado)
         {
-            log_info(filesystemLogger, "El bloque %u esta libre.", i);
             return i;
             break;
         }
-        log_info(filesystemLogger, "El bloque %u esta ocupado.", i);
     }
      // Si no encuentra un bloque libre, retorna -1
     return -1;
