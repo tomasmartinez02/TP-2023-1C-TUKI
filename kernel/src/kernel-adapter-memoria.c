@@ -237,6 +237,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
         
         case HEADER_necesita_compactacion:
         {
+            stream_recv_empty_buffer(socketMemoria);
             if(fRead || fWrite) {
                 log_info(kernelLogger, "Compactacion: <Esperando Fin de Operaciones de FS>");
             } 
