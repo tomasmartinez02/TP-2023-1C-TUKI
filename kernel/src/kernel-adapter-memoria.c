@@ -115,32 +115,36 @@ static lista_tablas* __desempaquetar_tabla_segmentos(t_buffer* bufferTablaDeSegm
 
         if(aux == NULL) {
             aux = nuevoNodo;
+            tablaDeSegmentos = nuevoNodo;
         } else {
             aux->siguiente = nuevoNodo;
+            aux = aux->siguiente;
         }
     }
 
     return tablaDeSegmentos;
 }
-
-static void __actualizar_tablas_segmentos(lista_tablas* tablaDesempaquetada)
-{
-    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoReady));
-    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoBlocked));
-    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoExecute));
-
-    return;
-}
-
 static t_info_segmentos** __buscar_tabla_correspondiente(uint32_t pid, lista_tablas* tablasDeSegmentosActualizadas)
 {
     lista_tablas* aux = tablasDeSegmentosActualizadas;
 
-    while (aux->siguiente != NULL && aux->pidProceso != pid) {
+    // while (aux->siguiente != NULL && aux->pidProceso != pid) {
+    while (aux != NULL && aux->pidProceso != pid) {
         aux = aux->siguiente;
     }
 
     return aux->tablaSegmentos;
+}
+
+static void __actualizar_tablas_segmentos(lista_tablas* tablaDesempaquetada, t_pcb* pcbEnEjecucion)
+{
+    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoReady));
+    actualizar_tabla_segmentos(tablaDesempaquetada, estado_get_list(estadoBlocked));
+
+    t_info_segmentos** tablaSeleccionada = __buscar_tabla_correspondiente(pcb_get_pid(pcbEnEjecucion), tablaDesempaquetada); 
+    pcb_set_tabla_segmentos(pcbEnEjecucion, tablaSeleccionada);
+
+    return;
 }
 
 static void __eliminar_tabla_general(lista_tablas* tablaADestruir, uint32_t tamanioTablas)
@@ -244,7 +248,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             sem_wait(&semFRead);
             sem_wait(&semFWrite);
             log_info(kernelLogger, "Compactacion: <Se solicito compactacion>");
-            adapter_memoria_pedir_compactacion(socketMemoria);
+            adapter_memoria_pedir_compactacion(pcb);
             log_info(kernelLogger, "Se finalizo el proceso de compactacion");
             pthread_mutex_unlock(&mutexSocketMemoria);
             sem_post(&semFRead);
@@ -266,7 +270,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
     return;
 }
 
-void adapter_memoria_pedir_compactacion() 
+void adapter_memoria_pedir_compactacion(t_pcb *pcbEnEjecucion) 
 {
     int socketMemoria = kernel_config_get_socket_memoria(kernelConfig);
 
@@ -287,7 +291,7 @@ void adapter_memoria_pedir_compactacion()
 
         lista_tablas* tablaDesempaquetada = __desempaquetar_tabla_segmentos(bufferTablaDeSegmentosActualizada, tamanioTablaDeSegmentosActualizada, tamanioTablas); 
 
-        __actualizar_tablas_segmentos(tablaDesempaquetada);
+        __actualizar_tablas_segmentos(tablaDesempaquetada, pcbEnEjecucion);
 
         __eliminar_tabla_general(tablaDesempaquetada, tamanioTablas);
 
