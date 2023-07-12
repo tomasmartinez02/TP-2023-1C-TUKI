@@ -421,7 +421,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 uint32_t cantidadBytes;
                 recibir_buffer_instruccion_fread(&nombreArchivo, &direccionLogica, &cantidadBytes);
                 ejecutar_instruccion_fread(pcbEnEjecucion, nombreArchivo, direccionLogica, cantidadBytes);
-                free(nombreArchivo);
+                //free(nombreArchivo);
                 sem_post(&dispatchPermitido); // esto se podria pasar a la funcion d pasar de running a otro estado
                 break;
             }
@@ -434,7 +434,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 uint32_t cantidadBytes;
                 recibir_buffer_instruccion_fwrite(&nombreArchivo, &direccionLogica, &cantidadBytes);
                 ejecutar_instruccion_fwrite(pcbEnEjecucion, nombreArchivo, direccionLogica, cantidadBytes);
-                free(nombreArchivo);
+                //free(nombreArchivo);
                 sem_post(&dispatchPermitido);
                 break;
             }
@@ -444,7 +444,7 @@ static void *__ejecucion_desalojo_pcb(void *args)
                 uint32_t tamanio;
                 recibir_buffer_instruccion_ftruncate(&nombreArchivo, &tamanio);
                 ejecutar_instruccion_ftruncate(pcbEnEjecucion, nombreArchivo, tamanio);
-                free(nombreArchivo);
+                //free(nombreArchivo);
                 sem_post(&dispatchPermitido);
                 break;
             }
