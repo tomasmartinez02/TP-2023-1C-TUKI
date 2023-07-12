@@ -334,7 +334,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
         bytesEscritos = cantidadBytesAEscribir;
     }
 
-    char *buffer = malloc(sizeof(tamanioBloques));
+    char *buffer = malloc(tamanioBloques);
     
     /* Si se tienen que escribir más bytes de los que hay disponibles hay que escribir una parte en este bloque
     y el resto en los bloques siguientes */
