@@ -293,7 +293,7 @@ void adapter_memoria_pedir_compactacion(t_pcb *pcbEnEjecucion)
 
         __actualizar_tablas_segmentos(tablaDesempaquetada, pcbEnEjecucion);
 
-        __eliminar_tabla_general(tablaDesempaquetada, tamanioTablas);
+        free(tablaDesempaquetada);
 
     } else {
         log_error(kernelLogger, "No se pudo compactar la memoria");
