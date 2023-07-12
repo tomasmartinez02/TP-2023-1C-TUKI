@@ -203,7 +203,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         memcpy(informacion, buffer, bytesLeidos);
 
         void* bufferLeido = (void*)buffer;
-        char* infoLeida = agregarCaracterNulo(bufferLeido);
+        char* infoLeida = agregarCaracterNulo(bufferLeido,cantidadBytes);
 
         log_info(filesystemLogger,"Leyo <%s>", infoLeida); // LOG A SACAR
         free(buffer);
@@ -307,11 +307,9 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
 
     void *informacion = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
 
-    //char* infoImprimible = agregarCaracterNulo(informacion); // no hace falta
+    char* informacionAEscribir = agregarCaracterNulo(informacion,cantidadBytesAEscribir);
     //log_info(filesystemLogger,"Recibió: <%s>", infoImprimible); // LOG A SACAR
-
-    char* informacionAEscribir = (char*)informacion;
-    free(informacion);
+    //char* informacionAEscribir = (char*)informacion;
 
     log_info(filesystemLogger,"Recibió: <%s>", informacionAEscribir);
 
@@ -385,6 +383,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
         espacioDisponible = 0;
     }
     free(buffer);
+    free(informacion);
 
     log_escritura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytesAEscribir);
     enviar_confirmacion_fwrite_finalizado();
