@@ -206,8 +206,8 @@ void recorrer_directorio_fcbs(void)
             dictionary_put(listaFcbs, nombreTemp, (void*)fcb_temp);
         }
     }
-    free(nombreTemp);
     closedir(dir);
+    //free(nombreTemp); // probar si funciona con el free aca
 }
 
 bool persistir_fcb(t_fcb* fcb)

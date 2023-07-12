@@ -115,6 +115,6 @@ char *int_to_yellow_string(uint32_t number);
  */
 char *string_to_yellow_string(char *string);
 
-char* agregarCaracterNulo(void* data); 
+char* agregarCaracterNulo(void* data, uint32_t length); 
 
 #endif
