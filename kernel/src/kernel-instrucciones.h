@@ -9,6 +9,7 @@
 #include <kernel-tabla-archivos.h>
 #include <kernel.h>
 #include <kernel-adapter-filesystem.h>
+#include <kernel-estados.h>
 
 #include <unistd.h>
 #include <pthread.h>

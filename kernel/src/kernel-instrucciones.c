@@ -12,6 +12,7 @@ void* sleepHilo(void* parametrosHilo) {
     t_pcb *pcbEnEjecucion = parametros->pcb;
 
     intervalo_de_pausa(tiempo*1000);
+    t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion); // Chequear esto (CREO QUE HAY UN MEMORY LEAK)
     pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
 
     free(parametros);

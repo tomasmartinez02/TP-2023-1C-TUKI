@@ -78,7 +78,9 @@ void semaforo_recurso_bloquear_proceso(t_semaforo_recurso *self, t_pcb *pcbBloqu
 t_pcb *semaforo_recurso_desbloquear_primer_proceso_bloqueado(t_semaforo_recurso *self)
 {
     t_estado *colaBloqueados = semaforo_recurso_get_estado_recurso(self);
-    return estado_desencolar_primer_pcb_atomic(colaBloqueados);
+    t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, estado_desencolar_primer_pcb_atomic(colaBloqueados)); // Chequear esto
+    return pcb;
+}
 }
 
 // Manejo del diccionario de semaforos de los recursos
