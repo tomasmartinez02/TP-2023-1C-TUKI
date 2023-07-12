@@ -1,0 +1,25 @@
+WAIT RA
+SET RAX SonicTheHedgehog
+MOV_OUT 0 RAX
+SET RBX SonyPlaystation1
+MOV_OUT 32 RBX
+SET RBX SonyPlaystation2
+MOV_OUT 48 RBX
+SET RBX SonyPlaystation3
+MOV_OUT 64 RBX
+SET RBX SonyPlaystation4
+MOV_OUT 80 RBX
+SET RBX SonyPlaystation5
+MOV_OUT 96 RBX
+F_OPEN Consoles
+F_TRUNCATE Consoles 256
+F_SEEK Consoles 128
+SIGNAL RB
+F_WRITE Consoles 32 80
+F_CLOSE Consoles
+F_OPEN Videogames
+F_TRUNCATE Videogames 64
+F_SEEK Videogames 0
+F_WRITE Videogames 0 16
+F_CLOSE Videogames
+EXIT
