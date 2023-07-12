@@ -136,7 +136,7 @@ static t_info_segmentos** __buscar_tabla_correspondiente(uint32_t pid, lista_tab
 {
     lista_tablas* aux = tablasDeSegmentosActualizadas;
 
-    while (aux->pidProceso != pid) {
+    while (aux->siguiente != NULL && aux->pidProceso != pid) {
         aux = aux->siguiente;
     }
 
@@ -336,7 +336,6 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
 
 void actualizar_tabla_segmentos(lista_tablas* tablasDeSegmentosActualizadas, t_list *listaProcesos)
 {
-
     void __cambiar_tabla_segmentos(void* pcb)
     {
         t_info_segmentos** tablaDeSegmentosProceso = __buscar_tabla_correspondiente(pcb_get_pid(pcb), tablasDeSegmentosActualizadas);
