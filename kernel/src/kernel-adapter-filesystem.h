@@ -11,6 +11,7 @@
 #include <utils/common-utils.h>
 #include <commons/collections/list.h>
 #include <commons/string.h>
+#include <kernel-estados.h>
 
 uint32_t adapter_filesystem_existe_archivo(char *nombreArchivo);
 void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo);
