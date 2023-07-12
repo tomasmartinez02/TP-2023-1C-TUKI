@@ -111,17 +111,24 @@ char *string_to_yellow_string(char *string)
     return yellowString;
 }
 
-char* agregarCaracterNulo(void* data) 
+char* agregarCaracterNulo(void* data, uint32_t length)
 {
-    size_t length = strlen((char*)data);
+    char* charData = (char*)data;
 
     char* str = (char*)malloc((length + 1) * sizeof(char));
-    if (str == NULL) {
+    if (str == NULL)
+    {
         return NULL;
     }
 
-    memcpy(str, data, length);
-    memset(str + length, '\0', sizeof(char));
+    // Copiar los caracteres al nuevo char*
+    for (uint32_t i = 0; i < length; i++)
+    {
+        str[i] = charData[i];
+    }
+    
+    // Agregar el carácter nulo al final
+    str[length] = '\0';
 
     return str;
 }
