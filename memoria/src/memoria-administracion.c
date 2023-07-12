@@ -68,7 +68,7 @@ static t_info_segmentos* __crear_hueco (uint32_t base, uint32_t tamanio)
 static void __eliminar_hueco (t_huecos_libres *huecoAEliminar) 
 {
     t_huecos_libres *auxiliarLista = listaHuecosLibres;
-    while(auxiliarLista->siguiente == NULL || auxiliarLista->siguiente->hueco->direccionBase != huecoAEliminar->hueco->direccionBase) {
+    while(auxiliarLista->siguiente != NULL && auxiliarLista->siguiente->hueco->direccionBase != huecoAEliminar->hueco->direccionBase) {
         auxiliarLista = auxiliarLista->siguiente;
     } // avanza hasta que encuentra el nodo anterior al que quiere eliminar
 

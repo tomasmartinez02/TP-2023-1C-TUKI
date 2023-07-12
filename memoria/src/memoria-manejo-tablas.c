@@ -41,6 +41,8 @@ t_info_segmentos** crear_tabla_nuevo_proceso(uint32_t pidProceso)
     
     for (int i = 1; i < cantidadSegmentos; i++) {
         tablaNueva[i]->idSegmento = -1; // le ponemos -1 para identificar que posiciones de la tabla estan vacias
+        tablaNueva[i]->direccionBase = 0;
+        tablaNueva[i]->tamanio = 0;
     }
 
     __agregar_tabla_a_lista_general(tablaNueva, pidProceso);
