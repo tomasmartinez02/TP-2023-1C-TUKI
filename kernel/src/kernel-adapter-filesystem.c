@@ -135,6 +135,7 @@ void *hiloTruncate(void* arg)
     if (respuestaFilesystem == HEADER_tamanio_archivo_modificado)
     {
         log_info(kernelLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de truncar el archivo.", pcb_get_pid(pcbEnEjecucion));
+        t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion); // chequear
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
     }
     return NULL;
@@ -160,6 +161,7 @@ void *hiloFread(void* arg)
     if (respuestaFilesystem == HEADER_lectura_finalizada)
     {
         log_info(kernelDebuggingLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de leer.", pcb_get_pid(pcbEnEjecucion));
+        t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion);
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
         fRead = false;
         sem_post(&semFRead);
@@ -188,6 +190,7 @@ void *hiloFwrite(void* arg)
     if (respuestaFilesystem == HEADER_escritura_finalizada)
     {
         log_info(kernelDebuggingLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de escribir.", pcb_get_pid(pcbEnEjecucion));
+        t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion);
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
         fWrite = false;
         sem_post(&semFWrite);
