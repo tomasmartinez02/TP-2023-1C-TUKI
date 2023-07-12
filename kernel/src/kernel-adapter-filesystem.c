@@ -138,6 +138,7 @@ void *hiloTruncate(void* arg)
         t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion); // chequear
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
     }
+    free(nombre);
     return NULL;
 }
 
@@ -166,6 +167,7 @@ void *hiloFread(void* arg)
         fRead = false;
         sem_post(&semFRead);
     }
+    free(nombreArchivo);
     return NULL;
 }
 
@@ -195,6 +197,7 @@ void *hiloFwrite(void* arg)
         fWrite = false;
         sem_post(&semFWrite);
     }
+    free(nombreArchivo);
     return NULL;
 }
 
