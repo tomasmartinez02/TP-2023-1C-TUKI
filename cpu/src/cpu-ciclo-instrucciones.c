@@ -36,7 +36,7 @@ static char* __recibir_valor_a_escribir(uint32_t tamanio, uint32_t pid, uint32_t
     char* valorEscritura = malloc(tamanio);
     memcpy(valorEscritura, valor, tamanio);
 
-    log_acceso_a_memoria(pid, "LEER", idSegmento, dirFisica, valor);
+    log_acceso_a_memoria(pid, "LEER", idSegmento, dirFisica, valor, tamanio);
 
     free(valor);
 
@@ -210,7 +210,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
                 char* valorRegistro = obtener_valor_registro(registro, registrosCPU);
                 void* bytesAEnviar = malloc(tamanioALeer);
                 memcpy(bytesAEnviar, valorRegistro, tamanioALeer);
-                log_acceso_a_memoria(cpu_pcb_get_pid(pcb), "ESCRIBIR", numeroSegmento, dirFisica, bytesAEnviar);
+                log_acceso_a_memoria(cpu_pcb_get_pid(pcb), "ESCRIBIR", numeroSegmento, dirFisica, bytesAEnviar,tamanioALeer);
                 __enviar_pedido_escritura_a_memoria(dirFisica, tamanioALeer, cpu_pcb_get_pid(pcb), bytesAEnviar);
                 __recibir_confirmacion_escritura();
                 free(bytesAEnviar);
