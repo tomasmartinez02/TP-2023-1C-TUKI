@@ -68,8 +68,7 @@ static t_info_segmentos* __crear_hueco (uint32_t base, uint32_t tamanio)
 static void __eliminar_hueco (t_huecos_libres *huecoAEliminar) 
 {
     t_huecos_libres *auxiliarLista = listaHuecosLibres;
-
-    while(auxiliarLista->hueco->direccionBase < huecoAEliminar->hueco->direccionBase) {
+    while(auxiliarLista->siguiente == NULL || auxiliarLista->siguiente->hueco->direccionBase != huecoAEliminar->hueco->direccionBase) {
         auxiliarLista = auxiliarLista->siguiente;
     } // avanza hasta que encuentra el nodo anterior al que quiere eliminar
 
@@ -251,8 +250,6 @@ static void __agregar_segmento_a_tabla(t_info_segmentos* segmento, uint32_t pid,
     tablaSeleccionada[indice]->tamanio = segmento->tamanio;
 
     actualizar_lista_huecos_libres(tablaSeleccionada[indice]);
-
-    free(segmento);   
     
     return;
 }
@@ -393,18 +390,26 @@ void __insertar_hueco_en_posicion (t_info_segmentos* huecoAInsertar, t_huecos_li
     } else {
         baseHuecoSiguiente = 0;
     }*/
-    uint32_t baseHuecoSiguiente = huecoSiguiente->hueco->direccionBase;
-    uint32_t limiteHuecoAnterior = huecoAnterior->hueco->direccionBase + huecoAnterior->hueco->tamanio;
-    uint32_t baseHuecoAInsertar = huecoAInsertar->direccionBase;
-    uint32_t limiteHuecoAInsertar = huecoAInsertar->direccionBase + huecoAInsertar->tamanio;
-    if (limiteHuecoAnterior == baseHuecoAInsertar && limiteHuecoAInsertar == baseHuecoSiguiente) {
-        __unir_3_huecos(huecoAnterior, huecoSiguiente, huecoAInsertar);
-    } else if (limiteHuecoAnterior == baseHuecoAInsertar) {
-        __unir_2_huecos_inferior(huecoAnterior, huecoAInsertar); 
-    } else if (limiteHuecoAInsertar == baseHuecoSiguiente) {
-        __unir_2_huecos_superior(huecoAInsertar, huecoSiguiente); 
-    } else {
-        __insertar_hueco(huecoAnterior, huecoSiguiente, huecoAInsertar);
+    if(huecoSiguiente != NULL){
+        uint32_t baseHuecoSiguiente = huecoSiguiente->hueco->direccionBase;
+        uint32_t limiteHuecoAnterior = huecoAnterior->hueco->direccionBase + huecoAnterior->hueco->tamanio;
+        uint32_t baseHuecoAInsertar = huecoAInsertar->direccionBase;
+        uint32_t limiteHuecoAInsertar = huecoAInsertar->direccionBase + huecoAInsertar->tamanio;
+        if (limiteHuecoAnterior == baseHuecoAInsertar && limiteHuecoAInsertar == baseHuecoSiguiente) {
+            __unir_3_huecos(huecoAnterior, huecoSiguiente, huecoAInsertar);
+        } else if (limiteHuecoAnterior == baseHuecoAInsertar) {
+            __unir_2_huecos_inferior(huecoAnterior, huecoAInsertar); 
+        } else if (limiteHuecoAInsertar == baseHuecoSiguiente) {
+            __unir_2_huecos_superior(huecoAInsertar, huecoSiguiente); 
+        } else {
+            __insertar_hueco(huecoAnterior, huecoSiguiente, huecoAInsertar);
+        }
+    }else{
+        if(huecoAnterior->hueco->direccionBase + huecoAnterior->hueco->tamanio == huecoAInsertar->direccionBase){
+            __unir_2_huecos_inferior(huecoAnterior, huecoAInsertar);
+        }else{
+            __insertar_hueco(huecoAnterior, NULL, huecoAInsertar);
+        }
     }
 
     return;
@@ -573,7 +578,7 @@ static lista_para_compactar* __crear_lista_general_segmentos(lista_para_compacta
     }
     
     if (aux != NULL) {
-        while(aux->siguiente != NULL) {
+        while(aux != NULL) {
         __recorrer_tabla_y_agregar_segmentos(aux->pidProceso, aux->tablaSegmentos, listaCompactacion);
         aux = aux->siguiente;
         }
@@ -711,7 +716,9 @@ static void __actualizar_tabla_compactacion(lista_para_compactar* listaCompactac
     lista_para_compactar* aux = listaCompactacion;
     
     while(aux != NULL) {
+        if(aux->segmento->idSegmento != 0){
         __actualizar_segmento(aux->pid, aux->segmento->idSegmento, aux->segmento->direccionBase, aux->segmento->tamanio); 
+        }
         aux = aux->siguiente;
     }
 
@@ -727,7 +734,9 @@ static void __actualizar_tabla_compactacion(lista_para_compactar* listaCompactac
 uint32_t crear_segmento(t_info_segmentos* segmento, uint32_t pid)
 {
     t_algoritmo algoritmoActual;
+
     algoritmoActual = __algoritmo_seleccionado();
+
     uint32_t baseSegmento = __obtener_base_segmento_segun_algoritmo(algoritmoActual, segmento);
 
     __agregar_segmento_a_tabla(segmento, pid, baseSegmento);
@@ -769,10 +778,19 @@ bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
 {
     t_huecos_libres* aux = listaHuecosLibres;
 
-    while (aux != NULL && tamanioSolicitado > aux->hueco->tamanio) {
+    if(tamanioSolicitado <= aux->hueco->tamanio){        
+    }else{
+        while(aux->siguiente != NULL && tamanioSolicitado > aux->hueco->tamanio){
+            aux = aux->siguiente;
+        }
+    }
+
+
+
+    /*while (aux != NULL && tamanioSolicitado > aux->hueco->tamanio) {
         // log_info(memoriaLogger, "Hueco Libre: %u", aux->hueco->tamanio);
         aux = aux->siguiente;
-    }
+    }*/
 
     // log_info(memoriaLogger, "encontre %u para %u solicitado", aux->hueco->tamanio, tamanioSolicitado);
 
