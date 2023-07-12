@@ -25,20 +25,16 @@ void *atender_peticiones_kernel()
             }
             case HEADER_crear_segmento:
             {   
-                log_info(memoriaLogger,  "Entra a crear segmento");
                 t_info_segmentos *segmento = adapter_kernel_recibir_segmento_a_crear(socketKernel, bufferRecibido);
-                log_info(memoriaLogger,  "Recibe segmento a crear");
                 uint32_t pid = adapter_kernel_recibir_pid(bufferRecibido);
-                log_info(memoriaLogger,  "Recibe pid");
-                
+            
+
                 if (verificar_memoria_suficiente(segmento->tamanio)){
-                    log_info(memoriaLogger,  "Entra a verificar memoria suficiente");
                     if (verificar_memoria_contigua(segmento->tamanio)) {
-                        log_info(memoriaLogger,  "Tiene memoria contigua");
                         uint32_t baseSegmento = crear_segmento(segmento, pid);
                         adapter_kernel_enviar_direccion_base(socketKernel, baseSegmento);
                         log_info(memoriaLogger,  "PID: <%d> - Crear Segmento: <%d> - Base: <%d> - TAMAÑO: <%d>", pid, segmento->idSegmento, baseSegmento, segmento->tamanio); 
-                        // No hay que hacer free del puntero?
+                        free(segmento);
                     } else {
                         adapter_kernel_solicitar_compactacion(socketKernel);
                         log_info(memoriaLogger,  "Se solicita la compactacion");
@@ -55,13 +51,13 @@ void *atender_peticiones_kernel()
             {
                 uint32_t idSegmento = adapter_kernel_recibir_id_segmento_a_eliminar(socketKernel, bufferRecibido);
                 uint32_t pid = adapter_kernel_recibir_pid(bufferRecibido);
-
                 eliminar_segmento(idSegmento, pid); // El log esta adentro
                 adapter_kernel_enviar_eliminacion_segmento(socketKernel, pid);
                 break;
             }
-            case HEADER_compactar:
+            case HEADER_necesita_compactacion:
             {
+                stream_recv_empty_buffer(socketKernel);
                 compactar_memoria();
                 adapter_kernel_confirmar_compactacion_memoria(socketKernel);
                 break;

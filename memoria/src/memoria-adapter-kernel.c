@@ -56,11 +56,10 @@ static uint32_t __tamanio_tabla_de_segmentos()
     return contador; 
 }
 
-static t_buffer* __empaquetar_tablas_de_segmentos(uint32_t tamanioTablas) 
+static t_buffer* __empaquetar_tablas_de_segmentos(uint32_t tamanioTablas, t_buffer *bufferAEnviar) 
 {
     // uint32_t tamanioTablaGeneral = __tamanio_tabla_de_segmentos();
     lista_tablas *aux = tablasDeSegmentos;
-    t_buffer *bufferAEnviar = buffer_create();
 
     while(aux != NULL) {
         // aca tengo que empaquetar cada pid y su respectiva tabla
@@ -190,7 +189,7 @@ void adapter_kernel_confirmar_compactacion_memoria(uint32_t socketKernel)
     buffer_pack(bufferTablas, &tamanioTotalTabla, sizeof(tamanioTotalTabla));
     buffer_pack(bufferTablas, &tamanioTabla, sizeof(tamanioTabla));
 
-    bufferTablas = __empaquetar_tablas_de_segmentos(tamanioTabla);
+    __empaquetar_tablas_de_segmentos(tamanioTabla,bufferTablas);
 
     stream_send_buffer(socketKernel, HEADER_memoria_compactada, bufferTablas);
 
