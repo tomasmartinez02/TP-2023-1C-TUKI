@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./memoria.out ./config/config-ERROR.config
+./bin/memoria.out ./config/config-ERROR.config

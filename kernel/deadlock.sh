@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./kernel.out ./config/config-DEADLOCK.config
+./bin/kernel.outt ./config/config-DEADLOCK.config

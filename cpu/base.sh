@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./cpu.out ./config/config-BASE.config
+./bin/cpu.out ./config/config-BASE.config

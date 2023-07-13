@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./consola.out ./config/config-inicial.config ./instrucciones/ERROR_1
+./bin/consola.out ./config/config-inicial.config ./instrucciones/ERROR_1

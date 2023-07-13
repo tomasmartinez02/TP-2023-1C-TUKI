@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./cpu.out ./config/config-MEMORIA.config
+./bin/cpu.out ./config/config-MEMORIA.config

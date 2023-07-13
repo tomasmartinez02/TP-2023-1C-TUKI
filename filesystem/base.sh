@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./filesystem.out ./config/config-BASE.config
+./bin/filesystem.out ./config/config-BASE.config

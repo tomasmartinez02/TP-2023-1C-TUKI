@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./memoria.out ./config/config-MEMORIA-FIRST.config
+./bin/memoria.out ./config/config-MEMORIA-FIRST.config

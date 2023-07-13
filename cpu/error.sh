@@ -1,4 +1,4 @@
 #!/bin/bash
 
 make
-./cpu.out ./config/config-ERROR.config
+./bin/cpu.out ./config/config-ERROR.config
