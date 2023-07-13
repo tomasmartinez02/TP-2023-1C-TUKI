@@ -3,23 +3,27 @@
 CWD=$PWD
 COMMONS="so-commons-library"
 echo "\n\t\t¡Dale que se aprueba SO!"
-cd ./Consola/
+cd ./consola/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
-cd ../CPU/
+cd ../cpu/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
-cd ../Kernel
+cd ../kernel/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
-cd ../Memoria
+cd ../memoria/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
-cd ../static-utils
+cd ../filesystem/
+echo "\nCreando carpetas en: ${PWD}"
+mkdir bin
+mkdir obj
+cd ../static-utils/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
