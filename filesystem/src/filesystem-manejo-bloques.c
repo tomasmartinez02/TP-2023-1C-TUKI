@@ -33,7 +33,7 @@ void asignar_bloques(t_fcb *fcbArchivo, uint32_t cantidadBloques)
 
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, desplazamiento, SEEK_SET);
-    log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
+
     for (uint32_t i = 0; i < cantidadBloques; i++) {
         // El bloque de punteros siempre va a ser el bloque número 1 del archivo y el 
         // bloque al que apunta el puntero indrecto va a ser el 0
@@ -56,10 +56,16 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
     }
     else {
         // cantidad de punteros que deberia haber en el bloque de punteros
-        uint32_t temp = tamanioNuevo-tamanioBloques; // por las dudas de q le agarre la loca pasandole un menos
+        uint32_t temp = tamanioNuevo-tamanioBloques;
         uint32_t cantidadPunteros = redondear_hacia_arriba(temp, tamanioBloques);
         asignar_puntero_directo(fcbArchivo);
         asignar_puntero_indirecto(fcbArchivo);
+
+        char* nombreArchivo = fcb_get_nombre_archivo(fcbArchivo); // poner un free
+        uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
+        log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
+        sleep(tiempoRetardo);
+
         asignar_bloques(fcbArchivo, cantidadPunteros);
     }
 }
@@ -68,16 +74,27 @@ void asignar_bloques_archivo_vacio(t_fcb *fcbArchivo,uint32_t tamanioNuevo)
 void asignar_bloques_archivo_no_vacio(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 {
     uint32_t cantidadBloquesAsignados = fcb_get_cantidad_bloques_asignados(fcbArchivo);
-    uint32_t temp = tamanioNuevo-tamanioBloques; // por las dudas de q le agarre la loca pasandole un menos
+    uint32_t temp = tamanioNuevo-tamanioBloques;
     uint32_t cantidadBloques = redondear_hacia_arriba(temp, tamanioBloques);
 
     if (cantidadBloquesAsignados == 1)
     {
         asignar_puntero_indirecto(fcbArchivo);
+
+        char* nombreArchivo = fcb_get_nombre_archivo(fcbArchivo); // poner un free
+        uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
+        log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
+        sleep(tiempoRetardo);
+
         asignar_bloques(fcbArchivo, cantidadBloques);
     }
     else
     {
+        char* nombreArchivo = fcb_get_nombre_archivo(fcbArchivo); // poner un free
+        uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
+        log_acceso_bloque_punteros(nombreArchivo, bloquePunteros);
+        sleep(tiempoRetardo);
+
         asignar_bloques(fcbArchivo, cantidadBloques);
     }    
     return;
@@ -217,14 +234,12 @@ uint32_t obtener_bloque_absoluto(t_fcb* fcbArchivo, uint32_t punteroFseek)
     // bloque 0 del archivo, que es apuntado por el puntero directo
     if (bloqueRelativo == 0)
     {              
-        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque 0 del archivo. Es su primer bloque.");
         bloqueAbsoluto = fcb_get_puntero_directo(fcbArchivo);
     }
     // Si la posicion relativa es mayor al tamaño del bloque significa que se quiere acceder
     // a un puntero del bloque de punteros.
     else
     {   
-        log_info(filesystemLogger, "La posicion a la cual se quiere acceder esta en el bloque %u del archivo. No es el primer bloque.", bloqueRelativo);
         bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
         // Si se quiere acceder al bloque numero 3 del archivo, se quiere acceder al segundo puntero del bloque de punteros.
         punteroBloque = bloqueRelativo - 1;
@@ -285,6 +300,7 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
     uint32_t punteroIndirecto = fcb_get_puntero_indirecto(fcbArchivo);
     char * nombreArchivo = fcb_get_nombre_archivo(fcbArchivo);
 
+    sleep(tiempoRetardo);
     log_acceso_bloque_punteros(nombreArchivo,punteroIndirecto);
     free(nombreArchivo);
 
@@ -309,6 +325,6 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
                 return siguienteBloque;
             }
         }
-        return 0; // si no tira warning
+        return 0; // sino tira warning
     }
 }

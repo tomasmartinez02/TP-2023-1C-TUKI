@@ -239,7 +239,7 @@ bool persistir_fcb(t_fcb* fcb)
 
     log_info(filesystemLogger, "Se modifico el FCB del archivo %s satisfactoriamente.", nombreArchivo);
 
-    free(nombreArchivo);
+    free(nombreArchivo); // CHECKEAR
     
     return true;
 }

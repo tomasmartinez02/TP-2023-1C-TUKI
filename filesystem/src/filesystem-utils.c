@@ -48,57 +48,57 @@ void log_abrir_archivo(char *nombreArchivo)
 
 void log_truncar_archivo(char *nombreArchivo, uint32_t tamanio)
 {   
-    log_info(filesystemLogger, "Truncar Archivo: <%s> - Tamaño: <%d>", nombreArchivo, tamanio);
-    log_info(filesystemDebuggingLogger, "Truncar Archivo: <%s> - Tamaño: <%d>", nombreArchivo, tamanio);
+    log_info(filesystemLogger, "Truncar Archivo: <%s> - Tamaño: <%u>", nombreArchivo, tamanio);
+    log_info(filesystemDebuggingLogger, "Truncar Archivo: <%s> - Tamaño: <%u>", nombreArchivo, tamanio);
     return;   
 }
 
 void log_acceso_bitmap(uint32_t numeroBloque, uint32_t estadoBloque)
 {   
-    log_info(filesystemLogger, "Acceso a Bitmap - Bloque: <%d> - Estado: <%d>", numeroBloque, estadoBloque);
-    log_info(filesystemDebuggingLogger, "Acceso a Bitmap - Bloque: <%d> - Estado: <%d>", numeroBloque, estadoBloque);
+    log_info(filesystemLogger, "Acceso a Bitmap - Bloque: <%u> - Estado: <%u>", numeroBloque, estadoBloque);
+    log_info(filesystemDebuggingLogger, "Acceso a Bitmap - Bloque: <%u> - Estado: <%u>", numeroBloque, estadoBloque);
     return;   
 }
 
 void log_lectura_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionMemoria, uint32_t tamanio)
 {   
-    log_info(filesystemLogger, "Leer Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamaño: <%d>", nombreArchivo, puntero, direccionMemoria, tamanio);
-    log_info(filesystemDebuggingLogger, "Leer Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamaño: <%d>", nombreArchivo, puntero, direccionMemoria, tamanio);
+    log_info(filesystemLogger, "Leer Archivo: <%s> - Puntero: <%u> - Memoria: <%u> - Tamaño: <%u>", nombreArchivo, puntero, direccionMemoria, tamanio);
+    log_info(filesystemDebuggingLogger, "Leer Archivo: <%s> - Puntero: <%u> - Memoria: <%u> - Tamaño: <%u>", nombreArchivo, puntero, direccionMemoria, tamanio);
     return;   
 }
 
 void log_escritura_archivo(char *nombreArchivo, uint32_t puntero, uint32_t direccionMemoria, uint32_t tamanio)
 {   
-    log_info(filesystemLogger, "Escribir Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamaño: <%d>", nombreArchivo, puntero, direccionMemoria, tamanio);
-    log_info(filesystemDebuggingLogger, "Escribir Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamaño: <%d>", nombreArchivo, puntero, direccionMemoria, tamanio);
+    log_info(filesystemLogger, "Escribir Archivo: <%s> - Puntero: <%u> - Memoria: <%u> - Tamaño: <%u>", nombreArchivo, puntero, direccionMemoria, tamanio);
+    log_info(filesystemDebuggingLogger, "Escribir Archivo: <%s> - Puntero: <%u> - Memoria: <%u> - Tamaño: <%u>", nombreArchivo, puntero, direccionMemoria, tamanio);
     return;   
 }
 
 void log_acceso_bloque(char *nombreArchivo, uint32_t numeroBloqueArchivo, uint32_t numeroBloqueFs)
 {   
-    log_info(filesystemLogger, "Acceso Bloque - Archivo: <%s> - Bloque Archivo: <%d> - Bloque File System <%d>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
-    log_info(filesystemDebuggingLogger, "Acceso Bloque - Archivo: <%s> - Bloque Archivo: <%d> - Bloque File System <%d>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
+    log_info(filesystemLogger, "Acceso Bloque - Archivo: <%s> - Bloque Archivo: <%u> - Bloque File System <%u>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
+    log_info(filesystemDebuggingLogger, "Acceso Bloque - Archivo: <%s> - Bloque Archivo: <%u> - Bloque File System <%u>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
     return;   
 }
 
 void log_acceso_bloque_punteros(char *nombreArchivo, uint32_t numeroBloqueFs)
 {   
-    log_info(filesystemLogger, "Acceso Bloque de Punteros - Archivo: <%s> - Bloque Archivo: <1> - Bloque File System <%d>", nombreArchivo, numeroBloqueFs);
-    log_info(filesystemDebuggingLogger, "Acceso Bloque de Punteros - Archivo: <%s> - Bloque Archivo: <1> - Bloque File System <%d>", nombreArchivo, numeroBloqueFs);
+    log_info(filesystemLogger, "Acceso Bloque de Punteros - Archivo: <%s> - Bloque Archivo: <1> - Bloque File System <%u>", nombreArchivo, numeroBloqueFs);
+    log_info(filesystemDebuggingLogger, "Acceso Bloque de Punteros - Archivo: <%s> - Bloque Archivo: <1> - Bloque File System <%u>", nombreArchivo, numeroBloqueFs);
     return;   
 }
 
 void log_bloque_asignado(char *nombreArchivo, uint32_t bloqueDatos)
 {   
-    log_info(filesystemLogger, "Bloque <%d> asignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
-    log_info(filesystemDebuggingLogger, "Bloque <%d> asignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    log_info(filesystemLogger, "Bloque <%u> asignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    log_info(filesystemDebuggingLogger, "Bloque <%u> asignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
     return;   
 }
 
 void log_bloque_desasignado(char *nombreArchivo, uint32_t bloqueDatos)
 {   
-    log_info(filesystemLogger, "Bloque <%d> desasignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
-    log_info(filesystemDebuggingLogger, "Bloque <%d> desasignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    log_info(filesystemLogger, "Bloque <%u> desasignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
+    log_info(filesystemDebuggingLogger, "Bloque <%u> desasignado al Archivo: <%s>", bloqueDatos, nombreArchivo);
     return;   
 }
 
@@ -108,7 +108,6 @@ uint32_t redondear_hacia_arriba(uint32_t nuevoTamanio, uint32_t tamanio)
     if ((nuevoTamanio % tamanio) == 0)
     {
         return resultado;
-        log_info(filesystemLogger,"El resultado es: %u",resultado);
     }
     return (resultado+1);
 }
@@ -119,7 +118,6 @@ uint32_t redondear_hacia_abajo(uint32_t numero, uint32_t tamanio)
     if ((numero % tamanio) == 0)
     {
         return resultado;
-        log_info(filesystemLogger,"El resultado es: %u",resultado);
     }
     return resultado;
 }
