@@ -335,6 +335,8 @@ static void __insertar_hueco (t_huecos_libres* huecoAnterior, t_huecos_libres* h
     nuevoHueco->siguiente = huecoSiguiente;
     huecoAnterior->siguiente = nuevoHueco;
 
+    free(huecoAInsertar);
+    
     return;
 }
 
@@ -344,6 +346,8 @@ static void __insertar_hueco_antes (t_huecos_libres* huecoExistente, t_info_segm
 
     nuevoHueco->siguiente = huecoExistente;
     listaHuecosLibres = nuevoHueco;
+
+    free(huecoAInsertar);
 
     return; 
 }
@@ -421,6 +425,7 @@ static void __insertar_nuevo_hueco(t_info_segmentos* huecoLiberado)
 
     if (aux == NULL) {
         listaHuecosLibres = __crear_lista_huecos_libres(huecoLiberado -> direccionBase, huecoLiberado -> tamanio);
+        free(huecoLiberado);
     } else {
         while (aux->siguiente != NULL && (aux->siguiente->hueco->direccionBase + aux->siguiente->hueco->tamanio) <= huecoLiberado->direccionBase) {
             aux = aux->siguiente;
@@ -443,7 +448,7 @@ static void __inicializar_mutex_socket()
 
 static void __inicializar_hilos() {
 
-    void* resultadoAtencionKernel;
+    // void* resultadoAtencionKernel;
     pthread_t atencionKernelth;
     pthread_create(&atencionKernelth, NULL, atender_peticiones_kernel, NULL);
 
@@ -486,10 +491,9 @@ static lista_para_compactar* __agregar_segmento_a_lista(lista_para_compactar* li
 {
     // esta funcion agrega el segmento a la lista de compactacion sin orden
 
-    t_info_segmentos* segmentoNuevo = malloc(sizeof(t_info_segmentos));
     lista_para_compactar* segmentoAAgregar = malloc(sizeof(lista_para_compactar));
     segmentoAAgregar->pid = pid;
-    segmentoAAgregar->segmento = segmentoNuevo;
+    segmentoAAgregar->segmento = malloc(sizeof(t_info_segmentos));
     segmentoAAgregar->segmento->direccionBase = direccionBase;
     segmentoAAgregar->segmento->idSegmento = idSegmento;
     segmentoAAgregar->segmento->tamanio = tamanio;
@@ -502,7 +506,6 @@ static lista_para_compactar* __agregar_segmento_a_lista(lista_para_compactar* li
         while (nodo_actual->siguiente != NULL) {
             nodo_actual = nodo_actual->siguiente;
         }
-
         nodo_actual->siguiente = segmentoAAgregar;
     }
 
@@ -515,7 +518,7 @@ static lista_para_compactar* __recorrer_tabla_y_agregar_segmentos(uint32_t pid, 
 
     for(int i = 0; i < memoria_config_get_cantidad_segmentos(memoriaConfig); i++) {
         if (tablaAAgregar[i]->idSegmento != -1 && tablaAAgregar[i]->idSegmento != 0){
-            __agregar_segmento_a_lista(listaCompactacion, pid, tablaAAgregar[i]->idSegmento, tablaAAgregar[i]->direccionBase, tablaAAgregar[i]->tamanio); 
+            listaCompactacion = __agregar_segmento_a_lista(listaCompactacion, pid, tablaAAgregar[i]->idSegmento, tablaAAgregar[i]->direccionBase, tablaAAgregar[i]->tamanio); 
         }
     }
 
@@ -573,13 +576,13 @@ static lista_para_compactar* __crear_lista_general_segmentos(lista_para_compacta
     listaCompactacion = __agregar_segmento_a_lista(listaCompactacion, 0, segmentoCero->idSegmento, segmentoCero->direccionBase, segmentoCero->tamanio); // lo agrego para tenerlo en cuenta pero nunca va a ser modificado
 
     if(aux != NULL) {
-        __recorrer_tabla_y_agregar_segmentos(aux->pidProceso, aux->tablaSegmentos, listaCompactacion);
+        listaCompactacion = __recorrer_tabla_y_agregar_segmentos(aux->pidProceso, aux->tablaSegmentos, listaCompactacion);
         aux = aux->siguiente;
     }
     
     if (aux != NULL) {
         while(aux != NULL) {
-        __recorrer_tabla_y_agregar_segmentos(aux->pidProceso, aux->tablaSegmentos, listaCompactacion);
+        listaCompactacion = __recorrer_tabla_y_agregar_segmentos(aux->pidProceso, aux->tablaSegmentos, listaCompactacion);
         aux = aux->siguiente;
         }
     } 
@@ -694,17 +697,11 @@ static t_info_segmentos* __crear_hueco_liberado(lista_para_compactar* listaCompa
 static void __insertar_hueco_liberado(lista_para_compactar* listaCompactacion)
 {   
     // tendria que vaciar la lista de huecos libres e insertar el que queda
-    t_huecos_libres* huecoCompactacion = malloc(sizeof(t_huecos_libres));
-    t_info_segmentos* huecoLiberado = malloc(sizeof(t_info_segmentos));
-
-    huecoLiberado = __crear_hueco_liberado(listaCompactacion);
 
     __destruir_lista_huecos_libres();
 
-    huecoCompactacion->hueco = huecoLiberado;
-    huecoCompactacion->siguiente = NULL;
-
-    listaHuecosLibres = huecoCompactacion;
+    listaHuecosLibres->hueco = __crear_hueco_liberado(listaCompactacion);
+    listaHuecosLibres->siguiente = NULL;
 
     return;
 }
