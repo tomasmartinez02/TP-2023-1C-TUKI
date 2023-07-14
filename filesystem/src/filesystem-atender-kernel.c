@@ -122,7 +122,6 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 // Leer la información correspondiente de los bloques a partir del puntero y el tamaño recibido
 void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {   
-    log_info(filesystemLogger,"Entra a leer archivo"); // LOG A SACAR
     uint32_t posicionAbsoluta, espacioDisponible, puntero, bytesLeidos, bytesQueFaltanPorLeer;
     size_t rtaLectura;
     bool respuestaMemoria;
@@ -282,7 +281,6 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
 // FWRITE
 void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direccionFisica, uint32_t cantidadBytesAEscribir, uint32_t pidProceso)
 {
-    log_info(filesystemLogger,"Entra a escribir archivo"); // LOG A SACAR
     uint32_t posicion;
     // el 'bloqueActual' es el absoluto
     uint32_t bloqueActual, bloqueRelativo, nuevoBloque, espacioDisponible;
@@ -412,7 +410,6 @@ void atender_peticiones_kernel()
             case HEADER_solicitud_creacion_archivo:
             {     
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
-                log_info(filesystemLogger, "FS recibe la solicitud de crear el archivo %s", nombreArchivo);
                 crear_archivo(nombreArchivo);
                 free(nombreArchivo);
                 break;
@@ -425,7 +422,6 @@ void atender_peticiones_kernel()
                 uint32_t puntero;
                 uint32_t pidProceso;
                 recibir_buffer_escritura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
-                log_info(filesystemLogger, "FS recibe la solicitud de escribir archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica %d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 escribir_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
                 free(nombreArchivo);
                 break;
@@ -438,7 +434,6 @@ void atender_peticiones_kernel()
                 uint32_t puntero;
                 uint32_t pidProceso;
                 recibir_buffer_lectura_archivo(&nombreArchivo, &puntero, &direccionFisica, &cantidadBytes, &pidProceso);
-                log_info(filesystemLogger, "FS recibe la solicitud de leer archivo %s, %d cantidad de bytes, en el puntero %d, direccion fisica %d", nombreArchivo, cantidadBytes, puntero, direccionFisica);
                 leer_archivo(nombreArchivo, puntero, direccionFisica, cantidadBytes, pidProceso);
                 free(nombreArchivo);
                 break;
@@ -448,17 +443,14 @@ void atender_peticiones_kernel()
                 char *nombreArchivo = NULL;
                 uint32_t tamanioNuevo;
                 recibir_buffer_truncate_archivo(&nombreArchivo, &tamanioNuevo);
-                log_info(filesystemLogger, "FS recibe la solicitud de cambiarle el tamanio (%d) al archivo %s", tamanioNuevo, nombreArchivo );
                 truncar_archivo(nombreArchivo, tamanioNuevo);
                 enviar_confirmacion_tamanio_archivo_modificado();
-
                 free(nombreArchivo);
                 break;
             }
             case HEADER_consulta_existencia_archivo:
             {   
                 char* nombreArchivo = recibir_buffer_nombre_archivo();
-                log_info(filesystemLogger, "FS recibe la consulta de existencia del archivo %s", nombreArchivo);
                 verificar_existencia_archivo(nombreArchivo);
                 free(nombreArchivo);
                 break;
