@@ -69,9 +69,8 @@ void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
     uint32_t bloquesAsignados, bloquesNuevos;
-
     log_truncar_archivo(nombreArchivo, tamanioNuevo);
-
+    
     // Busco el fcb relacionado al archivo que quiero truncar
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
     if (fcbArchivo == NULL)
@@ -100,7 +99,7 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
     persistir_fcb(fcbArchivo);
     
-    fcb_mostrar_por_pantalla(fcbArchivo); // CHECKEAR (sacar)
+    fcb_mostrar_por_pantalla(fcbArchivo); // SACAR
     return;
 }
 
@@ -114,7 +113,6 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     bool respuestaMemoria;
     uint32_t numeroBloqueArchivo = 0;
     uint32_t numeroBloqueFs = 0;
-
     log_lectura_archivo(nombreArchivo, punteroProceso, direccionFisica, cantidadBytes);
 
     // Busco el fcb relacionado al archivo que quiero truncar
@@ -150,9 +148,9 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         numeroBloqueArchivo = obtener_bloque_relativo(fcbArchivo, puntero);
         numeroBloqueFs = obtener_bloque_absoluto(fcbArchivo,puntero);
         log_acceso_bloque(nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
-        sleep(tiempoRetardo);
         rtaLectura = fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
-
+        sleep(tiempoRetardo);
+        
         if (rtaLectura!=cantidadBytes || ferror(archivoDeBloques))
         {
             log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
@@ -177,10 +175,10 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
     else
     {
         numeroBloqueArchivo = obtener_bloque_relativo(fcbArchivo, puntero);
-        numeroBloqueFs = obtener_bloque_absoluto(fcbArchivo, puntero);
+        numeroBloqueFs = obtener_bloque_absoluto(fcbArchivo,puntero);
         log_acceso_bloque(nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
         sleep(tiempoRetardo);
-        rtaLectura = fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
+        rtaLectura = fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
 
         if (rtaLectura!=espacioDisponible || ferror(archivoDeBloques))
         {
@@ -313,7 +311,7 @@ void escribir_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t dir
     void *informacion = recibir_buffer_informacion_memoria(cantidadBytesAEscribir);
     char* informacionAEscribir = agregarCaracterNulo(informacion,cantidadBytesAEscribir);
 
-    log_info(filesystemLogger,"Recibió: <%s>", informacionAEscribir);
+    log_info(filesystemLogger,"Recibió: <%s>", informacionAEscribir); 
 
     // Escribir la información en los bloques correspondientes del archivo a partir del puntero recibido.   
     bloqueActual = obtener_bloque_absoluto(fcbArchivo, punteroProceso);
