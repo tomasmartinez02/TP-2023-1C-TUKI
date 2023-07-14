@@ -154,7 +154,6 @@ uint32_t adapter_kernel_recibir_id_segmento_a_eliminar(uint32_t socketKernel, t_
 
 void adapter_kernel_enviar_eliminacion_segmento(uint32_t socketKernel, uint32_t pid) 
 {
-    t_buffer *bufferTabla = buffer_create();
     lista_tablas *aux = tablasDeSegmentos;
     uint32_t tamanioTabla = memoria_config_get_cantidad_segmentos(memoriaConfig);
 
@@ -162,7 +161,7 @@ void adapter_kernel_enviar_eliminacion_segmento(uint32_t socketKernel, uint32_t 
         aux = aux->siguiente;
     }
     
-    bufferTabla = __empaquetar_tabla_segmentos_eliminacion(aux->tablaSegmentos, tamanioTabla);
+    t_buffer* bufferTabla = __empaquetar_tabla_segmentos_eliminacion(aux->tablaSegmentos, tamanioTabla);
 
     stream_send_buffer(socketKernel, HEADER_segmento_destruido, bufferTabla);
 
