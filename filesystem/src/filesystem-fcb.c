@@ -212,7 +212,7 @@ void recorrer_directorio_fcbs(void)
 
 bool persistir_fcb(t_fcb* fcb)
 {   
-    char *nombreArchivo = fcb_get_nombre_archivo(fcb);
+    char *nombreArchivo = fcb_get_nombre_archivo(fcb); // CHECKEAR
     uint32_t tamanioArchivo = fcb_get_tamanio_archivo(fcb);
     uint32_t punteroDirecto = fcb_get_puntero_directo(fcb);
     uint32_t punteroIndirecto = fcb_get_puntero_indirecto(fcb);
@@ -237,9 +237,7 @@ bool persistir_fcb(t_fcb* fcb)
 
     fclose(archivoFcb);
 
-    log_info(filesystemLogger, "Se modifico el FCB del archivo %s satisfactoriamente.", nombreArchivo);
-
-    free(nombreArchivo);
+    free(nombreArchivo); // CHECKEAR
     
     return true;
 }

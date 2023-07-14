@@ -53,11 +53,9 @@ void ampliar_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
     uint32_t tamanioNuevoEnBloques = redondear_hacia_arriba(tamanioNuevo, tamanioBloques);
 
     if(cantidadBloquesAsignadosActual == 0) {
-        log_info(filesystemLogger, "El archivo no tiene ningun bloque asignado actualmente.");
         asignar_bloques_archivo_vacio(fcbArchivo,tamanioNuevo);
     }
     else {
-        log_info(filesystemLogger, "El archivo ya tenía algún bloque asignado previamente.");
         asignar_bloques_archivo_no_vacio(fcbArchivo, tamanioNuevo);
     }
     fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
@@ -81,8 +79,10 @@ void reducir_archivo(t_fcb *fcbArchivo, uint32_t tamanioNuevo)
 
 void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
 {   
+    log_truncar_archivo(nombreArchivo, tamanioNuevo);
+    
     uint32_t bloquesAsignados, bloquesNuevos;
-    sleep(tiempoRetardo);
+
     // Busco el fcb relacionado al archivo que quiero truncar
     t_fcb *fcbArchivo = dictionary_get(listaFcbs, nombreArchivo);
     if (fcbArchivo == NULL)
@@ -99,21 +99,19 @@ void truncar_archivo(char *nombreArchivo, uint32_t tamanioNuevo)
     // AMPLIAR TAMAÑO
     if (bloquesAsignados < bloquesNuevos)
     {   
-        log_info(filesystemLogger, "El archivo %s se va a ampliar.", nombreArchivo);
         ampliar_archivo(fcbArchivo, tamanioNuevo);
     }
     // REDUCIR TAMAÑO
     if (bloquesAsignados > bloquesNuevos)
     {   
-        log_info(filesystemLogger, "El archivo %s se va a reducir.", nombreArchivo);
         reducir_archivo(fcbArchivo, tamanioNuevo);
     }
+
     // SI TAMANIO ACTUAL == TAMANIO NUEVO --> NO SE HACE NADA 
     fcb_set_tamanio_archivo(fcbArchivo, tamanioNuevo);
     persistir_fcb(fcbArchivo);
-
-    log_truncar_archivo(nombreArchivo, tamanioNuevo);
-    fcb_mostrar_por_pantalla(fcbArchivo);
+    
+    fcb_mostrar_por_pantalla(fcbArchivo); // CHECKEAR (sacar)
     return;
 }
 
@@ -135,22 +133,20 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         return;
     }
 
-    //cantidadBloquesALeer = redondear_hacia_arriba(cantidadBytes, tamanioBloques);
     puntero = punteroProceso;
-    //bytesLeidos = 0;
     bytesQueFaltanPorLeer = cantidadBytes;
     char *informacion = malloc(cantidadBytes);
     char *buffer = malloc(tamanioBloques);
 
     // Obtengo la posicion desde la cual voy a empezar a leer informacion.
     posicionAbsoluta = obtener_posicion_absoluta(fcbArchivo, punteroProceso);
-    log_info(filesystemLogger,"Va a empezar a leer desde la posicion <%u>.", posicionAbsoluta); // LOG A SACAR
+    log_info(filesystemLogger,"Va a empezar a leer desde la posicion <%u>.", posicionAbsoluta); // LOG A SACAR CHECKEAR
 
     espacioDisponible = espacio_disponible_en_bloque_desde_posicion(punteroProceso);
 
     archivoDeBloques = abrir_archivo_de_bloques();
     fseek(archivoDeBloques, posicionAbsoluta, SEEK_SET);
-    log_info(filesystemLogger, "Posicion desde la que vamos a leer: %ld", ftell(archivoDeBloques)); // LOG A SACAR
+    log_info(filesystemLogger, "Posicion desde la que vamos a leer: %ld", ftell(archivoDeBloques)); // LOG A SACAR CHECKEAR
 
     /* Si la cantidad de bytes a leer es menor que el espacio que queda en el  bloque seleccionado,
     solamente se accede a ese bloque. */
@@ -159,6 +155,9 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         log_info(filesystemLogger,"La cantidad de bytes a leer <%u> es menor al espacio disponible <%u> del bloque", cantidadBytes, espacioDisponible); // LOG A SACAR
 
         rtaLectura = fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        sleep(tiempoRetardo);
+
+
         if (rtaLectura!=cantidadBytes || ferror(archivoDeBloques))
         {
             log_error(filesystemLogger, "El archivo de bloques no se leyo correctamente.");
