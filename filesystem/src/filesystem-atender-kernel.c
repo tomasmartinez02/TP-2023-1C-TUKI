@@ -178,7 +178,7 @@ void leer_archivo(char *nombreArchivo, uint32_t punteroProceso, uint32_t direcci
         numeroBloqueFs = obtener_bloque_absoluto(fcbArchivo,puntero);
         log_acceso_bloque(nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
         sleep(tiempoRetardo);
-        rtaLectura = fread(buffer, sizeof(char), cantidadBytes, archivoDeBloques);
+        rtaLectura = fread(buffer, sizeof(char), espacioDisponible, archivoDeBloques);
 
         if (rtaLectura!=espacioDisponible || ferror(archivoDeBloques))
         {
