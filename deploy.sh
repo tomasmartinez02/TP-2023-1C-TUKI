@@ -7,18 +7,22 @@ cd ./consola/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
+mkdir logs
 cd ../cpu/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
+mkdir logs
 cd ../kernel/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
+mkdir logs
 cd ../memoria/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
 mkdir obj
+mkdir logs
 cd ../filesystem/
 echo "\nCreando carpetas en: ${PWD}"
 mkdir bin
