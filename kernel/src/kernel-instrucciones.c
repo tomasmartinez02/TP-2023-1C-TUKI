@@ -74,8 +74,9 @@ void ejecutar_instruccion_signal(t_pcb *pcbEnEjecucion, char *nombreRecurso)
     t_dictionary *diccionarioSemaforosRecursos = kernel_config_get_diccionario_semaforos(kernelConfig);
     if (!diccionario_semaforos_recursos_existe_recurso(diccionarioSemaforosRecursos, nombreRecurso))
     {
-        log_error(kernelLogger, "El recurso solicitado no existe");
-        log_error(kernelDebuggingLogger, "El recurso solicitado no existe");
+        uint32_t pid = pcbEnEjecucion->pid;
+        log_info(kernelLogger, "ERROR - PID: <%u> - <%s> NO existe", pid, nombreRecurso);
+        log_error(kernelDebuggingLogger, "El recurso solicitado no existe.");
         pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
         sem_post(&dispatchPermitido);
     }
@@ -166,11 +167,6 @@ void ejecutar_instruccion_ftruncate(t_pcb *pcbEnEjecucion, char *nombreArchivo, 
     log_ejecucion_ftruncate(pcbEnEjecucion, nombreArchivo, tamanio);
     return;
 }
-/*
-F_READ: Para esta función se solicita al módulo File System que lea desde el puntero del archivo pasado
- por parámetro la cantidad de bytes indicada y lo grabe en la dirección física de memoria recibida por 
- parámetro. El proceso que llamó a F_READ, deberá permanecer en estado bloqueado hasta que el módulo 
- File System informe de la finalización de la operación.*/
 
 void ejecutar_instruccion_fread(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t direccionFisica, uint32_t cantidadBytes)
 {   
