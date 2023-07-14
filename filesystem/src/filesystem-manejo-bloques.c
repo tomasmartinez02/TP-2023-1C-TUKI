@@ -112,17 +112,15 @@ int32_t archivo_de_bloques_leer_n_puntero_de_bloque_de_punteros(uint32_t bloque,
     uint32_t desplazamiento = desplazamientoBloques + desplazamientoPuntero;
     
     // ABRIR EL ARCHIVO DE BLOQUES
-    FILE *archivoBloques = abrir_archivo_de_bloques();
-    if (archivoBloques == NULL)
+    archivoDeBloques = abrir_archivo_de_bloques();
+    if (archivoDeBloques == NULL)
     {
         log_error(filesystemDebuggingLogger, "Error al abrir el archivo de bloques.");
         return -1; 
     }
-    
-    fseek(archivoBloques, desplazamiento, SEEK_SET);
-    fread(&punteroLeido, sizeof(int32_t), 1, archivoBloques);
-    fclose(archivoBloques);
-    log_info(filesystemLogger,"Puntero leido: %d", punteroLeido); // LOG A SACAR
+    fseek(archivoDeBloques, desplazamiento, SEEK_SET);
+    fread(&punteroLeido, sizeof(int32_t), 1, archivoDeBloques);
+    fclose(archivoDeBloques);
     return punteroLeido;
 }
 
@@ -180,7 +178,7 @@ void desasignar_bloque_punteros(t_fcb *fcbArchivo)
     uint32_t bloquePunteros = fcb_get_puntero_indirecto(fcbArchivo);
     fcb_set_puntero_indirecto(fcbArchivo, 0); 
     bitmap_marcar_bloque_libre(bloquePunteros);
-    log_info(filesystemLogger, "Bloque de punteros desasignado.");
+    log_info(filesystemLogger, "Bloque de Punteros Desasignado.");
     return;
 }
 
@@ -189,7 +187,7 @@ void desasignar_puntero_directo(t_fcb *fcbArchivo)
     uint32_t punteroDirecto = fcb_get_puntero_directo(fcbArchivo);
     fcb_set_puntero_directo(fcbArchivo, 0); 
     bitmap_marcar_bloque_libre(punteroDirecto);
-    log_info(filesystemLogger, "Puntero directo desasignado.");
+    log_info(filesystemLogger, "Puntero Directo Desasignado.");
     return;
 }
 
@@ -251,7 +249,14 @@ uint32_t obtener_bloque_absoluto(t_fcb* fcbArchivo, uint32_t punteroFseek)
 uint32_t obtener_bloque_relativo(t_fcb* fcbArchivo, uint32_t punteroFseek)
 {   
     uint32_t bloqueRelativo;
-    bloqueRelativo = redondear_hacia_abajo(punteroFseek, tamanioBloques);
+    uint32_t resto = punteroFseek % tamanioBloques;
+    uint32_t division = punteroFseek / tamanioBloques;
+
+    if (resto == 0 && punteroFseek != 0)
+    {
+        return division+1;
+    }
+    bloqueRelativo = redondear_hacia_arriba(punteroFseek, tamanioBloques);
     return bloqueRelativo;
 }
 
@@ -298,8 +303,8 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
     uint32_t siguienteBloque;
     uint32_t punteroDirecto = fcb_get_puntero_directo(fcbArchivo);
     uint32_t punteroIndirecto = fcb_get_puntero_indirecto(fcbArchivo);
+    
     char * nombreArchivo = fcb_get_nombre_archivo(fcbArchivo);
-
     sleep(tiempoRetardo);
     log_acceso_bloque_punteros(nombreArchivo,punteroIndirecto);
     free(nombreArchivo);
@@ -308,7 +313,6 @@ uint32_t buscar_siguiente_bloque(uint32_t bloqueActual, t_fcb *fcbArchivo)
         /* el proximo bloque va a ser el primer bloque de datos al que se
         apunte en el bloque de punteros */
         siguienteBloque = archivo_de_bloques_leer_primer_puntero_de_bloque_de_punteros(fcbArchivo);
-        log_info(filesystemLogger,"Puntero leido: %d", siguienteBloque); // LOG A SACAR
         return siguienteBloque;
     }
     else {
