@@ -6,7 +6,7 @@
 
 t_info_segmentos *crear_info_segmentos(uint32_t idSegmento, uint32_t base, uint32_t tamanio)
 {
-    t_info_segmentos *infoSegmentos = malloc(sizeof(*infoSegmentos));
+    t_info_segmentos *infoSegmentos = malloc(sizeof(t_info_segmentos));
 
     infoSegmentos->idSegmento = idSegmento;
     infoSegmentos->direccionBase = base;
@@ -50,8 +50,6 @@ t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos,
     for (int i = 0; i < tamanioTablaSegmentos; i++) {
         t_info_segmentos *infoSegmento = crear_info_segmentos(0,0,0);
 
-        tablaSegmentos[i] = malloc(sizeof(t_info_segmentos));
-
         uint32_t idSegmento;
         buffer_unpack(bufferTablaSegmentos, &idSegmento, sizeof(idSegmento));
         infoSegmento->idSegmento = idSegmento;
@@ -66,8 +64,7 @@ t_info_segmentos **desempaquetar_tabla_segmentos(t_buffer *bufferTablaSegmentos,
 
         tablaSegmentos[i] = infoSegmento;
     }
-    tablaSegmentos[tamanioTablaSegmentos] = NULL; // Esta bien???
-
+    
     return tablaSegmentos;
 }
 
