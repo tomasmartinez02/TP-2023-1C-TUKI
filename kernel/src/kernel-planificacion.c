@@ -29,9 +29,7 @@ bool fWrite;
 static void __inicializar_estructuras_pid(void)
 {
     pidActual = 0;
-    pthread_mutex_init(&mutexPid, NULL); // Este mutex habria que destruirlo en algun otro lado
-
-    log_info(kernelDebuggingLogger, "Se inicializa a la estructura que actualiza el numero de pid");
+    pthread_mutex_init(&mutexPid, NULL);
     
     return;
 }
@@ -63,9 +61,6 @@ static void __inicializar_semaforos(void)
     sem_init(&semFWrite, 0, 1);
     fRead = false;
     fWrite = false;
-
-    log_info(kernelDebuggingLogger, "Se inicializa el grado multiprogramación en %d", valorInicialGradoMultiprogramacion);
-    log_info(kernelDebuggingLogger, "Se inicializan los semaforos para la planificacion correctamente");
 
     return;
 }
@@ -267,7 +262,6 @@ static void* __liberar_pcbs_en_exit(void* args)
         
         adapter_memoria_finalizar_proceso(pcbALiberar);
         stream_send_empty_buffer(pcb_get_socket(pcbALiberar), HEADER_proceso_terminado);
-        log_info(kernelDebuggingLogger, "Se liberan las estructuras del proceso PID <%d> en EXIT", pcb_get_pid(pcbALiberar));
         
         destruir_pcb(pcbALiberar);
         sem_post(&gradoMultiprogramacion);
@@ -498,7 +492,6 @@ static void *__planificador_corto_plazo(void *args)
     for (;;) {
 
         sem_wait(&dispatchPermitido);
-        log_info(kernelDebuggingLogger, "Dispatch permitido");
 
         t_pcb *pcbAEjecutar = __elegir_pcb(estadoReady);
         __pcb_pasar_de_ready_a_running(pcbAEjecutar);
@@ -546,9 +539,7 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     }
     
     // Si recibo el handshake correcto, envio a la consola para que continue
-    log_info(kernelDebuggingLogger, "Se recibio el handshake de la consola correctamente");
     stream_send_empty_buffer(socketConsola, HANDSHAKE_ok_continue);
-    log_info(kernelDebuggingLogger, "Se ha enviado la respuesta al handshake inicial de la consola con handshake ok continue");
 
     // Recibo las instrucciones de la consola
     t_header consolaResponse = stream_recv_header(socketConsola);
@@ -565,8 +556,7 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
 
     // Si esta todo ok, desempaqueto las instrucciones
     t_buffer *bufferInstrucciones = buffer_create();
-    stream_recv_buffer(socketConsola, bufferInstrucciones); // Aca tenemos dudas acerca de de donde viene este buffer. De la consola?
-    log_info(kernelDebuggingLogger, "Se reciben las instrucciones de la consola correctamente");
+    stream_recv_buffer(socketConsola, bufferInstrucciones);
 
     // Se crea el nuevo pcb
     t_pcb* nuevoPcb = __crear_nuevo_pcb(socketConsola, bufferInstrucciones);
@@ -578,8 +568,6 @@ void *encolar_en_new_a_nuevo_pcb_entrante(void *socketCliente)
     buffer_pack(bufferPID, &nuevoPid, sizeof(nuevoPid));
     stream_send_buffer(socketConsola, HEADER_pid, bufferPID);
     buffer_destroy(bufferPID);
-    log_info(kernelDebuggingLogger, "Se envia el pid %d del nuevo pcb creado a la consola", nuevoPid);
-
     
     __pcb_pasar_de_null_a_new(nuevoPcb);
     

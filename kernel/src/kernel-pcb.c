@@ -150,11 +150,9 @@ void pcb_set_tabla_segmentos(t_pcb *pcb, t_info_segmentos **nuevaTablaSegmentos)
     if(pcb->tablaSegmentos != NULL){
     destruir_tabla_segmentos(pcb->tablaSegmentos, pcb->tamanioTablaSegmentos);
     }
-    log_info(kernelLogger,"Destruye la tabla de segmentos anterior");
 
     // Realizar una copia profunda de la tabla de segmentos
     pcb->tablaSegmentos = malloc(sizeof(t_info_segmentos *) * pcb->tamanioTablaSegmentos);
-        log_info(kernelLogger,"Crea la nueva tabla");
     for (int i = 0; i < pcb->tamanioTablaSegmentos; i++) {
         pcb->tablaSegmentos[i] = malloc(sizeof(t_info_segmentos));
         pcb->tablaSegmentos[i]->idSegmento = nuevaTablaSegmentos[i]->idSegmento;

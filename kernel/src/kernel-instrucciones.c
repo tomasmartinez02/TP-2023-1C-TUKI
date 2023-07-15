@@ -53,7 +53,6 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         int32_t instanciasRecurso = semaforo_recurso_get_instancias(semaforoRecurso);
 
         semaforo_recurso_wait(semaforoRecurso);
-        log_info(kernelLogger, "Bool bloqueo proceso: %d", semaforo_recurso_debe_bloquear_proceso(semaforoRecurso));
         if (semaforo_recurso_debe_bloquear_proceso(semaforoRecurso))
         {   
             semaforo_recurso_bloquear_proceso(semaforoRecurso, pcbEnEjecucion);
