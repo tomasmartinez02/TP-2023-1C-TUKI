@@ -21,7 +21,7 @@ t_dictionary *crear_diccionario_semaforos_archivos()
 bool semaforo_archivo_debe_desbloquear_archivo(t_semaforo_recurso *self)
 {
     int32_t instancias = semaforo_recurso_get_instancias(self);
-    return (semaforo_recurso_hay_procesos_bloqueados(self) && instancias == 1);
+    return (semaforo_recurso_hay_procesos_bloqueados(self));
 }
 
 bool archivo_esta_abierto(char *nombreArchivo)

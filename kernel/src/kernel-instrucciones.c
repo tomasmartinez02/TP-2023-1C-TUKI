@@ -134,7 +134,6 @@ void ejecutar_instruccion_fclose(t_pcb *pcbEnEjecucion, char *nombreArchivo)
 {   
     t_semaforo_recurso *semaforoArchivo = diccionario_semaforos_recursos_get_semaforo_recurso(tablaArchivosAbiertos, nombreArchivo);
     cerrar_archivo_en_tabla_de_pcb(pcbEnEjecucion, nombreArchivo);
-    semaforo_recurso_post(semaforoArchivo);
     // Checkea que haya procesos esperando y que el archivo este disponible
     if (semaforo_archivo_debe_desbloquear_archivo(semaforoArchivo))
     {
