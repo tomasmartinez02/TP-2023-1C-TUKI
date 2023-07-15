@@ -42,7 +42,8 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
     t_dictionary *diccionarioSemaforosRecursos = kernel_config_get_diccionario_semaforos(kernelConfig);
     if (!diccionario_semaforos_recursos_existe_recurso(diccionarioSemaforosRecursos, nombreRecurso))
     {
-        log_error(kernelLogger, "El recurso solicitado no existe");
+        uint32_t pid = pcbEnEjecucion->pid;
+        log_info(kernelLogger, "ERROR - PID: <%u> - <%s> NO existe", pid, nombreRecurso);
         log_error(kernelDebuggingLogger, "El recurso solicitado no existe");
         pcb_pasar_de_running_a_exit_public(pcbEnEjecucion);
         sem_post(&dispatchPermitido);
