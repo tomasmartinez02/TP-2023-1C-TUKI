@@ -240,7 +240,7 @@ void terminar_proceso(t_pcb* pcbFinalizado, char *motivoFinalizacion)
 void pcb_pasar_de_running_a_exit_public(t_pcb* pcbAExit)
 {   
     __pcb_pasar_de_running_a_exit(pcbAExit);
-    terminar_proceso(pcbAExit, "El recurso solicitado no existe");
+    terminar_proceso(pcbAExit, FINALIZACION_RECURSOS);
     return;
 }
 
