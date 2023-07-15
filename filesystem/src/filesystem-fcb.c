@@ -175,7 +175,6 @@ bool crear_archivo_nuevo_fcb(t_fcb *nuevoFcb)
     fclose(archivo);
 
     // Si se pudo crear el archivo satisfactoriamente
-    log_info(filesystemLogger, "Se creo el FCB del archivo <%s> satisfactoriamente.", nombreArchivo);
     dictionary_put(listaFcbs, nombreArchivo, (void*)nuevoFcb);
 
     free(nombreArchivo);
