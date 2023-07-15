@@ -229,7 +229,7 @@ void adapter_memoria_pedir_creacion_segmento(uint32_t idSegmento, uint32_t taman
             stream_recv_empty_buffer(socketMemoria);
             terminar_proceso(pcb, FINALIZACION_OUTOFMEMORY);
             pthread_mutex_unlock(&mutexSocketMemoria);
-            log_error(kernelDebuggingLogger, "No hay memoria suficiente");
+            log_info(kernelDebuggingLogger, "No hay memoria suficiente");
             sem_post(&dispatchPermitido);
             // Acá habria que terminar el proceso
             break;
