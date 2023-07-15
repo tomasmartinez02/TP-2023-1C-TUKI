@@ -11,7 +11,7 @@ void solicitar_informacion_memoria(uint32_t direccionFisica, uint32_t cantidadBy
     buffer_pack(bufferLectura, &cantidadBytes, sizeof(uint32_t));
     buffer_pack(bufferLectura, &pid, sizeof(uint32_t));
     stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_lectura, bufferLectura);
-    free(bufferLectura);
+    buffer_destroy(bufferLectura);
     return;
 }
 
@@ -31,7 +31,7 @@ void* recibir_buffer_informacion_memoria(uint32_t cantidadBytes)
         log_info(filesystemLogger, "Error al recibir la información de memoria.");
         return  NULL;
     }
-    free(bufferInformacion);
+    buffer_destroy(bufferInformacion);
     return informacionRecibida;
 }
 
@@ -49,7 +49,7 @@ void solicitar_escritura_memoria(uint32_t direccionFisica, uint32_t cantidadByte
     buffer_pack(bufferLectura, informacionParaBuffer, cantidadBytes);
     
     stream_send_buffer(socketMemoria, HEADER_solicitud_memoria_escritura, bufferLectura);
-    free(bufferLectura);
+    buffer_destroy(bufferLectura);
     return;
 }
 
