@@ -106,6 +106,8 @@ void log_ingreso_cola_ready(t_estado *estadoReady)
     log_info(kernelLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
     log_info(kernelDebuggingLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
 
+    free(stringPidsReady);
+    
     return;
 }
 
