@@ -8,7 +8,6 @@ static void __send_handshake_memoria(void)
 
     // Envio unicamente el handshake del Cpu, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketMemoria, HANDSHAKE_cpu);
-    log_info(cpuDebuggingLogger, "Se ha enviado el handshake inicial al modulo Memoria");
     return;
 }
 
@@ -29,8 +28,6 @@ static void __receive_handshake_memoria(void)
         exit(EXIT_FAILURE);
     }
 
-    log_info(cpuDebuggingLogger, "Handshake inicial con modulo Memoria recibido exitosamente");
-
     return;
 }
 
@@ -48,13 +45,10 @@ int conectar_a_memoria(void)
     }
 
     cpu_config_set_socket_memoria(cpuConfig, socketMemoria);
-    log_info(cpuDebuggingLogger, "Socket creado exitosamente con modulo Memoria");
 
     // Handshakes iniciales con módulo Memoria.
     __send_handshake_memoria();
     __receive_handshake_memoria();
-
-    log_info(cpuDebuggingLogger, "Conexión con modulo Memoria establecida exitosamente");
 
     return socketMemoria;
 }
@@ -75,8 +69,6 @@ int inicializar_servidor_cpu(void)
         exit(EXIT_FAILURE);
     }
 
-    log_info(cpuDebuggingLogger, "Se ha inicializado el servidor de escucha de Kernel correctamente");
-
     return socketServidorCpu;
 }
 
@@ -84,8 +76,6 @@ void aceptar_conexion_kernel(int socketEscucha)
 {   
     struct sockaddr cliente = {0};
     socklen_t len = sizeof(cliente);
-    
-    log_info(cpuDebuggingLogger, "A la escucha de conexion del modulo Kernel en puerto %d", socketEscucha);
         
     const int socketKernel = accept(socketEscucha, &cliente, &len);
         
@@ -96,11 +86,9 @@ void aceptar_conexion_kernel(int socketEscucha)
         if (handshakeKernel == HANDSHAKE_kernel) {
             stream_recv_empty_buffer(socketKernel);
             cpu_config_set_socket_kernel(cpuConfig, socketKernel);
-            log_info(cpuDebuggingLogger, "Se recibio el handshake del kernel correctamente");
                 
             // Respondo handshake ok
             stream_send_empty_buffer(socketKernel, HANDSHAKE_ok_continue);
-            log_info(cpuDebuggingLogger, "Se ha enviado la respuesta al handshake inicial del Kernel con handshake ok continue");
         }
         else {
             log_error(cpuLogger, "Error al intentar establecer conexión con Kernel mediante <socket %d>", socketKernel);
