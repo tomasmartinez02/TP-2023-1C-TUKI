@@ -66,14 +66,17 @@ uint32_t adapter_filesystem_existe_archivo(char *nombreArchivo)
     if (respuestaFilesystem == HEADER_archivo_existe_en_filesystem)
     {
         log_info(kernelLogger, "El archivo '%s' existe", nombreArchivo);
+        log_info(kernelDebuggingLogger, "El archivo '%s' existe", nombreArchivo);
         return 1;
     }
     if (respuestaFilesystem == HEADER_archivo_no_existe_en_filesystem)
     {   
         log_info(kernelLogger, "El archivo '%s' NO existe", nombreArchivo);
+        log_info(kernelDebuggingLogger, "El archivo '%s' NO existe", nombreArchivo);
         return 0;
     }
     log_error(kernelLogger, "Error al verificar si existe el archivo");
+    log_error(kernelDebuggingLogger, "Error al verificar si existe el archivo");
     return 2;
 }
 
@@ -93,6 +96,8 @@ void adapter_filesystem_pedir_creacion_archivo(char *nombreArchivo)
         log_error(kernelLogger, "Error en la creación del archivo");
         log_error(kernelDebuggingLogger, "Error en la creación del archivo");
     }
+    log_info(kernelLogger, "Se creo el archivo <%s>", nombreArchivo);
+    log_info(kernelDebuggingLogger, "Se creo el archivo <%s>", nombreArchivo);
     return ;
 }
 
@@ -129,10 +134,12 @@ void *hiloTruncate(void* arg)
 
     if (respuestaFilesystem == HEADER_tamanio_archivo_modificado)
     {
+        log_info(kernelLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de truncar el archivo.", pcb_get_pid(pcbEnEjecucion));
         t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion); // chequear
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
     }
     free(nombre);
+    free(parametrosHilo);
     return NULL;
 }
 
@@ -155,12 +162,14 @@ void *hiloFread(void* arg)
 
     if (respuestaFilesystem == HEADER_lectura_finalizada)
     {
+        log_info(kernelDebuggingLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de leer.", pcb_get_pid(pcbEnEjecucion));
         t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion);
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
         fRead = false;
         sem_post(&semFRead);
     }
     free(nombreArchivo);
+    free(parametrosHilo);
     return NULL;
 }
 
@@ -178,23 +187,27 @@ void *hiloFwrite(void* arg)
     pthread_mutex_lock(&mutexSocketFilesystem);
     __solicitar_escribir_archivo(pcbEnEjecucion, nombreArchivo, punteroArchivo, direccionFisica, cantidadBytes, pidProceso);
     uint8_t respuestaFilesystem = stream_recv_header(socketFilesystem);
+    log_info(kernelLogger, "FS recibe el header %u:", respuestaFilesystem);
     stream_recv_empty_buffer(socketFilesystem);
     pthread_mutex_unlock(&mutexSocketFilesystem);
 
     if (respuestaFilesystem == HEADER_escritura_finalizada)
     {
+        log_info(kernelDebuggingLogger, "El proceso con PID <%d> se desbloquea --> El FS termino de escribir.", pcb_get_pid(pcbEnEjecucion));
         t_pcb* pcb = estado_remover_pcb_de_cola_atomic(estadoBlocked, pcbEnEjecucion);
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
         fWrite = false;
         sem_post(&semFWrite);
     }
     free(nombreArchivo);
+    free(parametrosHilo);
     return NULL;
 }
 
 void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombreArchivo, uint32_t tamanio)
 {   
     pthread_t esperarFinalizacionTruncate;
+    log_info(kernelLogger, "PID <%d> solicita la modificación del tamanio de un archivo.", pcb_get_pid(pcbEnEjecucion));
     // Estructura temporal para pasarle los datos necesarios al hilo.
 
     t_parametros_hilo_truncate *parametrosHilo = (t_parametros_hilo_truncate*)malloc(sizeof(t_parametros_hilo_truncate));
@@ -212,6 +225,7 @@ void adapter_filesystem_pedir_truncar_archivo(t_pcb *pcbEnEjecucion, char *nombr
 void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {  
     pthread_t esperarFinalizacionLectura;
+    log_info(kernelLogger, "PID <%d> solicita leer de un archivo.", pcb_get_pid(pcbEnEjecucion));
     // Estructura temporal para pasarle los datos necesarios al hilo.
     t_parametros_hilo_IO *parametrosHilo = (t_parametros_hilo_IO *)malloc(sizeof(t_parametros_hilo_IO));
     parametrosHilo->pcb = pcbEnEjecucion;
@@ -230,6 +244,7 @@ void adapter_filesystem_pedir_leer_archivo(t_pcb *pcbEnEjecucion, char* nombreAr
 void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nombreArchivo, int32_t punteroArchivo, uint32_t direccionFisica, uint32_t cantidadBytes, uint32_t pidProceso)
 {
     pthread_t esperarFinalizacionEscritura;
+    log_info(kernelLogger, "PID <%d> solicita escribir en un archivo.", pcb_get_pid(pcbEnEjecucion));
     // Estructura temporal para pasarle los datos necesarios al hilo.
     t_parametros_hilo_IO *parametrosHilo = (t_parametros_hilo_IO*)malloc(sizeof(t_parametros_hilo_IO));
     parametrosHilo->pcb = pcbEnEjecucion;
@@ -243,3 +258,4 @@ void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nomb
     pthread_create(&esperarFinalizacionEscritura, NULL, hiloFwrite, (void*)parametrosHilo);
     pthread_detach(esperarFinalizacionEscritura);
 }
+
