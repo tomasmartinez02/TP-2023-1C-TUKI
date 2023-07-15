@@ -28,6 +28,7 @@ void ejecutar_instruccion_io(t_pcb *pcbEnEjecucion, uint32_t tiempo)
     parametrosHilo->pcb = pcbEnEjecucion;
 
     pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
+    log_info(kernelLogger, "PID: <%u> - Bloqueado por: IO", pcb_get_pid(pcbEnEjecucion));
 
     pthread_create(&ejecutarTiempoIO, NULL, sleepHilo, (void*) parametrosHilo);
     pthread_detach(ejecutarTiempoIO);
@@ -57,6 +58,7 @@ void ejecutar_instruccion_wait(t_pcb *pcbEnEjecucion, char *nombreRecurso)
         {   
             semaforo_recurso_bloquear_proceso(semaforoRecurso, pcbEnEjecucion);
             pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
+            log_info(kernelLogger, "PID: <%u> - Bloqueado por: %s", pcb_get_pid(pcbEnEjecucion), nombreRecurso);
             sem_post(&dispatchPermitido);
         } else {
             // Si el proceso no se bloquea porque no hay ningún otro proceso usando este recurso
@@ -107,6 +109,7 @@ void ejecutar_instruccion_fopen(t_pcb *pcbEnEjecucion, char *nombreArchivo)
         t_semaforo_recurso *semaforoArchivo = diccionario_semaforos_recursos_get_semaforo_recurso(tablaArchivosAbiertos, nombreArchivo);
         semaforo_recurso_bloquear_proceso(semaforoArchivo, pcbEnEjecucion);
         pcb_pasar_de_running_a_blocked_public(pcbEnEjecucion);
+        log_info(kernelLogger, "PID: <%u> - Bloqueado por: %s", pcb_get_pid(pcbEnEjecucion), nombreArchivo);
         semaforo_recurso_wait(semaforoArchivo);
         sem_post(&dispatchPermitido);
         return;
