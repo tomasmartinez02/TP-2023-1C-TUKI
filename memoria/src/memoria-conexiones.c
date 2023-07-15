@@ -5,9 +5,7 @@
 // Envia el handshake inicial e imprime los loggers
 static void __handshake_iniciales(char* modulo, int clienteAceptado)
 {
-    log_info(memoriaDebuggingLogger, "Se recibio el handshake de %s correctamente", modulo);
     stream_send_empty_buffer(clienteAceptado, HANDSHAKE_ok_continue);
-    log_info(memoriaDebuggingLogger, "Se ha enviado la respuesta al handshake inicial de %s con handshake ok continue", modulo);
 }
 
 
@@ -26,8 +24,6 @@ int inicializar_servidor_memoria(void)
         memoria_destroy(memoriaConfig, memoriaLogger, memoriaDebuggingLogger);
         exit(EXIT_FAILURE);
     }
-
-    log_info(memoriaDebuggingLogger, "Se ha inicializado el servidor de escucha de Kernel, Cpu y Filesystem correctamente");
     
     return tempMemoriaSocketServerEscucha;
 }
@@ -42,8 +38,6 @@ void aceptar_conexiones(int socketEscucha)
 
     struct sockaddr cliente = {0};
     socklen_t len = sizeof(cliente);
-    
-    log_info(memoriaDebuggingLogger, "A la escucha de nuevas conexiones en puerto %d", socketEscucha);
 
     while (cpuSinAtender || kernelSinAtender || filesystemSinAtender) {
 
@@ -57,21 +51,18 @@ void aceptar_conexiones(int socketEscucha)
             switch (handshakeRecibido) {
                 case HANDSHAKE_cpu:
                     __handshake_iniciales("CPU", clienteAceptado);
-                    log_info(memoriaDebuggingLogger, "Conexion con modulo Cpu creada exitosamente");
                     memoria_config_set_socket_cpu(memoriaConfig, clienteAceptado);
                     cpuSinAtender = false;
                     break;
             
                 case HANDSHAKE_kernel:
                     __handshake_iniciales("kernel", clienteAceptado);
-                    log_info(memoriaDebuggingLogger, "Conexion con modulo Kernel creada exitosamente");
                     memoria_config_set_socket_kernel(memoriaConfig, clienteAceptado);
                     kernelSinAtender = false;
                     break;
 
                 case HANDSHAKE_filesystem:
                     __handshake_iniciales("filesystem", clienteAceptado);
-                    log_info(memoriaDebuggingLogger, "Conexion con modulo Filesystem creada exitosamente");
                     memoria_config_set_socket_filesystem(memoriaConfig, clienteAceptado);
                     filesystemSinAtender = false;
                     break;

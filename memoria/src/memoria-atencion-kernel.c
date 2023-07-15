@@ -37,7 +37,6 @@ void *atender_peticiones_kernel()
                         free(segmento);
                     } else {
                         adapter_kernel_solicitar_compactacion(socketKernel);
-                        log_info(memoriaLogger,  "Se solicita la compactacion");
                         free(segmento);
                     }
                 } else {

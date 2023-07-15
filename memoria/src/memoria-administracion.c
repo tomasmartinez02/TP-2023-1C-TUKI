@@ -37,9 +37,7 @@ static void __inicializar_memoria_principal(void)
     uint32_t tamanioMemoria;
     tamanioMemoria = memoria_config_get_tamanio_memoria(memoriaConfig);
 
-    memoriaPrincipal = malloc(tamanioMemoria); // Esto nunca se libera no?
-
-    log_info(memoriaDebuggingLogger, "Se inicializa a la memoria principal con un tamanio de %u bytes", tamanioMemoria);
+    memoriaPrincipal = malloc(tamanioMemoria); 
 
     return;
 }
@@ -781,20 +779,6 @@ bool verificar_memoria_contigua (uint32_t tamanioSolicitado)
             aux = aux->siguiente;
         }
     }
-
-
-
-    /*while (aux != NULL && tamanioSolicitado > aux->hueco->tamanio) {
-        // log_info(memoriaLogger, "Hueco Libre: %u", aux->hueco->tamanio);
-        aux = aux->siguiente;
-    }*/
-
-    // log_info(memoriaLogger, "encontre %u para %u solicitado", aux->hueco->tamanio, tamanioSolicitado);
-
-    /* while (aux->siguiente != NULL && tamanioSolicitado > aux->hueco->tamanio) {
-        log_info(memoriaLogger, "Hueco Libre: %u", aux->hueco->tamanio);
-        aux = aux->siguiente;
-    } */
     
     return tamanioSolicitado <= aux->hueco->tamanio;
 }
