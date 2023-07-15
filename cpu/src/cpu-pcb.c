@@ -243,7 +243,6 @@ void set_registro_segun_tipo(t_cpu_pcb *pcb, t_registro tipoRegistro, char *valo
     }
 
     char *stringValorRegistro = get_registro_segun_tipo(pcb, tipoRegistro);
-    log_info(cpuDebuggingLogger, "Registro %s seteado con valor: %s", t_registro_to_string(tipoRegistro), stringValorRegistro);
     free(stringValorRegistro);
 
     return;

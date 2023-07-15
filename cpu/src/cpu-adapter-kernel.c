@@ -224,6 +224,7 @@ void enviar_motivo_desalojo_fopen(t_instruccion *siguienteInstruccion)
     buffer_pack_string(desalojoArchivo, nombreArchivo);
     stream_send_buffer(socketKernel, HEADER_instruccion_fopen, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
+    free(nombreArchivo);
 }
 
 void enviar_motivo_desalojo_fclose(t_instruccion *siguienteInstruccion)
@@ -234,6 +235,7 @@ void enviar_motivo_desalojo_fclose(t_instruccion *siguienteInstruccion)
     buffer_pack_string(desalojoArchivo, nombreArchivo);
     stream_send_buffer(socketKernel, HEADER_instruccion_fclose, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
+    free(nombreArchivo);
 }
 
 void enviar_motivo_desalojo_fseek(t_instruccion *siguienteInstruccion)
@@ -246,6 +248,7 @@ void enviar_motivo_desalojo_fseek(t_instruccion *siguienteInstruccion)
     buffer_pack(desalojoArchivo, &ubicacion, sizeof(ubicacion));
     stream_send_buffer(socketKernel, HEADER_instruccion_fseek, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
+    free(nombreArchivo);
 }
 
 void enviar_motivo_desalojo_ftruncate(t_instruccion *siguienteInstruccion)
@@ -258,6 +261,7 @@ void enviar_motivo_desalojo_ftruncate(t_instruccion *siguienteInstruccion)
     buffer_pack(desalojoArchivo, &tamanio, sizeof(tamanio));
     stream_send_buffer(socketKernel, HEADER_instruccion_ftruncate, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
+    free(nombreArchivo);
 }
 
 void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion, uint32_t direccionFisica)
@@ -272,6 +276,7 @@ void enviar_motivo_desalojo_fwrite(t_instruccion *siguienteInstruccion, uint32_t
     buffer_pack(desalojoArchivo, &bytes, sizeof(bytes));
     stream_send_buffer(socketKernel, HEADER_instruccion_fwrite, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
+    free(nombreArchivo);
 }
 
 void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion, uint32_t direccionFisica)
@@ -286,6 +291,7 @@ void enviar_motivo_desalojo_fread(t_instruccion *siguienteInstruccion, uint32_t 
     buffer_pack(desalojoArchivo, &bytes, sizeof(bytes));
     stream_send_buffer(socketKernel, HEADER_instruccion_fread, desalojoArchivo);
     buffer_destroy(desalojoArchivo);
+    free(nombreArchivo);
 }
 
 
