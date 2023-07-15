@@ -94,6 +94,11 @@ void cpu_pcb_set_tabla_segmentos(t_cpu_pcb* pcb, t_info_segmentos **nuevaTablaSe
         pcb->tablaSegmentos[i]->tamanio = nuevaTablaSegmentos[i]->tamanio;
     }
 
+    // Liberar memoria para nuevaTablaSegmentos
+    for (int i = 0; i < pcb->tamanioTablaSegmentos; i++) {
+        free(nuevaTablaSegmentos[i]);
+    }
+    
     free(nuevaTablaSegmentos);
 }
 
