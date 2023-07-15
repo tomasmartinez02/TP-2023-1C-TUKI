@@ -20,13 +20,10 @@ void (*set_socket_modulo)(t_kernel_config *, int), void (*__send_handshake_modul
     }
 
     set_socket_modulo(kernelConfig, socketModulo);
-    log_info(kernelDebuggingLogger, "Socket creado exitosamente con modulo %s", nombreModulo);
 
     // Handshakes iniciales con modulo Cpu
     __send_handshake_modulo(socketModulo, kernelDebuggingLogger);
     __receive_handshake_modulo(socketModulo, kernelConfig, kernelLogger, kernelDebuggingLogger);
-
-    log_info(kernelDebuggingLogger, "Conexion con modulo %s establecida exitosamente", nombreModulo);
 
     return socketModulo;
 }
@@ -36,7 +33,6 @@ static void __send_handshake_cpu(const int socketCpu, t_log *kernelLogger)
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketCpu, HANDSHAKE_kernel);
-    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo Cpu");
 
     return;
 }
@@ -55,8 +51,6 @@ static void __receive_handshake_cpu(const int socketCpu, t_kernel_config* kernel
         exit(EXIT_FAILURE);
     }
 
-    log_info(kernelDebuggingLogger, "Handshake inicial con modulo Cpu recibido exitosamente");
-
     return;
 }
 
@@ -65,7 +59,6 @@ static void __send_handshake_memoria(const int socketMemoria, t_log *kernelLogge
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketMemoria, HANDSHAKE_kernel);
-    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo Memoria");
 
     return;
 }
@@ -84,8 +77,6 @@ static void __receive_handshake_memoria(const int socketMemoria, t_kernel_config
         exit(EXIT_FAILURE);
     }
 
-    log_info(kernelDebuggingLogger, "Handshake inicial con modulo Memoria recibido exitosamente");
-
     return;
 }
 
@@ -94,7 +85,6 @@ static void __send_handshake_filesystem(const int socketFilesystem, t_log *kerne
 {
     // Envio unicamente el handshake del kernel, sin ningun buffer e informacion adicional
     stream_send_empty_buffer(socketFilesystem, HANDSHAKE_kernel);
-    log_info(kernelLogger, "Se ha enviado el handshake inicial al modulo Filesystem");
 
     return;
 }
@@ -112,8 +102,6 @@ static void __receive_handshake_filesystem(const int socketFilesystem, t_kernel_
         kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
-
-    log_info(kernelDebuggingLogger, "Handshake inicial con modulo Filesystem recibido exitosamente");
 
     return;
 }
@@ -163,8 +151,6 @@ int inicializar_servidor_kernel(void)
         kernel_destroy(kernelConfig, kernelLogger, kernelDebuggingLogger);
         exit(EXIT_FAILURE);
     }
-
-    log_info(kernelDebuggingLogger, "Se ha inicializado el servidor de escucha de consolas correctamente");
     
     return tempKernelSocketServerEscucha;
 }
@@ -173,8 +159,6 @@ void aceptar_conexiones_kernel(const int socketEscucha)
 { 
     struct sockaddr cliente = {0};
     socklen_t len = sizeof(cliente);
-    
-    log_info(kernelDebuggingLogger, "A la escucha de nuevas conexiones en puerto %d", socketEscucha);
     
     for (;;) {
         

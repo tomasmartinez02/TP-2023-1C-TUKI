@@ -139,6 +139,7 @@ void *hiloTruncate(void* arg)
         pcb_pasar_de_blocked_a_ready_public(pcbEnEjecucion);
     }
     free(nombre);
+    free(parametrosHilo);
     return NULL;
 }
 
@@ -168,6 +169,7 @@ void *hiloFread(void* arg)
         sem_post(&semFRead);
     }
     free(nombreArchivo);
+    free(parametrosHilo);
     return NULL;
 }
 
@@ -198,6 +200,7 @@ void *hiloFwrite(void* arg)
         sem_post(&semFWrite);
     }
     free(nombreArchivo);
+    free(parametrosHilo);
     return NULL;
 }
 
@@ -255,3 +258,4 @@ void adapter_filesystem_pedir_escribir_archivo(t_pcb *pcbEnEjecucion, char* nomb
     pthread_create(&esperarFinalizacionEscritura, NULL, hiloFwrite, (void*)parametrosHilo);
     pthread_detach(esperarFinalizacionEscritura);
 }
+

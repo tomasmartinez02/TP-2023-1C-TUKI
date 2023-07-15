@@ -62,8 +62,6 @@ void enviar_pcb_a_cpu(t_pcb* pcbAEnviar)
     t_buffer *bufferInstrucciones = pcb_get_instrucciones(pcbAEnviar);
     stream_send_buffer(socketCpu, HEADER_lista_instrucciones, bufferInstrucciones);
 
-    log_info(kernelDebuggingLogger, "Se ha enviado el pcb con PID <%d> al modulo Cpu para su ejecucion", pcb_get_pid(pcbAEnviar));
-
     return;
 }
 
@@ -94,13 +92,11 @@ static void __recibir_pcb_de_cpu(t_pcb *pcbRecibido)
         log_error(kernelDebuggingLogger, "El PID: %d del proceso desalojado no coincide con el proceso en ejecución con PID: %d", pidDesalojado, pidPcbRecibido);
         exit(EXIT_FAILURE);
     }
-    log_info(kernelDebuggingLogger, "Se recibio correctamente el pid: %d del proceso desalojado",pidDesalojado);
 
     // Recibimos program counter y lo actualizamos en el pcb
     uint32_t programCounterDesalojado;
     buffer_unpack(bufferProceso, &programCounterDesalojado, sizeof(programCounterDesalojado));
     pcb_set_program_counter(pcbRecibido, programCounterDesalojado);
-    log_info(kernelDebuggingLogger, "El program counter del proceso desalojado se actualizo con el valor %d",programCounterDesalojado);
 
     // Recibimos los registros y los actualizamos
     t_registros_cpu *registrosActuales = pcb_get_registros_cpu(pcbRecibido);
@@ -108,7 +104,6 @@ static void __recibir_pcb_de_cpu(t_pcb *pcbRecibido)
 
     t_registros_cpu *registrosDesalojados = desempaquetar_registros(bufferProceso);
     pcb_set_registros_cpu(pcbRecibido, registrosDesalojados);
-    log_info(kernelDebuggingLogger, "Los registros del proceso desalojado se actualizaron correctamente");
 
     buffer_destroy(bufferProceso);
     return;

@@ -86,14 +86,13 @@ char *string_pids_ready(t_estado *estadoReady)
 void log_transicion_estados(char *estadoAnterior, char *estadoActual, uint32_t pid) 
 {
     log_info(kernelLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pid, estadoAnterior, estadoActual);
-    log_info(kernelDebuggingLogger, "PID <%d> - Estado Anterior: <%s> - Estado Actual: <%s>", pid, estadoAnterior, estadoActual);
+
     return;
 }
 
 void log_creacion_nuevo_proceso(t_pcb *pcb)
 {
     log_info(kernelLogger, "Se crea el proceso <%d> en NEW", pcb_get_pid(pcb));
-    log_info(kernelDebuggingLogger, "Se crea el proceso <%d> en NEW", pcb_get_pid(pcb));
 
     return;
 }
@@ -104,7 +103,6 @@ void log_ingreso_cola_ready(t_estado *estadoReady)
     char *algoritmoPlanificacion = kernel_config_get_algoritmo_planificacion(kernelConfig);
     
     log_info(kernelLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
-    log_info(kernelDebuggingLogger, "Cola Ready <%s>: %s", algoritmoPlanificacion, stringPidsReady);
 
     free(stringPidsReady);
     
@@ -114,29 +112,27 @@ void log_ingreso_cola_ready(t_estado *estadoReady)
 void log_finalizacion_proceso(t_pcb *pcb, char *motivoFinalizacion)
 {
     log_info(kernelLogger, "Finaliza el proceso con PID <%d> - Motivo: <%s>", pcb_get_pid(pcb), motivoFinalizacion);
-    log_info(kernelDebuggingLogger, "Finaliza el proceso con PID <%d> - Motivo: <%s>", pcb_get_pid(pcb), motivoFinalizacion);
+
     return;
 }
 
 void log_creacion_nuevo_segmento(t_pcb *pcb, uint32_t idSegmento, uint32_t tamanio)
 {
     log_info(kernelLogger, "PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcb_get_pid(pcb), idSegmento, tamanio);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcb_get_pid(pcb), idSegmento, tamanio);
-    
+
     return;
 }
 
 void log_ejecucion_wait(t_pcb* pcb, char* nombreRecurso, int32_t instanciasRecurso)
 {   
     log_info(kernelLogger, "PID: <%d> - Wait: <%s> - Instancias: <%d>", pcb_get_pid(pcb), nombreRecurso, instanciasRecurso);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Wait: <%s> - Instancias: <%d>", pcb_get_pid(pcb), nombreRecurso, instanciasRecurso);
+
     return;
 }
 
 void log_ejecucion_signal(t_pcb* pcb, char* nombreRecurso, int32_t instanciasRecurso)
 {   
     log_info(kernelLogger, "PID: <%d> - Signal: <%s> - Instancias: <%d>", pcb_get_pid(pcb), nombreRecurso, instanciasRecurso);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Signal: <%s> - Instancias: <%d>", pcb_get_pid(pcb), nombreRecurso, instanciasRecurso);
 
     return;
 }
@@ -145,14 +141,14 @@ void log_ejecucion_io(t_pcb* pcb, uint32_t tiempo)
 {   
     uint32_t pid = pcb_get_pid(pcb);
     log_info(kernelLogger, "PID: <%d> - Ejecuta IO: <%d>", pid, tiempo);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Ejecuta IO: <%d>", pid, tiempo);
+
     return;   
 }
 void log_ejecucion_fopen(t_pcb* pcb, char *nombreArchivo)
 {   
     uint32_t pid = pcb_get_pid(pcb);
     log_info(kernelLogger, "PID: <%d> - Abrir Archivo: <%s>", pid, nombreArchivo);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Abrir Archivo: <%s>", pid, nombreArchivo);
+
     return;   
 }
 
@@ -160,7 +156,7 @@ void log_ejecucion_fclose(t_pcb* pcb, char *nombreArchivo)
 {   
     uint32_t pid = pcb_get_pid(pcb);
     log_info(kernelLogger, "PID: <%d> - Cerrar Archivo: <%s>", pid, nombreArchivo);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Cerrar Archivo: <%s> <3", pid, nombreArchivo);
+
     return;   
 }
 
@@ -169,7 +165,7 @@ void log_ejecucion_fseek(t_pcb* pcb, char *nombreArchivo, uint32_t puntero)
     //Nota: El valor del puntero debe ser luego de ejecutar F_SEEK.
     uint32_t pid = pcb_get_pid(pcb);
     log_info(kernelLogger, "PID: <%d> - Actualizar puntero Archivo: <%s> - Puntero: <%d>", pid, nombreArchivo, puntero);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Actualizar puntero Archivo: <%s> - Puntero: <%d>", pid, nombreArchivo, puntero);
+
     return;   
 }
 
@@ -177,7 +173,7 @@ void log_ejecucion_ftruncate(t_pcb* pcb, char *nombreArchivo, uint32_t tamanio)
 {   
     uint32_t pid = pcb_get_pid(pcb);
     log_info(kernelLogger, "PID: <%d> - Truncar Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Truncar Archivo: <%s> - Tamanio: <%d>", pid, nombreArchivo, tamanio);
+
     return;   
 }
 
@@ -185,7 +181,7 @@ void log_ejecucion_fread(t_pcb* pcb, char *nombreArchivo, uint32_t puntero, uint
 {   
     uint32_t pid = pcb_get_pid(pcb);
     log_info(kernelLogger, "PID: <%d> - Leer Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Leer Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
+
     return;   
 }
 
@@ -193,7 +189,7 @@ void log_ejecucion_fwrite(t_pcb* pcb, char *nombreArchivo, uint32_t puntero, uin
 {   
     uint32_t pid = pcb_get_pid(pcb);
     log_info(kernelLogger, "PID: <%d> - Escribir Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
-    log_info(kernelDebuggingLogger, "PID: <%d> - Escribir Archivo: <%s> - Puntero: <%d> - Direccion Memoria: <%d> - Tamanio: <%d>" , pid, nombreArchivo, puntero, direccion, tamanio);
+
     return;   
 }
 
