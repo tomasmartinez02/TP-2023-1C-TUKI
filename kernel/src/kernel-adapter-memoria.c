@@ -295,6 +295,8 @@ void adapter_memoria_pedir_compactacion(t_pcb *pcbEnEjecucion)
 
         free(tablaDesempaquetada);
 
+        buffer_destroy(bufferTablaDeSegmentosActualizada);
+
     } else {
         log_error(kernelLogger, "No se pudo compactar la memoria");
     }
@@ -327,6 +329,8 @@ void adapter_memoria_pedir_eliminar_segmento(uint32_t idSegmento, t_pcb* pcb)
         pcb_set_tabla_segmentos(pcb, nuevaTabla); // Ver, porque hay que liberar algo de memoria si o si
         log_info(kernelLogger, "setea la nueva tabla de segmentos");
 
+        buffer_destroy(bufferTablaDeSegmentosActualizada);
+        
         seguir_ejecutando(pcb);
         
     } else {
