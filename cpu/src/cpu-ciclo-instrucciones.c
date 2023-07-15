@@ -39,6 +39,7 @@ static char* __recibir_valor_a_escribir(uint32_t tamanio, uint32_t pid, uint32_t
     log_acceso_a_memoria(pid, "LEER", idSegmento, dirFisica, valor, tamanio);
 
     free(valor);
+    buffer_destroy(bufferRecibido);
 
     return valorEscritura;
 }
@@ -187,6 +188,7 @@ bool cpu_ejecutar_siguiente_instruccion(t_cpu_pcb *pcb)
                 char *valor = __recibir_valor_a_escribir(tamanioALeer, cpu_pcb_get_pid(pcb), numeroSegmento, dirFisica);
                 set_registro_segun_tipo(pcb, registro, valor);
                 incrementar_program_counter(pcb);
+                free(valor);
             }else {
                 incrementar_program_counter(pcb);
                 enviar_pcb_desalojado_a_kernel(pcb);
