@@ -615,8 +615,13 @@ static lista_para_compactar* __mover_segmentos(lista_para_compactar* listaCompac
     uint32_t nuevaBase = 0;
 
     while(aux != NULL) {
+        void* segmentoACopiar = malloc(aux->segmento->tamanio);
+        memcpy(segmentoACopiar, memoriaPrincipal+aux->segmento->direccionBase, aux->segmento->tamanio);
         aux->segmento->direccionBase = nuevaBase;
+        memcpy(memoriaPrincipal+nuevaBase, segmentoACopiar, aux->segmento->tamanio);
         nuevaBase = nuevaBase + aux->segmento->tamanio;
+
+        free(segmentoACopiar);
         aux = aux->siguiente;
     }
 
